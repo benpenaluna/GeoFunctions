@@ -20,10 +20,10 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(90.0)]
         public void GeographicCoordinate_CanUpdateValidLatitude(double latitude)
         {
-            var expected = latitude;
+            var expected = new Angle(latitude);
 
             var sut = InstantiateNewGeographicCoordinate();
-            sut.Latitude = latitude;
+            sut.Latitude = new Angle(latitude);
             var result = sut.Latitude;
 
             Assert.Equal(expected, result);
@@ -37,7 +37,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         public void GeographicCoordinate_CannotUpdateInvalidLatitude(double latitude)
         {
             var sut = InstantiateNewGeographicCoordinate();
-            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Latitude = latitude);
+            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Latitude = new Angle(latitude));
         }
 
         [Theory]
@@ -47,10 +47,10 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(180.0)]
         public void GeographicCoordinate_CanUpdateValidLongitude(double longitude)
         {
-            var expected = longitude;
+            var expected = new Angle(longitude);
 
             var sut = InstantiateNewGeographicCoordinate();
-            sut.Longitude = longitude;
+            sut.Longitude = new Angle(longitude);
             var result = sut.Longitude;
 
             Assert.Equal(expected, result);
@@ -64,7 +64,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         public void GeographicCoordinate_CannotUpdateInvalidLongitude(double longitude)
         {
             var sut = InstantiateNewGeographicCoordinate();
-            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Longitude = longitude);
+            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Longitude = new Angle(longitude));
         }
 
         [Theory]

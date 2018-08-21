@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Dynamic;
 using GeoFunctions.Core.Measurement;
 
 namespace GeoFunctions.Core.Coordinates
 {
-    public interface ICoordinate
+    public interface IAngle
     {
         double Value { get; set; }
+        double UnitCircleValue { get; }
         AngleMeasurement AngleMeasurement { get; set; }
     }
 }

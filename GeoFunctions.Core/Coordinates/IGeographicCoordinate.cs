@@ -2,8 +2,8 @@
 {
     public interface IGeographicCoordinate
     {
-        double Latitude { get; set; }
-        double Longitude { get; set; }
+        Angle Latitude { get; set; }
+        Angle Longitude { get; set; }
         double Elevation { get; set; }
     }
 }
