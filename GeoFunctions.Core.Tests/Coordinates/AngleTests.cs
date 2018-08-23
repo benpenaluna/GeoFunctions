@@ -15,8 +15,8 @@ namespace GeoFunctions.Core.Tests.Coordinates
         }
 
         [Theory]
-        [InlineData(double.MinValue)]
-        [InlineData(double.MaxValue)]
+        [InlineData(-1.0E+10)]
+        [InlineData(1.0E+10)]
         [InlineData(100.0)]
         public void Angle_CanInstantateWithValue(double value)
         {
@@ -30,7 +30,17 @@ namespace GeoFunctions.Core.Tests.Coordinates
 
         [Theory]
         [InlineData(double.MinValue)]
+        [InlineData(-1.0E+10 - 0.00001)]
+        [InlineData(1.0E+10 + 0.00001)]
         [InlineData(double.MaxValue)]
+        public void Angle_CanNotInstantateWithValue(double value)
+        {
+            Assert.Throws<ArgumentException>(() => new Angle(value));
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10)]
+        [InlineData(1.0E+10)]
         [InlineData(Math.PI)]
         public void Angle_CanInstantateWithValueAndMeasuement(double value)
         {
@@ -46,8 +56,8 @@ namespace GeoFunctions.Core.Tests.Coordinates
         }
 
         [Theory]
-        [InlineData(double.MinValue)]
-        [InlineData(double.MaxValue)]
+        [InlineData(-1.0E+10)]
+        [InlineData(1.0E+10)]
         [InlineData(0.0)]
         public void Angle_CanSetValue(double value)
         {
@@ -60,12 +70,42 @@ namespace GeoFunctions.Core.Tests.Coordinates
             Assert.Equal(expected, result);
         }
 
+        [Theory]
+        [InlineData(double.MinValue)]
+        [InlineData(-1.0E+10 - 0.00001)]
+        [InlineData(1.0E+10 + 0.00001)]
+        [InlineData(double.MaxValue)]
+        public void Angle_CanNotSetValue(double value)
+        {
+            var sut = InstantiateNewCoordinate();
+            Assert.Throws<ArgumentException>(() => sut.Value = value);
+        }
+
         [Fact]
-        public void Angle_CanSetNaNValue()
+        public void Angle_CanNotSetNaNValue()
         {
             var sut = InstantiateNewCoordinate();
             Assert.Throws<ArgumentException>(() => sut.Value = double.NaN);
         }
+
+        [Theory]
+        [InlineData(-20.0 * Math.PI / 7.0, 8.0 * Math.PI / 7.0)]
+        [InlineData(-Math.PI / 2.0, 3.0 * Math.PI / 2.0)]
+        [InlineData(0.0, 0.0)]
+        [InlineData(2.0*Math.PI/3.0, 2.0 * Math.PI / 3.0)]
+        [InlineData(4.0 * Math.PI, 0.0)]
+        public void Angle_CoTerminalValueCorrectlyCalulatesRadians(double angle, double expectedAngle)
+        {
+            var expected = expectedAngle;
+
+            var coTerminalAngle = angle + 2.0 * Math.PI;
+            var sut = new Angle(coTerminalAngle, AngleMeasurement.Radians);
+            var result = sut.CoTerminalValue;
+
+            const double tolerance = 0.000000000001;
+            Assert.True(Math.Abs(expected - result) <= tolerance);
+        }
+
 
         [Fact]
         public void Angle_AngleMeasurement_DefulatsToDegrees()
@@ -158,8 +198,8 @@ namespace GeoFunctions.Core.Tests.Coordinates
         }
 
         [Theory]
-        [InlineData(double.MinValue)]
-        [InlineData(double.MaxValue)]
+        [InlineData(-1.0E+10)]
+        [InlineData(1.0E+10)]
         [InlineData(1771882.8891)]
         public void Angle_CorrectlyChecksEqualityOfValue(double value)
         {
@@ -170,13 +210,13 @@ namespace GeoFunctions.Core.Tests.Coordinates
         }
 
         [Theory]
-        [InlineData(double.MinValue)]
-        [InlineData(double.MaxValue)]
+        [InlineData(-1.0E+10)]
+        [InlineData(1.0E+10)]
         [InlineData(1771882.8891)]
         public void Angle_CorrectlyChecksFindsInequalityOfValue(double value)
         {
             var valueOffset = value * 0.00001;
-            var testValue = value >= 0 ? value - valueOffset : value + valueOffset;
+            var testValue = value - valueOffset;
 
             var sut = new Angle(value);
             var testObject = new Angle(testValue);

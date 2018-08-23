@@ -6,6 +6,10 @@ namespace GeoFunctions.Core.Coordinates
 {
     public class Angle : IAngle
     {
+        private const double MaxValue = 1.0E+10;
+
+        private double Modulas => AngleMeasurement == AngleMeasurement.Degrees ? 360.0 : 2.0 * Math.PI;
+
         private double _value;
 
         public double Value
@@ -13,22 +17,29 @@ namespace GeoFunctions.Core.Coordinates
             get => _value;
             set
             {
-                if (double.IsNaN(value))
+                if (double.IsNaN(value) || Math.Abs(value) > MaxValue)
                 {
                     throw new ArgumentException(value.ToString(CultureInfo.InvariantCulture));
                 }
-
+                
                 _value = value;
             }
         }
 
-        public double UnitCircleValue //TODO: Unit test this
+        public double CoTerminalValue => AbsoluteValueLessThanModulas() ? Value : CalculateCoTerminalValue();
+
+        private bool AbsoluteValueLessThanModulas()
         {
-            get
-            {
-                var modulas = AngleMeasurement == AngleMeasurement.Degrees ? 360.0 : Math.PI;
-                return Value % modulas;
-            }
+            return Value >= 0.0 && Value < Modulas;
+        }
+
+        private double CalculateCoTerminalValue()
+        {
+            var normiisationFactor = Value / Modulas;
+            var baseOfNormilisationFactor = Math.Floor(normiisationFactor);
+            var coTangent = Value - Modulas * baseOfNormilisationFactor;
+
+            return coTangent >= 0 ? coTangent : coTangent + Modulas;
         }
 
         public AngleMeasurement AngleMeasurement { get; set; }
@@ -48,19 +59,39 @@ namespace GeoFunctions.Core.Coordinates
 
         public override bool Equals(object obj)
         {
-            if (!(obj is Angle))
+            if (!(obj is Angle) && obj != null)
             {
                 return false;
             }
 
             var testCoordinate = (Angle) obj;
 
-            return UnitCircleValue.Equals(testCoordinate.UnitCircleValue) && AngleMeasurement == testCoordinate.AngleMeasurement;
+            return CoTerminalValue.Equals(testCoordinate.CoTerminalValue) && AngleMeasurement == testCoordinate.AngleMeasurement;
         }
 
         public override int GetHashCode()
         {
             return HashCode.Combine(Value, AngleMeasurement);
+        }
+
+        public static bool operator == (Angle a, Angle b)
+        {
+            if (ReferenceEquals(a, null) && ReferenceEquals(b, null))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(a, null) || ReferenceEquals(b, null))
+            {
+                return false;
+            }
+
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(Angle a, Angle b)
+        {
+            return !(a == b);
         }
 
         public double ToDegrees()

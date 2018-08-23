@@ -1,12 +1,14 @@
-﻿using System.Dynamic;
-using GeoFunctions.Core.Measurement;
+﻿using GeoFunctions.Core.Measurement;
 
 namespace GeoFunctions.Core.Coordinates
 {
     public interface IAngle
     {
         double Value { get; set; }
-        double UnitCircleValue { get; }
+        double CoTerminalValue { get; }
         AngleMeasurement AngleMeasurement { get; set; }
+
+        double ToDegrees();
+        double ToRadians();
     }
 }
