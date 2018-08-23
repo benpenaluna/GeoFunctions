@@ -5,13 +5,11 @@ namespace GeoFunctions.Core.Coordinates
 {
     public class GeographicCoordinate : IGeographicCoordinate
     {
-        private Angle _latitude;
+        private IAngle _latitude;
 
-        private Angle _longitude;
+        private IAngle _longitude;
 
-        private double _elevation;
-
-        public Angle Latitude
+        public IAngle Latitude
         {
             get => _latitude;
             set
@@ -23,7 +21,7 @@ namespace GeoFunctions.Core.Coordinates
             }
         }
 
-        public Angle Longitude
+        public IAngle Longitude
         {
             get => _longitude;
             set
@@ -35,21 +33,12 @@ namespace GeoFunctions.Core.Coordinates
             }
         }
 
-        public double Elevation
-        {
-            get => _elevation;
-            set
-            {
-                if (value < 0.0)
-                    throw new ArgumentOutOfRangeException(value.ToString(CultureInfo.InvariantCulture));
-
-                _elevation = value;
-            }
-        }
+        public double Elevation { get; set; }
 
         public GeographicCoordinate()
         {
             Latitude = new Angle();
+            Longitude = new Angle();
         }
         
     }

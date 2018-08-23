@@ -32,8 +32,8 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [Theory]
         [InlineData(-90.1)]
         [InlineData(90.1)]
-        [InlineData(double.MinValue)]
-        [InlineData(double.MaxValue)]
+        [InlineData(-1.0E+10)]
+        [InlineData(1.0E+10)]
         public void GeographicCoordinate_CannotUpdateInvalidLatitude(double latitude)
         {
             var sut = InstantiateNewGeographicCoordinate();
@@ -59,8 +59,8 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [Theory]
         [InlineData(-180.0)]
         [InlineData(180.1)]
-        [InlineData(double.MinValue)]
-        [InlineData(double.MaxValue)]
+        [InlineData(-1.0E+10)]
+        [InlineData(1.0E+10)]
         public void GeographicCoordinate_CannotUpdateInvalidLongitude(double longitude)
         {
             var sut = InstantiateNewGeographicCoordinate();
@@ -80,16 +80,6 @@ namespace GeoFunctions.Core.Tests.Coordinates
             var result = sut.Elevation;
 
             Assert.Equal(expected, result);
-        }
-
-        [Theory]
-        [InlineData(-0.1)]
-        [InlineData(-180.1)]
-        [InlineData(double.MinValue)]
-        public void GeographicCoordinate_CannotUpdateInvalidElevation(double elevation)
-        {
-            var sut = InstantiateNewGeographicCoordinate();
-            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Elevation = elevation);
         }
 
         private static GeographicCoordinate InstantiateNewGeographicCoordinate()
