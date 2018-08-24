@@ -39,7 +39,6 @@ namespace GeoFunctions.Core.Coordinates
         {
             Latitude = new Angle();
             Longitude = new Angle();
-        }
-        
+        } 
     }
 }
