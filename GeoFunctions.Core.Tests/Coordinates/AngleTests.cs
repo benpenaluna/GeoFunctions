@@ -7,6 +7,8 @@ namespace GeoFunctions.Core.Tests.Coordinates
 {
     public class AngleTests
     {
+        private const double Tolerance = 0.00001;
+
         [Fact]
         public void Angle_CanInstantiate()
         {
@@ -89,11 +91,32 @@ namespace GeoFunctions.Core.Tests.Coordinates
         }
 
         [Theory]
+        [InlineData(-9999999720.0, 0.0)]
+        [InlineData(-270.0, 90.0)]
+        [InlineData(-45.0, 315.0)]
+        [InlineData(0.0, 0.0)]
+        [InlineData(360.0, 0.0)]
+        [InlineData(765.0, 45.0)]
+        [InlineData(9999999720.0, 0.0)]
+        public void Angle_CoTerminalValueCorrectlyCalulatesDegrees(double angle, double expectedAngle)
+        {
+            var expected = expectedAngle;
+
+            var coTerminalAngle = angle >= 0.0 ? angle - 360.0 : angle + 360.0;
+            var sut = new Angle(coTerminalAngle, AngleMeasurement.Degrees);
+            var result = sut.CoTerminalValue;
+
+            Assert.True(Math.Abs(expected - result) <= Tolerance);
+        }
+
+        [Theory]
+        [InlineData(-3183098858.0 * Math.PI, 0.0)]
         [InlineData(-20.0 * Math.PI / 7.0, 8.0 * Math.PI / 7.0)]
         [InlineData(-Math.PI / 2.0, 3.0 * Math.PI / 2.0)]
         [InlineData(0.0, 0.0)]
         [InlineData(2.0*Math.PI/3.0, 2.0 * Math.PI / 3.0)]
         [InlineData(4.0 * Math.PI, 0.0)]
+        [InlineData(3183098858.0 * Math.PI, 0.0)]
         public void Angle_CoTerminalValueCorrectlyCalulatesRadians(double angle, double expectedAngle)
         {
             var expected = expectedAngle;
@@ -102,8 +125,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
             var sut = new Angle(coTerminalAngle, AngleMeasurement.Radians);
             var result = sut.CoTerminalValue;
 
-            const double tolerance = 0.000000000001;
-            Assert.True(Math.Abs(expected - result) <= tolerance);
+            Assert.True(Math.Abs(expected - result) <= Tolerance);
         }
 
 
