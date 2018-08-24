@@ -42,7 +42,7 @@ namespace GeoFunctions.Core.Coordinates
             return coTangent >= 0 ? coTangent : coTangent + Modulas;
         }
 
-        public AngleMeasurement AngleMeasurement { get; set; }
+        public AngleMeasurement AngleMeasurement { get; private set; }
 
         public Angle() { }
 

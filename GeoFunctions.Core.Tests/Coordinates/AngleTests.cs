@@ -140,18 +140,6 @@ namespace GeoFunctions.Core.Tests.Coordinates
         }
 
         [Fact]
-        public void Angle_CanSetAngleMeasurement()
-        {
-            const AngleMeasurement expected = AngleMeasurement.Radians;
-
-            var sut = InstantiateNewCoordinate();
-            sut.AngleMeasurement = expected;
-            var result = sut.AngleMeasurement;
-
-            Assert.Equal(expected, result);
-        }
-
-        [Fact]
         public void Angle_ToDegrees_DoesNotConvertDegrees()
         {
             const double expected = 180.0;

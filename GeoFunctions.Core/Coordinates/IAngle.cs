@@ -6,7 +6,7 @@ namespace GeoFunctions.Core.Coordinates
     {
         double Value { get; set; }
         double CoTerminalValue { get; }
-        AngleMeasurement AngleMeasurement { get; set; }
+        AngleMeasurement AngleMeasurement { get; }
 
         double ToDegrees();
         double ToRadians();
