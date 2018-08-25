@@ -6,7 +6,7 @@ namespace GeoFunctions.Core.Coordinates
 {
     public class Angle : IAngle
     {
-        private const double MaxValue = 1.0E+10;
+        private const double MaxValueToEnsurePrecision = 1.0E+10;
 
         private double Modulas => AngleMeasurement == AngleMeasurement.Degrees ? 360.0 : 2.0 * Math.PI;
 
@@ -17,9 +17,11 @@ namespace GeoFunctions.Core.Coordinates
             get => _value;
             set
             {
-                if (double.IsNaN(value) || Math.Abs(value) > MaxValue)
+                if (double.IsNaN(value) || Math.Abs(value) > MaxValueToEnsurePrecision)
                 {
-                    throw new ArgumentException(value.ToString(CultureInfo.InvariantCulture));
+                    var errorMessage = string.Format("Value must be between -1.0E+10 and 1.0E+10. {0} is an invalid number",
+                                                     value.ToString(CultureInfo.InvariantCulture));
+                    throw new ArgumentException(errorMessage);
                 }
                 
                 _value = value;
@@ -42,7 +44,7 @@ namespace GeoFunctions.Core.Coordinates
             return coTangent >= 0 ? coTangent : coTangent + Modulas;
         }
 
-        public AngleMeasurement AngleMeasurement { get; private set; }
+        public AngleMeasurement AngleMeasurement { get; protected set; }
 
         public Angle(double value = 0.0, AngleMeasurement measurment = AngleMeasurement.Degrees)
         {
