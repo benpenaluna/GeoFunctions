@@ -44,14 +44,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public AngleMeasurement AngleMeasurement { get; private set; }
 
-        public Angle() { }
-
-        public Angle(double value)
-        {
-            Value = value;
-        }
-
-        public Angle(double value, AngleMeasurement measurment)
+        public Angle(double value = 0.0, AngleMeasurement measurment = AngleMeasurement.Degrees)
         {
             Value = value;
             AngleMeasurement = measurment;
