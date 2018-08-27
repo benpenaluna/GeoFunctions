@@ -235,6 +235,15 @@ namespace GeoFunctions.Core.Tests.Coordinates
         }
 
         [Fact]
+        public void Angle_EqualityFailsWhenObjectNotAngle()
+        {
+            var sut = new Angle();
+            var testObject = new object();
+
+            Assert.False(sut.Equals(testObject));
+        }
+
+        [Fact]
         public void Angle_CorrectlyChecksEqualityOfMeasurement()
         {
             var sut = new Angle(Math.PI, AngleMeasurement.Radians);
