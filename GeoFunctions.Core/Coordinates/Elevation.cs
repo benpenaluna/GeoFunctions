@@ -17,34 +17,21 @@ namespace GeoFunctions.Core.Coordinates
             {
                 if (Math.Abs(value) > 1.0E+10)
                 {
-                    throw new ArgumentException(value.ToString(CultureInfo.InvariantCulture));
+                    var errorMessage = string.Format("Value must be between -1.0E+10 and 1.0E+10. {0} is an invalid number",
+                                                     value.ToString(CultureInfo.InvariantCulture));
+                    throw new ArgumentException(errorMessage);
                 }
 
                 _value = value;
             }
         }
 
-        public ElevationMeasurement ElevationMeasurement { get; internal set; }
+        public ElevationMeasurement ElevationMeasurement { get; protected set; }
         
-        public Elevation()
-        {
-            Initialise(0.0, ElevationMeasurement.Feet);
-        }
-
-        public Elevation(double elevation)
-        {
-            Initialise(elevation, ElevationMeasurement.Feet);
-        }
-
-        public Elevation(double elevation, ElevationMeasurement measurment)
-        {
-            Initialise(elevation, measurment);
-        }
-
-        private void Initialise(double elevation, ElevationMeasurement measurment)
+        public Elevation(double elevation = 0.0, ElevationMeasurement measurement = ElevationMeasurement.Feet)
         {
             Value = elevation;
-            ElevationMeasurement = measurment;
+            ElevationMeasurement = measurement;
         }
 
         public override bool Equals(object obj)
@@ -61,20 +48,27 @@ namespace GeoFunctions.Core.Coordinates
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                return (_value.GetHashCode() * 397) ^ (int) ElevationMeasurement;
-            }
+            return HashCode.Combine(Value, ElevationMeasurement);
+        }
+
+        public static double ToFeet(double valueInMeters)
+        {
+            return valueInMeters / ConversionRatio;
         }
 
         public double ToFeet()
         {
-            return Value / ConversionRatio;
+            return ElevationMeasurement == ElevationMeasurement.Feet ? Value : ToFeet(Value);
+        }
+
+        public static double ToMeters(double valueInFeet)
+        {
+            return valueInFeet * ConversionRatio;
         }
 
         public double ToMeters()
         {
-            return Value * ConversionRatio;
+            return ElevationMeasurement == ElevationMeasurement.Meters ? Value : ToMeters(Value);
         }
     }
 }
