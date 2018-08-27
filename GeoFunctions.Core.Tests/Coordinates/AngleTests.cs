@@ -20,7 +20,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10)]
         [InlineData(1.0E+10)]
         [InlineData(100.0)]
-        public void Angle_CanInstantateWithValue(double value)
+        public void Angle_CanInstantiateWithValue(double value)
         {
             var expected = value;
 
@@ -35,7 +35,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10 - 0.00001)]
         [InlineData(1.0E+10 + 0.00001)]
         [InlineData(double.MaxValue)]
-        public void Angle_CanNotInstantateWithValue(double value)
+        public void Angle_CanNotInstantiateWithValue(double value)
         {
             Assert.Throws<ArgumentException>(() => new Angle(value));
         }
@@ -44,17 +44,17 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10)]
         [InlineData(1.0E+10)]
         [InlineData(Math.PI)]
-        public void Angle_CanInstantateWithValueAndMeasuement(double value)
+        public void Angle_CanInstantiateWithValueAndMeasurement(double value)
         {
             var expectedValue = value;
-            const AngleMeasurement expectedMeasuement = AngleMeasurement.Radians;
+            const AngleMeasurement angleMeasurement = AngleMeasurement.Radians;
 
             var sut = new Angle(value, AngleMeasurement.Radians);
             var resultValue = sut.Value;
             var resultMeasurement = sut.AngleMeasurement;
 
             Assert.Equal(expectedValue, resultValue);
-            Assert.Equal(expectedMeasuement, resultMeasurement);
+            Assert.Equal(angleMeasurement, resultMeasurement);
         }
 
         [Theory]
@@ -98,12 +98,12 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(360.0, 0.0)]
         [InlineData(765.0, 45.0)]
         [InlineData(9999999720.0, 0.0)]
-        public void Angle_CoTerminalValueCorrectlyCalulatesDegrees(double angle, double expectedAngle)
+        public void Angle_CoTerminalValueCorrectlyCalculatesDegrees(double angle, double expectedAngle)
         {
             var expected = expectedAngle;
 
             var coTerminalAngle = angle >= 0.0 ? angle - 360.0 : angle + 360.0;
-            var sut = new Angle(coTerminalAngle, AngleMeasurement.Degrees);
+            var sut = new Angle(coTerminalAngle);
             var result = sut.CoTerminalValue;
 
             Assert.True(Math.Abs(expected - result) <= Tolerance);
@@ -117,7 +117,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(2.0*Math.PI/3.0, 2.0 * Math.PI / 3.0)]
         [InlineData(4.0 * Math.PI, 0.0)]
         [InlineData(3183098858.0 * Math.PI, 0.0)]
-        public void Angle_CoTerminalValueCorrectlyCalulatesRadians(double angle, double expectedAngle)
+        public void Angle_CoTerminalValueCorrectlyCalculatesRadians(double angle, double expectedAngle)
         {
             var expected = expectedAngle;
 
@@ -130,9 +130,9 @@ namespace GeoFunctions.Core.Tests.Coordinates
 
 
         [Fact]
-        public void Angle_AngleMeasurement_DefulatsToDegrees()
+        public void Angle_AngleMeasurement_DefaultsToDegrees()
         {
-            var expected = AngleMeasurement.Degrees;
+            const AngleMeasurement expected = AngleMeasurement.Degrees;
 
             var result = InstantiateNewCoordinate().AngleMeasurement;
 
@@ -179,7 +179,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
             const double expected = Math.PI;
             const double inputValue = 180.0;
 
-            var sut = new Angle(inputValue, AngleMeasurement.Degrees);
+            var sut = new Angle(inputValue);
             var result = sut.ToRadians();
 
             Assert.Equal(expected, result);
@@ -199,10 +199,10 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [Fact]
         public void Angle_CanConvertToRadiansStatically()
         {
-            const double valuedegrees = 180.0;
+            const double valueDegrees = 180.0;
             const double expected = Math.PI;
 
-            var result = Angle.ToRadians(valuedegrees);
+            var result = Angle.ToRadians(valueDegrees);
 
             Assert.Equal(expected, result);
         }
@@ -235,7 +235,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         }
 
         [Fact]
-        public void Angle_CorrectlyChecksEqualityOfMeasuement()
+        public void Angle_CorrectlyChecksEqualityOfMeasurement()
         {
             var sut = new Angle(Math.PI, AngleMeasurement.Radians);
             var testObject = new Angle(Math.PI, AngleMeasurement.Radians);
