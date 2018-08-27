@@ -8,7 +8,7 @@ namespace GeoFunctions.Core.Coordinates
     {
         private const double MaxValueToEnsurePrecision = 1.0E+10;
 
-        private double Modulas => AngleMeasurement == AngleMeasurement.Degrees ? 360.0 : 2.0 * Math.PI;
+        private double Modulus => AngleMeasurement == AngleMeasurement.Degrees ? 360.0 : 2.0 * Math.PI;
 
         private double _value;
 
@@ -28,28 +28,28 @@ namespace GeoFunctions.Core.Coordinates
             }
         }
 
-        public double CoTerminalValue => AbsoluteValueLessThanModulas() ? Value : CalculateCoTerminalValue();
+        public double CoTerminalValue => AbsoluteValueLessThanModulus() ? Value : CalculateCoTerminalValue();
 
-        private bool AbsoluteValueLessThanModulas()
+        private bool AbsoluteValueLessThanModulus()
         {
-            return Value >= 0.0 && Value < Modulas;
+            return Value >= 0.0 && Value < Modulus;
         }
 
         private double CalculateCoTerminalValue()
         {
-            var normiisationFactor = Value / Modulas;
-            var baseOfNormilisationFactor = Math.Floor(normiisationFactor);
-            var coTangent = Value - Modulas * baseOfNormilisationFactor;
+            var normalizationFactor = Value / Modulus;
+            var baseOfNormalizationFactor = Math.Floor(normalizationFactor);
+            var coTangent = Value - Modulus * baseOfNormalizationFactor;
 
-            return coTangent >= 0 ? coTangent : coTangent + Modulas;
+            return coTangent >= 0 ? coTangent : coTangent + Modulus;
         }
 
         public AngleMeasurement AngleMeasurement { get; protected set; }
 
-        public Angle(double value = 0.0, AngleMeasurement measurment = AngleMeasurement.Degrees)
+        public Angle(double value = 0.0, AngleMeasurement measurement = AngleMeasurement.Degrees)
         {
             Value = value;
-            AngleMeasurement = measurment;
+            AngleMeasurement = measurement;
         }
 
         public override bool Equals(object obj)
@@ -61,7 +61,7 @@ namespace GeoFunctions.Core.Coordinates
 
             var testCoordinate = (Angle) obj;
 
-            return CoTerminalValue.Equals(testCoordinate.CoTerminalValue) && AngleMeasurement == testCoordinate.AngleMeasurement;
+            return testCoordinate != null && (CoTerminalValue.Equals(testCoordinate.CoTerminalValue) && AngleMeasurement == testCoordinate.AngleMeasurement);
         }
 
         public override int GetHashCode()
