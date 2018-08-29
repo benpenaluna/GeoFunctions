@@ -4,6 +4,6 @@
     {
         IAngle Latitude { get; set; }
         IAngle Longitude { get; set; }
-        double Elevation { get; set; }
+        IElevation Elevation { get; set; }
     }
 }

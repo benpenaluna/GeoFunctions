@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GeoFunctions.Core.Measurement;
+using System;
 using System.Globalization;
 
 namespace GeoFunctions.Core.Coordinates
@@ -14,7 +15,8 @@ namespace GeoFunctions.Core.Coordinates
             get => _latitude;
             set
             {
-                if (Math.Abs(value.Value) > 90.0 )
+                var maxValue = value.AngleMeasurement == AngleMeasurement.Degrees ? 90.0 : Math.PI / 2.0;
+                if (Math.Abs(value.Value) > maxValue )
                     throw new ArgumentOutOfRangeException(value.Value.ToString(CultureInfo.InvariantCulture));
 
                 _latitude = value;
@@ -26,19 +28,36 @@ namespace GeoFunctions.Core.Coordinates
             get => _longitude;
             set
             {
-                if (value.Value <= -180.0 || value.Value > 180.0)
+                var maxValue = value.AngleMeasurement == AngleMeasurement.Degrees ? 180.0 : Math.PI;
+                if (value.Value <= -1.0 * maxValue  || value.Value > maxValue)
                     throw new ArgumentOutOfRangeException(value.Value.ToString(CultureInfo.InvariantCulture));
 
                 _longitude = value;
             }
         }
 
-        public double Elevation { get; set; }
+        public IElevation Elevation { get; set; }
 
         public GeographicCoordinate()
         {
-            Latitude = new Angle();
-            Longitude = new Angle();
-        } 
+            Initialise(new Angle(), new Angle(), new Elevation());
+        }
+
+        public GeographicCoordinate(IAngle latitude, IAngle longitude)
+        {
+            Initialise(latitude, longitude, new Elevation());
+        }
+
+        public GeographicCoordinate(IAngle latitude, IAngle longitude, IElevation elevation)
+        {
+            Initialise(latitude, longitude, elevation);
+        }
+
+        private void Initialise(IAngle latitude, IAngle longitude, IElevation elevation)
+        {
+            Latitude = latitude;
+            Longitude = longitude;
+            Elevation = elevation;
+        }
     }
 }
