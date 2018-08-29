@@ -1,6 +1,6 @@
-﻿using GeoFunctions.Core.Measurement;
-using System;
+﻿using System;
 using System.Globalization;
+using GeoFunctions.Core.Coordinates.Measurement;
 
 namespace GeoFunctions.Core.Coordinates
 {

@@ -1,4 +1,4 @@
-﻿namespace GeoFunctions.Core.Measurement
+﻿namespace GeoFunctions.Core.Coordinates.Measurement
 {
     public enum ElevationMeasurement
     {

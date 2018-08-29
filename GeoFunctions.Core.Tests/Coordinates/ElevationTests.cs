@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using GeoFunctions.Core.Coordinates;
-using GeoFunctions.Core.Measurement;
+using GeoFunctions.Core.Coordinates.Measurement;
 using Xunit;
 
 namespace GeoFunctions.Core.Tests.Coordinates
