@@ -2,8 +2,8 @@
 {
     public interface IGeographicCoordinate
     {
-        IAngle Latitude { get; set; }
-        IAngle Longitude { get; set; }
+        ISphericalCoordinate Latitude { get; set; }
+        ISphericalCoordinate Longitude { get; set; }
         IElevation Elevation { get; set; }
     }
 }

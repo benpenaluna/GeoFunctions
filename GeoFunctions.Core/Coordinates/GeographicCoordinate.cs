@@ -1,65 +1,35 @@
-﻿using System;
-using System.Globalization;
-using GeoFunctions.Core.Coordinates.Measurement;
-
-namespace GeoFunctions.Core.Coordinates
+﻿namespace GeoFunctions.Core.Coordinates
 {
     public class GeographicCoordinate : IGeographicCoordinate
     {
-        private IAngle _latitude;
+        public ISphericalCoordinate Latitude { get; set; }
 
-        private IAngle _longitude;
-
-        public IAngle Latitude
-        {
-            get => _latitude;
-            set
-            {
-                var maxValue = value.AngleMeasurement == AngleMeasurement.Degrees ? 90.0 : Math.PI / 2.0;
-                if (Math.Abs(value.Value) > maxValue )
-                    throw new ArgumentOutOfRangeException(value.Value.ToString(CultureInfo.InvariantCulture));
-
-                _latitude = value;
-            }
-        }
-
-        public IAngle Longitude
-        {
-            get => _longitude;
-            set
-            {
-                var maxValue = value.AngleMeasurement == AngleMeasurement.Degrees ? 180.0 : Math.PI;
-                if (value.Value <= -1.0 * maxValue  || value.Value > maxValue)
-                    throw new ArgumentOutOfRangeException(value.Value.ToString(CultureInfo.InvariantCulture));
-
-                _longitude = value;
-            }
-        }
+        public ISphericalCoordinate Longitude { get; set; }
 
         public IElevation Elevation { get; set; }
 
         public GeographicCoordinate()
         {
-            Initialise(new Angle(), new Angle(), new Elevation());
+            Initialise(new Latitude(), new Longitude(), new Elevation());
         }
 
-        public GeographicCoordinate(IAngle latitude, IAngle longitude)
+        public GeographicCoordinate(ISphericalCoordinate latitude, ISphericalCoordinate longitude)
         {
             Initialise(latitude, longitude, new Elevation());
         }
 
-        public GeographicCoordinate(IAngle latitude, IAngle longitude, IElevation elevation)
+        public GeographicCoordinate(ISphericalCoordinate latitude, ISphericalCoordinate longitude, IElevation elevation)
         {
             Initialise(latitude, longitude, elevation);
         }
 
-        private void Initialise(IAngle latitude, IAngle longitude, IElevation elevation)
+        private void Initialise(ISphericalCoordinate latitude, ISphericalCoordinate longitude, IElevation elevation)
         {
             Latitude = latitude;
             Longitude = longitude;
             Elevation = elevation;
         }
 
-        
+
     }
 }

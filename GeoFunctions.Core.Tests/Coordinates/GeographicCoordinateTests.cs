@@ -17,8 +17,8 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [Fact]
         public void GeographicCoordinate_CanInstantiateWithLatLong()
         {
-            IAngle latitude = new Angle(-37.1);
-            IAngle longitude = new Angle(144.9);
+            ISphericalCoordinate latitude = new Latitude(-37.1);
+            ISphericalCoordinate longitude = new Longitude(144.9);
 
             IGeographicCoordinate result = new GeographicCoordinate(latitude, longitude);
             Assert.NotNull(result);
@@ -27,8 +27,8 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [Fact]
         public void GeographicCoordinate_CanInstantiateWithLatLongElevation()
         {
-            IAngle latitude = new Angle(-37.1);
-            IAngle longitude = new Angle(144.9);
+            ISphericalCoordinate latitude = new Latitude(-37.1);
+            ISphericalCoordinate longitude = new Longitude(144.9);
             IElevation elevation = new Elevation(96, ElevationMeasurement.Meters);
 
             IGeographicCoordinate result = new GeographicCoordinate(latitude, longitude, elevation);
@@ -40,12 +40,12 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-42.7)]
         [InlineData(0.0)]
         [InlineData(90.0)]
-        public void GeographicCoordinate_CanUpdateValidLatitude(double latitude)
+        public void GeographicCoordinate_CanUpdateValidLatitude(double angle)
         {
-            IAngle expected = new Angle(latitude);
+            ISphericalCoordinate expected = new Latitude(angle);
 
             IGeographicCoordinate sut = InstantiateNewGeographicCoordinate();
-            sut.Latitude = new Angle(latitude);
+            sut.Latitude = new Latitude(angle);
             var result = sut.Latitude;
 
             Assert.Equal(expected, result);
@@ -56,10 +56,10 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(90.1)]
         [InlineData(-1.0E+10)]
         [InlineData(1.0E+10)]
-        public void GeographicCoordinate_CannotUpdateInvalidLatitude(double latitude)
+        public void GeographicCoordinate_CannotUpdateInvalidLatitude(double angle)
         {
             IGeographicCoordinate sut = InstantiateNewGeographicCoordinate();
-            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Latitude = new Angle(latitude));
+            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Latitude = new Latitude(angle));
         }
 
         [Theory]
@@ -69,10 +69,10 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(180.0)]
         public void GeographicCoordinate_CanUpdateValidLongitude(double longitude)
         {
-            IAngle expected = new Angle(longitude);
+            ISphericalCoordinate expected = new Longitude(longitude);
 
             IGeographicCoordinate sut = InstantiateNewGeographicCoordinate();
-            sut.Longitude = new Angle(longitude);
+            sut.Longitude = new Longitude(longitude);
             var result = sut.Longitude;
 
             Assert.Equal(expected, result);
@@ -83,10 +83,10 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(180.1)]
         [InlineData(-1.0E+10)]
         [InlineData(1.0E+10)]
-        public void GeographicCoordinate_CannotUpdateInvalidLongitude(double longitude)
+        public void GeographicCoordinate_CannotUpdateInvalidLongitude(double angle)
         {
             IGeographicCoordinate sut = InstantiateNewGeographicCoordinate();
-            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Longitude = new Angle(longitude));
+            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Longitude = new Longitude(angle));
         }
 
         [Theory]
