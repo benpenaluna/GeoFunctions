@@ -11,10 +11,10 @@ namespace GeoFunctions.Core.Coordinates
 
         protected DmsCoordinate CalculateDmsCoordinate(Hemisphere hemisphere) 
         {
-            var value = Math.Abs(Angle.CoTerminalValue);
+            var value = Math.Abs(Angle.Value);
             var degrees = Math.Floor(value);
             var minutes = Math.Floor((value - degrees) * 60.0);
-            var seconds = (minutes - Math.Floor(minutes)) * 60.0;
+            var seconds = ((value - degrees) * 60.0 - minutes) * 60.0;
 
             CorrectIfSecondsGreaterThan60(ref minutes, ref seconds);
             CorrectIfMinutesGreaterThan60(ref degrees, ref minutes);

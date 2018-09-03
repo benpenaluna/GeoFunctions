@@ -21,7 +21,7 @@ namespace GeoFunctions.Core.Coordinates
                 {
                     var errorMessage = string.Format("Value must be between -1.0E+10 and 1.0E+10. {0} is an invalid number",
                                                      value.ToString(CultureInfo.InvariantCulture));
-                    throw new ArgumentException(errorMessage);
+                    throw new ArgumentOutOfRangeException(errorMessage);
                 }
                 
                 _value = value;
@@ -87,6 +87,11 @@ namespace GeoFunctions.Core.Coordinates
         public static bool operator !=(Angle a, Angle b)
         {
             return !(a == b);
+        }
+
+        public object Clone()
+        {
+            return new Angle(Value, AngleMeasurement);
         }
 
         public double ToDegrees()

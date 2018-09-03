@@ -37,7 +37,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(double.MaxValue)]
         public void Angle_CanNotInstantiateWithValue(double value)
         {
-            Assert.Throws<ArgumentException>(() => new Angle(value));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new Angle(value));
         }
 
         [Theory]
@@ -80,14 +80,14 @@ namespace GeoFunctions.Core.Tests.Coordinates
         public void Angle_CanNotSetValue(double value)
         {
             var sut = InstantiateNewCoordinate();
-            Assert.Throws<ArgumentException>(() => sut.Value = value);
+            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Value = value);
         }
 
         [Fact]
         public void Angle_CanNotSetNaNValue()
         {
             var sut = InstantiateNewCoordinate();
-            Assert.Throws<ArgumentException>(() => sut.Value = double.NaN);
+            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Value = double.NaN);
         }
 
         [Theory]

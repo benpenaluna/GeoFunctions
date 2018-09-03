@@ -1,8 +1,9 @@
-﻿using GeoFunctions.Core.Coordinates.Measurement;
+﻿using System;
+using GeoFunctions.Core.Coordinates.Measurement;
 
 namespace GeoFunctions.Core.Coordinates
 {
-    public interface IAngle
+    public interface IAngle : ICloneable
     {
         double Value { get; set; }
         double CoTerminalValue { get; }

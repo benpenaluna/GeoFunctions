@@ -22,16 +22,21 @@ namespace GeoFunctions.Core.Coordinates
             }
         }
 
-        public override DmsCoordinate DmsCoordinate => CalculateDmsCoordinate(Angle.Value >= 0.0 ? Hemisphere.North : Hemisphere.South); // TODO: Unit Test this method
+        public override DmsCoordinate DmsCoordinate => CalculateDmsCoordinate(Angle.Value >= 0.0 ? Hemisphere.North : Hemisphere.South);
 
         public Latitude()
         {
             Angle = new Angle();
         }
 
-        public Latitude(double angle)
+        public Latitude(double angle, AngleMeasurement measurement = AngleMeasurement.Degrees)
         {
-            Angle = new Angle(angle);
+            Angle = new Angle(angle, measurement);
+        }
+
+        public Latitude(IAngle angle)
+        {
+            Angle = new Angle(angle.Value, angle.AngleMeasurement);
         }
 
         public override bool Equals(object obj)
