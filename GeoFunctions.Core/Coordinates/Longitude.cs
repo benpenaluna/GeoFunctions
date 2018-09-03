@@ -29,9 +29,14 @@ namespace GeoFunctions.Core.Coordinates
             Angle = new Angle();
         }
 
-        public Longitude(double angle)
+        public Longitude(double angle, AngleMeasurement measurement = AngleMeasurement.Degrees)
         {
-            Angle = new Angle(angle);
+            Angle = new Angle(angle, measurement);
+        }
+
+        public Longitude(IAngle angle)
+        {
+            Angle = new Angle(angle.Value, angle.AngleMeasurement);
         }
 
         public override bool Equals(object obj)
