@@ -38,6 +38,16 @@ namespace GeoFunctions.Core.Coordinates.Structs
             }
         }
 
+        public override string ToString()
+        {
+            return ToString("DD° MM' SS\" H", CultureInfo.CurrentCulture);
+        }
+
+        public string ToString(string format)
+        {
+            return ToString(format, CultureInfo.CurrentCulture);
+        }
+
         public string ToString(string format, IFormatProvider formatProvider) // TODO: Refactor and test for formats that should NOT work
         {
             if (string.IsNullOrEmpty(format))
