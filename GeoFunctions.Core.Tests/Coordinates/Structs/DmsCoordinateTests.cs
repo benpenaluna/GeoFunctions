@@ -22,7 +22,25 @@ namespace GeoFunctions.Core.Tests.Coordinates.Structs
                 Hemisphere = Hemisphere.South
             };
 
-            var result = sut.ToString(format, null);
+            var result = sut.ToString(format);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void DmsCoordinate_CorrectlyParsesDefault()
+        {
+            const string expected = "09° 02' 39\" S";
+
+            var sut = new DmsCoordinate
+            {
+                Degrees = 9.0,
+                Minutes = 2.0,
+                Seconds = 38.94503637783,
+                Hemisphere = Hemisphere.South
+            };
+
+            var result = sut.ToString();
 
             Assert.Equal(expected, result);
         }
