@@ -53,21 +53,99 @@ namespace GeoFunctions.Core.Coordinates.Structs
         {
             if (string.IsNullOrEmpty(format))
                 format = DefaultFormat;
+
             if (formatProvider == null)
                 formatProvider = CultureInfo.CurrentCulture;
+
             return FormatString(format, formatProvider);
         }
 
-        private string FormatString(string format, IFormatProvider formatProvider)
+        private string FormatString(string format, IFormatProvider formatProvider) // TODO: Refactor - code currently passes unit tests, but is not clean, and repeats
         {
             var formatHelper = new FormatHelper(format, formatProvider, format.ToUpper());
 
-            FormatElement(DmsElement.Degrees, Degrees, ref formatHelper);
-            FormatElement(DmsElement.Minutes, Minutes, ref formatHelper);
-            FormatElement(DmsElement.Seconds, Seconds, ref formatHelper);
-            FormatHemisphere(ref formatHelper);
+            if (formatHelper.DegreesRequested && !formatHelper.MinutesRequested && !formatHelper.SecondsRequested)
+            {
+                FormatDegreesOnly(ref formatHelper);
+            }
+            else if (formatHelper.DegreesRequested && formatHelper.MinutesRequested && !formatHelper.SecondsRequested)
+            {
+                FormatDegreesMinutes(ref formatHelper);
+            }
+            else if (formatHelper.DegreesRequested && formatHelper.MinutesRequested && formatHelper.SecondsRequested)
+            {
+                FormatDegreesMinutesSeconds(ref formatHelper);
+            }
+            else
+            {
+                if (formatHelper.DegreesRequested)
+                    FormatElement(DmsElement.Degrees, Degrees, ref formatHelper);
+
+                if (formatHelper.MinutesRequested)
+                    FormatElement(DmsElement.Minutes, Minutes, ref formatHelper);
+
+                if (formatHelper.SecondsRequested)
+                    FormatElement(DmsElement.Seconds, Seconds, ref formatHelper);
+
+                if (formatHelper.HemisphereRequested)
+                    FormatHemisphere(ref formatHelper);
+            }
 
             return formatHelper.FormattedString;
+        }
+
+        private void FormatDegreesOnly(ref FormatHelper helper)
+        {
+            const char charToReplace = 'D';
+            var factor = NegationOfDegreesRequired(helper) ? -1 : 1;
+            var degreesValue = (Degrees + Minutes / 60.0 + Seconds / 3600.0) * factor;
+
+            UpdateFormatString(helper, charToReplace, degreesValue);
+
+            if (helper.HemisphereRequested)
+                FormatHemisphere(ref helper);
+        }
+
+        private static void UpdateFormatString(FormatHelper helper, char charToReplace, double value, bool periodToCheck = true)
+        {
+            var degreesElementHelper = ReplaceChars(charToReplace, helper.Format, periodToCheck);
+            helper.FormattedString = helper.FormattedString
+                .Replace(degreesElementHelper.StringReplacement,
+                    value.ToString(degreesElementHelper.FormatSpecifier, helper.FormatProvider));
+        }
+
+        private bool NegationOfDegreesRequired(FormatHelper helper)
+        {
+            return helper != null && (!helper.HemisphereRequested && (Hemisphere == Hemisphere.South || Hemisphere == Hemisphere.West));
+        }
+
+        private void FormatDegreesMinutes(ref FormatHelper helper)
+        {
+            FormatElement(DmsElement.Degrees, Degrees, ref helper);
+            if (NegationOfDegreesRequired(helper))
+                helper.FormattedString = "-" + helper.FormattedString;
+
+            const char charToReplace = 'M';
+            var minutesValue = Minutes + Seconds / 60.0;
+
+            UpdateFormatString(helper, charToReplace, minutesValue);
+
+            if (helper.HemisphereRequested)
+                FormatHemisphere(ref helper);
+        }
+
+        private void FormatDegreesMinutesSeconds(ref FormatHelper helper)
+        {
+            FormatElement(DmsElement.Degrees, Degrees, ref helper);
+            if (NegationOfDegreesRequired(helper))
+                helper.FormattedString = "-" + helper.FormattedString;
+
+            FormatElement(DmsElement.Minutes, Minutes, ref helper);
+
+            FormatElement(DmsElement.Seconds, Seconds, ref helper);
+
+            if (helper.HemisphereRequested)
+                FormatHemisphere(ref helper);
         }
 
         private static void FormatElement(DmsElement element, double elementSource, ref FormatHelper helper)
@@ -75,8 +153,13 @@ namespace GeoFunctions.Core.Coordinates.Structs
             var charToReplace = char.Parse(element.ToString().Substring(0, 1));
             var periodToCheck = element == DmsElement.Seconds;
 
-            var degreesElementHelper = ReplaceChars(charToReplace, helper.Format, periodToCheck);
-            helper.FormattedString = helper.FormattedString.Replace(degreesElementHelper.StringReplacement, elementSource.ToString(degreesElementHelper.FormatSpecifier, helper.FormatProvider));
+            UpdateFormatString(helper, charToReplace, elementSource, periodToCheck);
+        }
+
+        private void FormatHemisphere(ref FormatHelper helper)
+        {
+            var replacement = Hemisphere.ToString().Substring(0, 1);
+            helper.FormattedString = helper.FormattedString.Replace("H", replacement);
         }
 
         private static FormatElementHelper ReplaceChars(char charToReplace, string testObject, bool checkForPeriod = true)
@@ -101,12 +184,6 @@ namespace GeoFunctions.Core.Coordinates.Structs
             }
 
             return helper;
-        }
-
-        private void FormatHemisphere(ref FormatHelper helper)
-        {
-            var replacement = Hemisphere.ToString().Substring(0, 1);
-            helper.FormattedString = helper.FormattedString.Replace("H", replacement);
         }
     }
 }
