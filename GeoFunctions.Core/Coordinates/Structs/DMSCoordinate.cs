@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace GeoFunctions.Core.Coordinates.Structs
 {
-    public class DmsCoordinate : IFormattable
+    public struct DmsCoordinate : IFormattable
     {
         private const string DefaultFormat = "DD° MM' SS\" H";
 
@@ -172,31 +173,54 @@ namespace GeoFunctions.Core.Coordinates.Structs
             var helper = new FormatElementHelper();
 
             var formatCharacters = testObject.ToCharArray();
-            var charFound = false;
+            var charPreviouslyFound = false;
             for (var i = 0; i < formatCharacters.Length; i++)
             {
-                if (char.ToUpper(formatCharacters[i]) == charToReplace)
+                if (ExaminingCharToReplace(charToReplace, formatCharacters, i))
                 {
-                    helper.FormatSpecifier += "0";
-                    helper.StringReplacement += charToReplace;
-                    charFound = true;
+                    UpdateHelper('0', charToReplace, helper);
+                    charPreviouslyFound = true;
                 }
-                else if (charFound && char.ToUpper(formatCharacters[i]) == '.')
-                {
-                    helper.FormatSpecifier += ".";
-                    helper.StringReplacement += ".";
-                }
+                else if (charPreviouslyFound && ExaminingFullStop(formatCharacters, i) && NextCharacterIsCharToReplace(charToReplace, formatCharacters, i))
+                    UpdateHelper('.', '.', helper);
                 else
-                    charFound = false;
+                    charPreviouslyFound = false;
 
-                if (helper.StringReplacement == null || (charFound && i != formatCharacters.Length - 1))
+                if (HelpersNotReadyToBeUpdated(helper, formatCharacters, charPreviouslyFound, i))
                     continue;
 
                 helpers.Add(helper);
                 helper = new FormatElementHelper();
             }
 
-            return helpers;
+            return helpers.OrderByDescending(x => x.StringReplacement.Length)
+                          .ThenBy(x => x.StringReplacement.Contains('.'));
+        }
+
+        private static bool ExaminingCharToReplace(char charToReplace, IReadOnlyList<char> formatCharacters, int i)
+        {
+            return char.ToUpper(formatCharacters[i]) == charToReplace;
+        }
+
+        private static void UpdateHelper(char formatAddition, char replacementAddition, FormatElementHelper helper)
+        {
+            helper.FormatSpecifier += formatAddition;
+            helper.StringReplacement += replacementAddition;
+        }
+
+        private static bool ExaminingFullStop(IReadOnlyList<char> formatCharacters, int i)
+        {
+            return char.ToUpper(formatCharacters[i]) == '.';
+        }
+
+        private static bool NextCharacterIsCharToReplace(char charToReplace, IReadOnlyList<char> formatCharacters, int i)
+        {
+            return i != formatCharacters.Count - 1 && char.ToUpper(formatCharacters[i + 1]) == charToReplace;
+        }
+
+        private static bool HelpersNotReadyToBeUpdated(FormatElementHelper helper, IReadOnlyCollection<char> formatCharacters, bool charPreviouslyFound, int i)
+        {
+            return helper.StringReplacement == null || (charPreviouslyFound && i != formatCharacters.Count - 1);
         }
     }
 }

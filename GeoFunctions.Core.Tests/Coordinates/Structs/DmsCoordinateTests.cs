@@ -54,6 +54,11 @@ namespace GeoFunctions.Core.Tests.Coordinates.Structs
         [InlineData("DD SS.ss", "-09 38.95", 9.0, 2.0, 38.94503637783, Hemisphere.West)]
         [InlineData("DD SS.ss", "09 38.95", 9.0, 2.0, 38.94503637783, Hemisphere.East)]
         [InlineData("D MM.mm SS.ss H", "9 02.00 38.95 S", 9.0, 2.0, 38.94503637783, Hemisphere.South)]
+        [InlineData("DDD D.ddd M.mm SS.ss H", "009 9.000 2.00 38.95 S", 9.0, 2.0, 38.94503637783, Hemisphere.South)]
+        [InlineData("D MM.mmm M.mm SS.ss H", "9 02.000 2.00 38.95 S", 9.0, 2.0, 38.94503637783, Hemisphere.South)]
+        [InlineData("D MM.mmm S.ss SS.ssss H", "9 02.000 38.95 38.9450 S", 9.0, 2.0, 38.94503637783, Hemisphere.South)]
+        [InlineData("D MM.sss", "-145 02.039", 145.0, 2.0, 38.94503637783, Hemisphere.West)]
+        [InlineData("DD.MMSSH", "145.0239W", 145.0, 2.0, 38.94503637783, Hemisphere.West)]
         public void DmsCoordinate_CorrectlyParsesFormatString(string format, string expected, double degrees, double minutes, double seconds, Hemisphere hemisphere)
         {
             var sut = new DmsCoordinate
