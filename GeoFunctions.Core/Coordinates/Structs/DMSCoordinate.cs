@@ -7,7 +7,7 @@ namespace GeoFunctions.Core.Coordinates.Structs
 {
     public struct DmsCoordinate : IFormattable
     {
-        private const string DefaultFormat = "DD° MM' SS\" H";
+        private const string DefaultFormat = "DD° MM' SS\"H";
 
         private const double Tolerance = 1.0E+11;
 

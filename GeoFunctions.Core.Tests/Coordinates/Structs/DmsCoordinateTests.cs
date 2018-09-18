@@ -75,9 +75,9 @@ namespace GeoFunctions.Core.Tests.Coordinates.Structs
         }
 
         [Fact]
-        public void DmsCoordinate_CorrectlyParsesDefault()
+        public void DmsCoordinate_CorrectlyParsesDefaultFormatString()
         {
-            const string expected = "09° 02' 39\" S";
+            const string expected = "09° 02' 39\"S";
 
             var sut = new DmsCoordinate
             {

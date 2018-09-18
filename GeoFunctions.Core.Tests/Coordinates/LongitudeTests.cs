@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Globalization;
 using GeoFunctions.Core.Coordinates;
 using GeoFunctions.Core.Coordinates.Measurement;
 using GeoFunctions.Core.Coordinates.Structs;
@@ -166,6 +165,39 @@ namespace GeoFunctions.Core.Tests.Coordinates
             var sut = new Longitude(angle);
 
             Assert.Equal(testObject, sut);
+        }
+
+        [Fact]
+        public void Latitude_CorrectlyParsesDefaultFormatString()
+        {
+            const string expected = "144° 59' 59\"E";
+
+            ISphericalCoordinate sut = new Longitude(144.999637777534);
+            var result = sut.ToString();
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void Latitude_CorrectlyParsesDefaultFormatStringNoFormat()
+        {
+            const string expected = "144° 59' 59\"E";
+
+            ISphericalCoordinate sut = new Longitude(144.999637777534);
+            var result = sut.ToString(null, null);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void Latitude_CorrectlyParsesDefaultFormatStringWithFormat()
+        {
+            const string expected = "144° 59' 59\"E";
+
+            ISphericalCoordinate sut = new Longitude(144.999637777534);
+            var result = sut.ToString("DDD° MM' SS\"H", CultureInfo.CurrentCulture);
+
+            Assert.Equal(expected, result);
         }
     }
 }

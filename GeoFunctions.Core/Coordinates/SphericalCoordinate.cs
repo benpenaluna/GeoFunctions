@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using GeoFunctions.Core.Coordinates.Structs;
 
 namespace GeoFunctions.Core.Coordinates
@@ -44,6 +45,22 @@ namespace GeoFunctions.Core.Coordinates
 
             minutes -= 60.0;
             degrees += 1.0;
+        }
+
+        public override string ToString()
+        {
+            return DmsCoordinate.ToString();
+        }
+
+        public string ToString(string format, IFormatProvider formatProvider)
+        {
+            if (string.IsNullOrEmpty(format))
+                return ToString();
+
+            if (formatProvider == null)
+                formatProvider = CultureInfo.CurrentCulture;
+
+            return DmsCoordinate.ToString(format, formatProvider);
         }
     }
 }

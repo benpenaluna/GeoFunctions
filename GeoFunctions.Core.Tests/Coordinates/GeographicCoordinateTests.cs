@@ -25,6 +25,13 @@ namespace GeoFunctions.Core.Tests.Coordinates
         }
 
         [Fact]
+        public void GeographicCoordinate_CanInstantiateWithLatLongDoubles()
+        {
+            IGeographicCoordinate result = new GeographicCoordinate(-37.1, 144.9);
+            Assert.NotNull(result);
+        }
+
+        [Fact]
         public void GeographicCoordinate_CanInstantiateWithLatLongElevation()
         {
             ISphericalCoordinate latitude = new Latitude(-37.1);
@@ -32,6 +39,13 @@ namespace GeoFunctions.Core.Tests.Coordinates
             IElevation elevation = new Elevation(96, ElevationMeasurement.Meters);
 
             IGeographicCoordinate result = new GeographicCoordinate(latitude, longitude, elevation);
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void GeographicCoordinate_CanInstantiateWithLatLongElevationDoubles()
+        {
+            IGeographicCoordinate result = new GeographicCoordinate(-37.1, 144.9, 96);
             Assert.NotNull(result);
         }
 
@@ -100,6 +114,47 @@ namespace GeoFunctions.Core.Tests.Coordinates
             var sut = InstantiateNewGeographicCoordinate();
             sut.Elevation.Value = elevation;
             var result = sut.Elevation;
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void GeographicCoordinate_CorrectlyParsesDefaultFormatString()
+        {
+            const string expected = "37° 41' 19\"S 144° 59' 59\"E";
+
+            ISphericalCoordinate latitude = new Latitude(-37.6885966980243);
+            ISphericalCoordinate longitude = new Longitude(144.999637777534);
+            IGeographicCoordinate sut = new GeographicCoordinate(latitude, longitude);
+            var result = sut.ToString();
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void GeographicCoordinate_CorrectlyParsesDefaultFormatStringNoFormat()
+        {
+            const string expected = "37° 41' 19\"S 144° 59' 59\"E";
+
+            ISphericalCoordinate latitude = new Latitude(-37.6885966980243);
+            ISphericalCoordinate longitude = new Longitude(144.999637777534);
+            IGeographicCoordinate sut = new GeographicCoordinate(latitude, longitude);
+            var result = sut.ToString(null, null);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void GeographicCoordinate_CorrectlyParsesDefaultFormatStringWithFormat()
+        {
+            const string expected = "37° 41' 19\"S 144° 59' 59\"E";
+            const string latFormat = "DD° MM' SS\"H";
+            const string lonFormat = "DDD° MM' SS\"H";
+
+            ISphericalCoordinate latitude = new Latitude(-37.6885966980243);
+            ISphericalCoordinate longitude = new Longitude(144.999637777534);
+            IGeographicCoordinate sut = new GeographicCoordinate(latitude, longitude);
+            var result = sut.ToString(latFormat, lonFormat);
 
             Assert.Equal(expected, result);
         }

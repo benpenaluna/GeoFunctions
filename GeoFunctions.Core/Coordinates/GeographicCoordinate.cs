@@ -1,4 +1,6 @@
-﻿namespace GeoFunctions.Core.Coordinates
+﻿using System.Globalization;
+
+namespace GeoFunctions.Core.Coordinates
 {
     public class GeographicCoordinate : IGeographicCoordinate
     {
@@ -17,6 +19,11 @@
         {
             Initialise(latitude, longitude, new Elevation());
         }
+        
+        public GeographicCoordinate(double latitude, double longitude, double elevation = 0)
+        {
+            Initialise(new Latitude(latitude), new Longitude(longitude), new Elevation(elevation));
+        }
 
         public GeographicCoordinate(ISphericalCoordinate latitude, ISphericalCoordinate longitude, IElevation elevation)
         {
@@ -30,6 +37,16 @@
             Elevation = elevation;
         }
 
+        public override string ToString()
+        {
+            return string.Format("{0} {1}", Latitude.ToString(), Longitude.ToString());
+        }
 
+        public string ToString(string latitudeFormat, string longitudeFormat)
+        {
+            return string.Format("{0} {1}", 
+                Latitude.ToString(latitudeFormat, CultureInfo.CurrentCulture), 
+                Longitude.ToString(longitudeFormat, CultureInfo.CurrentCulture));
+        }
     }
 }
