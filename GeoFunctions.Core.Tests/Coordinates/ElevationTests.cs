@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using GeoFunctions.Core.Coordinates;
 using GeoFunctions.Core.Coordinates.Measurement;
 using Xunit;
@@ -12,7 +10,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [Fact]
         public void Elevation_CanInstantiate()
         {
-            var sut = InstantiateNewElevation();
+            IElevation sut = InstantiateNewElevation();
 
             Assert.NotNull(sut);
         }
@@ -21,7 +19,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         public void Elevation_CanInstantiateWithValue()
         {
             const double value = 999.0;
-            var sut = new Elevation(value);
+            IElevation sut = new Elevation(value);
 
             Assert.NotNull(sut);
         }
@@ -31,7 +29,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         {
             const double value = 999.0;
             const ElevationMeasurement measurement = ElevationMeasurement.Meters;
-            var sut = new Elevation(value, measurement);
+            IElevation sut = new Elevation(value, measurement);
 
             Assert.NotNull(sut);
         }
@@ -39,9 +37,9 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [Fact]
         public void Elevation_MeasurementDefaultsToFeet()
         {
-            var expected = ElevationMeasurement.Feet;
+            const ElevationMeasurement expected = ElevationMeasurement.Feet;
 
-            var sut = InstantiateNewElevation();
+            IElevation sut = InstantiateNewElevation();
             var result = sut.ElevationMeasurement;
 
             Assert.Equal(expected, result);
@@ -53,7 +51,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
             const ElevationMeasurement expected = ElevationMeasurement.Feet;
 
             const double value = 99.09;
-            var sut = new Elevation(value);
+            IElevation sut = new Elevation(value);
             var result = sut.ElevationMeasurement;
 
             Assert.Equal(expected, result);
@@ -67,7 +65,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         {
             var expected = elevation;
 
-            var sut = InstantiateNewElevation();
+            IElevation sut = InstantiateNewElevation();
             sut.Value = elevation;
             var result = sut.Value;
 
@@ -82,7 +80,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(double.MaxValue)]
         public void Elevation_CanNotSetInvalidValue(double elevation)
         {
-            var sut = InstantiateNewElevation();
+            IElevation sut = InstantiateNewElevation();
             Assert.Throws<ArgumentException>(() => sut.Value = elevation);
 
         }
@@ -94,7 +92,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         {
             var expected = measurement;
 
-            var sut = new Elevation(0.0, measurement);
+            IElevation sut = new Elevation(0.0, measurement);
             var result = sut.ElevationMeasurement;
 
             Assert.Equal(expected, result);
@@ -106,8 +104,8 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(1.0E+10)]
         public void Elevation_CorrectlyChecksEqualityOfValue(double value)
         {
-            var sut = new Elevation(value);
-            var testObject = new Elevation(value);
+            IElevation sut = new Elevation(value);
+            IElevation testObject = new Elevation(value);
 
             Assert.True(sut.Equals(testObject));
         }
@@ -120,8 +118,8 @@ namespace GeoFunctions.Core.Tests.Coordinates
         {
             var valueOffset = value > 0 ? -1.0 : 1.0;
 
-            var sut = new Elevation(value);
-            var testObject = new Elevation(value + valueOffset);
+            IElevation sut = new Elevation(value);
+            IElevation testObject = new Elevation(value + valueOffset);
 
             Assert.False(sut.Equals(testObject));
         }
@@ -132,11 +130,23 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(1.0E+10)]
         public void Elevation_CorrectlyFindsInequalityOfMeasurement(double value)
         {
-            var sut = new Elevation(value);
-            var testObject = new Elevation(value, ElevationMeasurement.Meters);
+            IElevation sut = new Elevation(value);
+            IElevation testObject = new Elevation(value, ElevationMeasurement.Meters);
 
             Assert.False(sut.Equals(testObject));
         }
+
+        [Theory]
+        [InlineData(42.0, ElevationMeasurement.Feet, "42'")]
+        [InlineData(42.0, ElevationMeasurement.Meters, "42 m")]
+        public void Elevation_CorrectlyReturnToString(double value, ElevationMeasurement elevationMeasurement, string expected)
+        {
+            IElevation sut = new Elevation(value, elevationMeasurement);
+            var result = sut.ToString();
+
+            Assert.Equal(expected, result);
+        }
+
 
         [Theory]
         [InlineData(-1.0E+10)]
@@ -146,7 +156,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         {
             var expected = value;
 
-            var sut = new Elevation(value);
+            IElevation sut = new Elevation(value);
             var result = sut.ToFeet();
 
             Assert.Equal(expected, result);
@@ -160,7 +170,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         {
             var expected = value / 0.3048;
 
-            var sut = new Elevation(value, ElevationMeasurement.Meters);
+            IElevation sut = new Elevation(value, ElevationMeasurement.Meters);
             var result = sut.ToFeet();
 
             Assert.Equal(expected, result);
@@ -187,7 +197,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         {
             var expected = value;
 
-            var sut = new Elevation(value, ElevationMeasurement.Meters);
+            IElevation sut = new Elevation(value, ElevationMeasurement.Meters);
             var result = sut.ToMeters();
 
             Assert.Equal(expected, result);
@@ -201,7 +211,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         {
             var expected = value * 0.3048;
 
-            var sut = new Elevation(value);
+            IElevation sut = new Elevation(value);
             var result = sut.ToMeters();
 
             Assert.Equal(expected, result);
