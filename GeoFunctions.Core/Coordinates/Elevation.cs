@@ -57,11 +57,6 @@ namespace GeoFunctions.Core.Coordinates
             return $"{Value.ToString(CultureInfo.CurrentCulture)}{measurementSymbol}";
         }
 
-        public string ToString(string format, IFormatProvider formatProvider) // TODO: Code this method
-        {
-            throw new NotImplementedException();
-        }
-
         public static double ToFeet(double valueInMeters)
         {
             return valueInMeters / ConversionRatio;
