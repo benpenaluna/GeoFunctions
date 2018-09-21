@@ -1,11 +1,12 @@
-﻿namespace GeoFunctions.Core.Coordinates
+﻿using System;
+using GeoFunctions.Core.Coordinates.Structs;
+
+namespace GeoFunctions.Core.Coordinates
 {
-    public interface IGeographicCoordinate
+    public interface IGeographicCoordinate : IFormattable 
     {
         ISphericalCoordinate Latitude { get; set; }
         ISphericalCoordinate Longitude { get; set; }
         IElevation Elevation { get; set; }
-
-        string ToString(string latitudeFormat, string longitudeFormat);
     }
 }

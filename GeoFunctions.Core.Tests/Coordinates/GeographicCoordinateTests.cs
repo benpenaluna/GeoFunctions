@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Globalization;
 using GeoFunctions.Core.Coordinates;
 using GeoFunctions.Core.Coordinates.Measurement;
+using GeoFunctions.Core.Coordinates.Structs;
 using Xunit;
 
 namespace GeoFunctions.Core.Tests.Coordinates
@@ -144,17 +146,14 @@ namespace GeoFunctions.Core.Tests.Coordinates
             Assert.Equal(expected, result);
         }
 
-        [Fact]
-        public void GeographicCoordinate_CorrectlyParsesDefaultFormatStringWithFormat()
+        [Theory]
+        [InlineData("[lat:DD° MM' SS\"H] [lon:DDD° MM' SS\"H]", "37° 41' 19\"S 144° 59' 59\"E")]
+        public void GeographicCoordinate_CorrectlyParsesDefaultFormatStringWithFormat(string format, string expected) // TODO: Consider more scenarios and what exceptions are thrown for invalid syntax
         {
-            const string expected = "37° 41' 19\"S 144° 59' 59\"E";
-            const string latFormat = "DD° MM' SS\"H";
-            const string lonFormat = "DDD° MM' SS\"H";
-
             ISphericalCoordinate latitude = new Latitude(-37.6885966980243);
             ISphericalCoordinate longitude = new Longitude(144.999637777534);
             IGeographicCoordinate sut = new GeographicCoordinate(latitude, longitude);
-            var result = sut.ToString(latFormat, lonFormat);
+            var result = sut.ToString(format, CultureInfo.InvariantCulture);
 
             Assert.Equal(expected, result);
         }

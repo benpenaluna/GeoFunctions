@@ -1,4 +1,7 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using GeoFunctions.Core.Coordinates.Structs;
 
 namespace GeoFunctions.Core.Coordinates
 {
@@ -42,11 +45,35 @@ namespace GeoFunctions.Core.Coordinates
             return string.Format("{0} {1}", Latitude.ToString(), Longitude.ToString());
         }
 
-        public string ToString(string latitudeFormat, string longitudeFormat)
+        public string ToString(string format, IFormatProvider formatProvider) // TODO: Refactor!
         {
-            return string.Format("{0} {1}", 
-                Latitude.ToString(latitudeFormat, CultureInfo.CurrentCulture), 
-                Longitude.ToString(longitudeFormat, CultureInfo.CurrentCulture));
+            if (format is null)
+                return ToString();
+
+            if (formatProvider is null)
+                formatProvider = CultureInfo.InvariantCulture;
+
+            var splits = format.Split(new[] {'[', ']'}, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var split in splits)
+            {
+                if (split.Contains("lat:"))
+                {
+                    var latFormat = split.Substring(4, split.Length - 4);
+                    var latFormatted = Latitude.ToString(latFormat, formatProvider);
+                    format = format.Replace(split, latFormatted);
+                }
+                else if (split.Contains("lon:"))
+                {
+                    var lonFormat = split.Substring(4, split.Length - 4);
+                    var lonFormatted = Longitude.ToString(lonFormat, formatProvider);
+                    format = format.Replace(split, lonFormatted);
+                }
+            }
+
+            format = format.Replace("[", "");
+            format = format.Replace("]", "");
+            return format;
         }
     }
 }
