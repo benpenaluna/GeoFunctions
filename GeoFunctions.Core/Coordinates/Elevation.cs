@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
+using System.Text;
+using GeoFunctions.Core.Common;
 using GeoFunctions.Core.Coordinates.Measurement;
 
 namespace GeoFunctions.Core.Coordinates
@@ -7,6 +10,8 @@ namespace GeoFunctions.Core.Coordinates
     public class Elevation : IElevation
     {
         private const double ConversionRatio = 0.3048;
+
+        private const string DefaultFormat = "nu";
 
         private double _value;
 
@@ -55,6 +60,28 @@ namespace GeoFunctions.Core.Coordinates
         {
             var measurementSymbol = ElevationMeasurement == ElevationMeasurement.Feet ? "'" : " m";
             return $"{Value.ToString(CultureInfo.CurrentCulture)}{measurementSymbol}";
+        }
+
+        public string ToString(string format, IFormatProvider formatProvider)
+        {
+            if (string.IsNullOrEmpty(format))
+                format = DefaultFormat;
+
+            if (formatProvider == null)
+                formatProvider = CultureInfo.InvariantCulture;
+
+            return FormatString(format, formatProvider);
+        }
+
+        private string FormatString(string format, IFormatProvider formatProvider)
+        {
+            var valueElementHelper = format.FindConsecutiveChars('n');
+
+            format = valueElementHelper.Aggregate(format, (current, element) => current.Replace(element.StringReplacement, Value.ToString(element.FormatSpecifier, formatProvider)));
+
+            format = format.Replace("u", ElevationMeasurement == ElevationMeasurement.Feet ? "ft" : "m");
+
+            return format;
         }
 
         public static double ToFeet(double valueInMeters)

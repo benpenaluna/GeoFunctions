@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using GeoFunctions.Core.Coordinates;
 using GeoFunctions.Core.Coordinates.Measurement;
 using Xunit;
@@ -147,6 +148,17 @@ namespace GeoFunctions.Core.Tests.Coordinates
             Assert.Equal(expected, result);
         }
 
+        [Theory]
+        [InlineData("n u", "42 m", 42.0, ElevationMeasurement.Meters)]
+        [InlineData("n u", "42 ft", 42.0, ElevationMeasurement.Feet)]
+        [InlineData("n.nnnn u", "42.9163 ft", 42.9162744, ElevationMeasurement.Feet)]
+        public void Elevation_CorrectlyParsesFormatString(string format, string expected, double value, ElevationMeasurement unitOfMeasurement)
+        {
+            IElevation sut = new Elevation(value, unitOfMeasurement);
+            var result = sut.ToString(format, CultureInfo.InvariantCulture);
+
+            Assert.Equal(expected, result);
+        }
 
         [Theory]
         [InlineData(-1.0E+10)]

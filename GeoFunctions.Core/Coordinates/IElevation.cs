@@ -3,7 +3,7 @@ using GeoFunctions.Core.Coordinates.Measurement;
 
 namespace GeoFunctions.Core.Coordinates
 {
-    public interface IElevation
+    public interface IElevation : IFormattable
 
     {
     double Value { get; set; }

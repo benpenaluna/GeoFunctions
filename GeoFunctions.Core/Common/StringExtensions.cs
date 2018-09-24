@@ -38,7 +38,7 @@ namespace GeoFunctions.Core.Common
 
         private static bool ExaminingCharToReplace(char charToReplace, IReadOnlyList<char> formatCharacters, int i)
         {
-            return char.ToUpper(formatCharacters[i]) == charToReplace;
+            return char.ToUpper(formatCharacters[i]) == charToReplace || char.ToUpper(formatCharacters[i]) == char.ToUpper(charToReplace);
         }
 
         private static void UpdateHelper(char formatAddition, char replacementAddition, FormatElementHelper helper)
@@ -54,7 +54,7 @@ namespace GeoFunctions.Core.Common
 
         private static bool NextCharacterIsCharToReplace(char charToReplace, IReadOnlyList<char> formatCharacters, int i)
         {
-            return i != formatCharacters.Count - 1 && char.ToUpper(formatCharacters[i + 1]) == charToReplace;
+            return i != formatCharacters.Count - 1 && (char.ToUpper(formatCharacters[i + 1]) == charToReplace || char.ToUpper(formatCharacters[i + 1]) == char.ToUpper(charToReplace));
         }
 
         private static bool HelpersNotReadyToBeUpdated(FormatElementHelper helper, IReadOnlyCollection<char> formatCharacters, bool charPreviouslyFound, int i)
