@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
+using GeoFunctions.Core.Common;
 
 namespace GeoFunctions.Core.Coordinates.Structs
 {
@@ -43,7 +42,7 @@ namespace GeoFunctions.Core.Coordinates.Structs
 
         public override string ToString()
         {
-            return ToString(DefaultFormat, CultureInfo.CurrentCulture);
+            return ToString(DefaultFormat, CultureInfo.InvariantCulture);
         }
 
         public string ToString(string format)
@@ -51,7 +50,7 @@ namespace GeoFunctions.Core.Coordinates.Structs
             if (string.IsNullOrEmpty(format))
                 format = DefaultFormat;
 
-            return ToString(format, CultureInfo.CurrentCulture);
+            return ToString(format, CultureInfo.InvariantCulture);
         }
 
         public string ToString(string format, IFormatProvider formatProvider)
@@ -60,14 +59,14 @@ namespace GeoFunctions.Core.Coordinates.Structs
                 format = DefaultFormat;
 
             if (formatProvider == null)
-                formatProvider = CultureInfo.CurrentCulture;
+                formatProvider = CultureInfo.InvariantCulture;
 
             return FormatString(format, formatProvider);
         }
 
         private string FormatString(string format, IFormatProvider formatProvider)
         {
-            var formatHelper = new FormatHelper(format, formatProvider, format.ToUpper());
+            var formatHelper = new DmsCoordinateFormatHelper(format, formatProvider, format.ToUpper());
 
             if (DegreesOnlyRequested(formatHelper))
                 FormatDegreesOnly(ref formatHelper);
@@ -79,26 +78,26 @@ namespace GeoFunctions.Core.Coordinates.Structs
             return formatHelper.FormattedString;
         }
 
-        private static bool DegreesOnlyRequested(FormatHelper formatHelper)
+        private static bool DegreesOnlyRequested(DmsCoordinateFormatHelper dmsCoordinateFormatHelper)
         {
-            return formatHelper.DegreesRequested && !formatHelper.MinutesRequested && !formatHelper.SecondsRequested;
+            return dmsCoordinateFormatHelper.DegreesRequested && !dmsCoordinateFormatHelper.MinutesRequested && !dmsCoordinateFormatHelper.SecondsRequested;
         }
 
-        private void FormatDegreesOnly(ref FormatHelper formatHelper)
+        private void FormatDegreesOnly(ref DmsCoordinateFormatHelper dmsCoordinateFormatHelper)
         {
             const char charToReplaceInFormatString = 'D';
-            var factor = NegationOfDegreesRequired(formatHelper) ? -1 : 1;
+            var factor = NegationOfDegreesRequired(dmsCoordinateFormatHelper) ? -1 : 1;
             var valueInDecimalDegreesToFormat = (Degrees + Minutes / 60.0 + Seconds / 3600.0) * factor;
 
-            UpdateFormatString(formatHelper, charToReplaceInFormatString, valueInDecimalDegreesToFormat);
+            UpdateFormatString(dmsCoordinateFormatHelper, charToReplaceInFormatString, valueInDecimalDegreesToFormat);
 
-            if (formatHelper.HemisphereRequested)
-                FormatHemisphere(ref formatHelper);
+            if (dmsCoordinateFormatHelper.HemisphereRequested)
+                FormatHemisphere(ref dmsCoordinateFormatHelper);
         }
 
-        private static void UpdateFormatString(FormatHelper helper, char charToReplace, double value)
+        private static void UpdateFormatString(DmsCoordinateFormatHelper helper, char charToReplace, double value)
         {
-            var degreesElementHelpers = ReplaceChars(charToReplace, helper.Format);
+            var degreesElementHelpers = helper.Format.FindConsecutiveChars(charToReplace);
 
             foreach (var degreesElementHelper in degreesElementHelpers)
             {
@@ -108,17 +107,17 @@ namespace GeoFunctions.Core.Coordinates.Structs
             }
         }
 
-        private bool NegationOfDegreesRequired(FormatHelper helper)
+        private bool NegationOfDegreesRequired(DmsCoordinateFormatHelper helper)
         {
             return helper != null && (!helper.HemisphereRequested && (Hemisphere == Hemisphere.South || Hemisphere == Hemisphere.West));
         }
 
-        private static bool DegreesAndMinutesOnlyRequested(FormatHelper formatHelper)
+        private static bool DegreesAndMinutesOnlyRequested(DmsCoordinateFormatHelper dmsCoordinateFormatHelper)
         {
-            return formatHelper.DegreesRequested && formatHelper.MinutesRequested && !formatHelper.SecondsRequested;
+            return dmsCoordinateFormatHelper.DegreesRequested && dmsCoordinateFormatHelper.MinutesRequested && !dmsCoordinateFormatHelper.SecondsRequested;
         }
 
-        private void FormatDegreesMinutes(ref FormatHelper helper)
+        private void FormatDegreesMinutes(ref DmsCoordinateFormatHelper helper)
         {
             FormatElement(DmsElement.Degrees, Degrees, ref helper);
             if (NegationOfDegreesRequired(helper))
@@ -133,94 +132,37 @@ namespace GeoFunctions.Core.Coordinates.Structs
                 FormatHemisphere(ref helper);
         }
 
-        private static void FormatElement(DmsElement element, double elementSource, ref FormatHelper helper)
+        private static void FormatElement(DmsElement element, double elementSource, ref DmsCoordinateFormatHelper helper)
         {
             var charToReplace = char.Parse(element.ToString().Substring(0, 1));
             UpdateFormatString(helper, charToReplace, elementSource);
         }
 
-        private FormatHelper FormatDefault(FormatHelper formatHelper)
+        private DmsCoordinateFormatHelper FormatDefault(DmsCoordinateFormatHelper dmsCoordinateFormatHelper)
         {
-            if (formatHelper.DegreesRequested)
+            if (dmsCoordinateFormatHelper.DegreesRequested)
             {
-                FormatElement(DmsElement.Degrees, Degrees, ref formatHelper);
-                if (NegationOfDegreesRequired(formatHelper))
-                    formatHelper.FormattedString = "-" + formatHelper.FormattedString;
+                FormatElement(DmsElement.Degrees, Degrees, ref dmsCoordinateFormatHelper);
+                if (NegationOfDegreesRequired(dmsCoordinateFormatHelper))
+                    dmsCoordinateFormatHelper.FormattedString = "-" + dmsCoordinateFormatHelper.FormattedString;
             }
                 
-            if (formatHelper.MinutesRequested)
-                FormatElement(DmsElement.Minutes, Minutes, ref formatHelper);
+            if (dmsCoordinateFormatHelper.MinutesRequested)
+                FormatElement(DmsElement.Minutes, Minutes, ref dmsCoordinateFormatHelper);
 
-            if (formatHelper.SecondsRequested)
-                FormatElement(DmsElement.Seconds, Seconds, ref formatHelper);
+            if (dmsCoordinateFormatHelper.SecondsRequested)
+                FormatElement(DmsElement.Seconds, Seconds, ref dmsCoordinateFormatHelper);
 
-            if (formatHelper.HemisphereRequested)
-                FormatHemisphere(ref formatHelper);
+            if (dmsCoordinateFormatHelper.HemisphereRequested)
+                FormatHemisphere(ref dmsCoordinateFormatHelper);
 
-            return formatHelper;
+            return dmsCoordinateFormatHelper;
         }
 
-        private void FormatHemisphere(ref FormatHelper helper)
+        private void FormatHemisphere(ref DmsCoordinateFormatHelper helper)
         {
             var replacement = Hemisphere.ToString().Substring(0, 1);
             helper.FormattedString = helper.FormattedString.Replace("H", replacement);
-        }
-
-        private static IEnumerable<FormatElementHelper> ReplaceChars(char charToReplace, string testObject)
-        {
-            var helpers = new List<FormatElementHelper>();
-
-            var helper = new FormatElementHelper();
-
-            var formatCharacters = testObject.ToCharArray();
-            var charPreviouslyFound = false;
-            for (var i = 0; i < formatCharacters.Length; i++)
-            {
-                if (ExaminingCharToReplace(charToReplace, formatCharacters, i))
-                {
-                    UpdateHelper('0', charToReplace, helper);
-                    charPreviouslyFound = true;
-                }
-                else if (charPreviouslyFound && ExaminingFullStop(formatCharacters, i) && NextCharacterIsCharToReplace(charToReplace, formatCharacters, i))
-                    UpdateHelper('.', '.', helper);
-                else
-                    charPreviouslyFound = false;
-
-                if (HelpersNotReadyToBeUpdated(helper, formatCharacters, charPreviouslyFound, i))
-                    continue;
-
-                helpers.Add(helper);
-                helper = new FormatElementHelper();
-            }
-
-            return helpers.OrderByDescending(x => x.StringReplacement.Length)
-                          .ThenBy(x => x.StringReplacement.Contains('.'));
-        }
-
-        private static bool ExaminingCharToReplace(char charToReplace, IReadOnlyList<char> formatCharacters, int i)
-        {
-            return char.ToUpper(formatCharacters[i]) == charToReplace;
-        }
-
-        private static void UpdateHelper(char formatAddition, char replacementAddition, FormatElementHelper helper)
-        {
-            helper.FormatSpecifier += formatAddition;
-            helper.StringReplacement += replacementAddition;
-        }
-
-        private static bool ExaminingFullStop(IReadOnlyList<char> formatCharacters, int i)
-        {
-            return char.ToUpper(formatCharacters[i]) == '.';
-        }
-
-        private static bool NextCharacterIsCharToReplace(char charToReplace, IReadOnlyList<char> formatCharacters, int i)
-        {
-            return i != formatCharacters.Count - 1 && char.ToUpper(formatCharacters[i + 1]) == charToReplace;
-        }
-
-        private static bool HelpersNotReadyToBeUpdated(FormatElementHelper helper, IReadOnlyCollection<char> formatCharacters, bool charPreviouslyFound, int i)
-        {
-            return helper.StringReplacement == null || (charPreviouslyFound && i != formatCharacters.Count - 1);
         }
     }
 }

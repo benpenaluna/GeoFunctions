@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using GeoFunctions.Core.Coordinates.Structs;
+﻿using GeoFunctions.Core.Coordinates.Structs;
 using Xunit;
 
 namespace GeoFunctions.Core.Tests.Coordinates.Structs
