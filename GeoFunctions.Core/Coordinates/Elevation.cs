@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using GeoFunctions.Core.Common;
 using GeoFunctions.Core.Coordinates.Measurement;
 
@@ -14,13 +15,13 @@ namespace GeoFunctions.Core.Coordinates
 
         private static readonly List<int> MetricConversionFactors = new List<int> { 1, 10, 1000, 1000000 };
 
-        private static readonly List<DistanceMeasurement> MetricConversionReference = new List<DistanceMeasurement>()
+        private static readonly Dictionary<DistanceMeasurement, char> MetricConversionReferences = new Dictionary<DistanceMeasurement, char>()
         {
-            DistanceMeasurement.Millimeters,
-            DistanceMeasurement.Centimeters,
-            DistanceMeasurement.Meters,
-            DistanceMeasurement.Kilometers
-        };
+            {DistanceMeasurement.Millimeters, 'm'},
+            {DistanceMeasurement.Centimeters, 'c'},
+            {DistanceMeasurement.Meters, 't'},
+            {DistanceMeasurement.Kilometers, 'k'}
+    };
 
         private double _value;
 
@@ -86,10 +87,10 @@ namespace GeoFunctions.Core.Coordinates
         {
             var helper = new FormatHelper(format, formatProvider, format);
 
-            helper = HandleMeasurements(DistanceMeasurement.Millimeters, 'm', helper);
-            helper = HandleMeasurements(DistanceMeasurement.Centimeters, 'c', helper);
-            helper = HandleMeasurements(DistanceMeasurement.Meters, 't', helper);
-            helper = HandleMeasurements(DistanceMeasurement.Kilometers, 'k', helper);
+            foreach (var measurementType in MetricConversionReferences)
+            {
+                helper = HandleMeasurements(measurementType.Key, measurementType.Value, helper); //TODO: .Key should equal .Measurement and .Value should equal .MeasurementCode
+            }
 
             helper = HandleUnits(helper);
 
@@ -114,8 +115,10 @@ namespace GeoFunctions.Core.Coordinates
             if (DistanceMeasurement == convertingTo)
                 return 1.0;
 
-            var centimetersReferencePosition = MetricConversionReference.FindIndex(x => x == convertingTo);
-            var previousReferencePosition = MetricConversionReference.FindIndex(x => x == DistanceMeasurement);
+            var conversionReferences = MetricConversionReference.Keys.ToList();
+
+            var centimetersReferencePosition = conversionReferences.FindIndex(x => x == convertingTo);
+            var previousReferencePosition = conversionReferences.FindIndex(x => x == DistanceMeasurement);
             return (double) MetricConversionFactors[previousReferencePosition] / MetricConversionFactors[centimetersReferencePosition];
         }
 
