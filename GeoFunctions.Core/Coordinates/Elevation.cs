@@ -115,7 +115,7 @@ namespace GeoFunctions.Core.Coordinates
             if (DistanceMeasurement == convertingTo)
                 return 1.0;
 
-            var conversionReferences = MetricConversionReference.Keys.ToList();
+            var conversionReferences = MetricConversionReferences.Keys.ToList();
 
             var centimetersReferencePosition = conversionReferences.FindIndex(x => x == convertingTo);
             var previousReferencePosition = conversionReferences.FindIndex(x => x == DistanceMeasurement);
