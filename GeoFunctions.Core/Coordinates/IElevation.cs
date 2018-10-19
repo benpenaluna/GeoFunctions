@@ -7,7 +7,7 @@ namespace GeoFunctions.Core.Coordinates
 
     {
     double Value { get; set; }
-    ElevationMeasurement ElevationMeasurement { get; }
+    DistanceMeasurement DistanceMeasurement { get; }
 
     double ToFeet();
     double ToMeters();

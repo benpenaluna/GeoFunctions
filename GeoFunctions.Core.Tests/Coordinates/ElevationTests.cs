@@ -29,7 +29,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         public void Elevation_CanInstantiateWithValueAndMeasurement()
         {
             const double value = 999.0;
-            const ElevationMeasurement measurement = ElevationMeasurement.Meters;
+            const DistanceMeasurement measurement = DistanceMeasurement.Meters;
             IElevation sut = new Elevation(value, measurement);
 
             Assert.NotNull(sut);
@@ -38,10 +38,10 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [Fact]
         public void Elevation_MeasurementDefaultsToFeet()
         {
-            const ElevationMeasurement expected = ElevationMeasurement.Feet;
+            const DistanceMeasurement expected = DistanceMeasurement.Feet;
 
             IElevation sut = InstantiateNewElevation();
-            var result = sut.ElevationMeasurement;
+            var result = sut.DistanceMeasurement;
 
             Assert.Equal(expected, result);
         }
@@ -49,11 +49,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [Fact]
         public void Elevation_MeasurementDefaultsToFeetValueSpecified()
         {
-            const ElevationMeasurement expected = ElevationMeasurement.Feet;
+            const DistanceMeasurement expected = DistanceMeasurement.Feet;
 
             const double value = 99.09;
             IElevation sut = new Elevation(value);
-            var result = sut.ElevationMeasurement;
+            var result = sut.DistanceMeasurement;
 
             Assert.Equal(expected, result);
         }
@@ -87,14 +87,14 @@ namespace GeoFunctions.Core.Tests.Coordinates
         }
 
         [Theory]
-        [InlineData(ElevationMeasurement.Feet)]
-        [InlineData(ElevationMeasurement.Meters)]
-        public void Elevation_CanGetMeasurement(ElevationMeasurement measurement)
+        [InlineData(DistanceMeasurement.Feet)]
+        [InlineData(DistanceMeasurement.Meters)]
+        public void Elevation_CanGetMeasurement(DistanceMeasurement measurement)
         {
             var expected = measurement;
 
             IElevation sut = new Elevation(0.0, measurement);
-            var result = sut.ElevationMeasurement;
+            var result = sut.DistanceMeasurement;
 
             Assert.Equal(expected, result);
         }
@@ -132,27 +132,33 @@ namespace GeoFunctions.Core.Tests.Coordinates
         public void Elevation_CorrectlyFindsInequalityOfMeasurement(double value)
         {
             IElevation sut = new Elevation(value);
-            IElevation testObject = new Elevation(value, ElevationMeasurement.Meters);
+            IElevation testObject = new Elevation(value, DistanceMeasurement.Meters);
 
             Assert.False(sut.Equals(testObject));
         }
 
         [Theory]
-        [InlineData(42.0, ElevationMeasurement.Feet, "42'")]
-        [InlineData(42.0, ElevationMeasurement.Meters, "42 m")]
-        public void Elevation_CorrectlyReturnToString(double value, ElevationMeasurement elevationMeasurement, string expected)
+        [InlineData(42.0, DistanceMeasurement.Feet, "42'")]
+        [InlineData(42.0, DistanceMeasurement.Meters, "42 m")]
+        public void Elevation_CorrectlyReturnToString(double value, DistanceMeasurement distanceMeasurement, string expected)
         {
-            IElevation sut = new Elevation(value, elevationMeasurement);
+            IElevation sut = new Elevation(value, distanceMeasurement);
             var result = sut.ToString();
 
             Assert.Equal(expected, result);
         }
 
         [Theory]
-        [InlineData("n u", "42 m", 42.0, ElevationMeasurement.Meters)]
-        [InlineData("n u", "42 ft", 42.0, ElevationMeasurement.Feet)]
-        [InlineData("n.nnnn u", "42.9163 ft", 42.9162744, ElevationMeasurement.Feet)]
-        public void Elevation_CorrectlyParsesFormatString(string format, string expected, double value, ElevationMeasurement unitOfMeasurement)
+        [InlineData("c u", "42 cm", 42.0, DistanceMeasurement.Centimeters)]
+        [InlineData("c uu", "42 centimeters", 42.0, DistanceMeasurement.Centimeters)]
+        [InlineData("t u", "42 m", 42.0, DistanceMeasurement.Meters)]
+        [InlineData("t uu", "42 meters", 42.0, DistanceMeasurement.Meters)]
+        [InlineData("c u", "4200 cm", 42.0, DistanceMeasurement.Meters)]
+        [InlineData("m u", "42000 mm", 42.0, DistanceMeasurement.Meters)]
+        [InlineData("m uu", "42000 millimeters", 42.0, DistanceMeasurement.Meters)]
+        [InlineData("k.kkk u", "0.042 km", 42.0, DistanceMeasurement.Meters)]
+        [InlineData("k.kkk uu", "0.042 kilometers", 42.0, DistanceMeasurement.Meters)]
+        public void Elevation_CorrectlyParsesFormatStringMetric(string format, string expected, double value, DistanceMeasurement unitOfMeasurement)
         {
             IElevation sut = new Elevation(value, unitOfMeasurement);
             var result = sut.ToString(format, CultureInfo.InvariantCulture);
@@ -182,7 +188,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         {
             var expected = value / 0.3048;
 
-            IElevation sut = new Elevation(value, ElevationMeasurement.Meters);
+            IElevation sut = new Elevation(value, DistanceMeasurement.Meters);
             var result = sut.ToFeet();
 
             Assert.Equal(expected, result);
@@ -209,7 +215,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         {
             var expected = value;
 
-            IElevation sut = new Elevation(value, ElevationMeasurement.Meters);
+            IElevation sut = new Elevation(value, DistanceMeasurement.Meters);
             var result = sut.ToMeters();
 
             Assert.Equal(expected, result);

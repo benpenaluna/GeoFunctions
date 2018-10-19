@@ -1,7 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using GeoFunctions.Core.Common;
 using GeoFunctions.Core.Coordinates.Measurement;
 
@@ -9,9 +8,19 @@ namespace GeoFunctions.Core.Coordinates
 {
     public class Elevation : IElevation
     {
-        private const double ConversionRatio = 0.3048;
+        private const double RatioMetersToFeet = 0.3048;
 
         private const string DefaultFormat = "nu";
+
+        private static readonly List<int> MetricConversionFactors = new List<int> { 1, 10, 1000, 1000000 };
+
+        private static readonly List<DistanceMeasurement> MetricConversionReference = new List<DistanceMeasurement>()
+        {
+            DistanceMeasurement.Millimeters,
+            DistanceMeasurement.Centimeters,
+            DistanceMeasurement.Meters,
+            DistanceMeasurement.Kilometers
+        };
 
         private double _value;
 
@@ -31,12 +40,12 @@ namespace GeoFunctions.Core.Coordinates
             }
         }
 
-        public ElevationMeasurement ElevationMeasurement { get; protected set; }
+        public DistanceMeasurement DistanceMeasurement { get; protected set; }
         
-        public Elevation(double elevation = 0.0, ElevationMeasurement measurement = ElevationMeasurement.Feet)
+        public Elevation(double elevation = 0.0, DistanceMeasurement measurement = DistanceMeasurement.Feet)
         {
             Value = elevation;
-            ElevationMeasurement = measurement;
+            DistanceMeasurement = measurement;
         }
 
         public override bool Equals(object obj)
@@ -48,17 +57,17 @@ namespace GeoFunctions.Core.Coordinates
 
             var testObject = (Elevation) obj;
 
-            return Value.Equals(testObject.Value) && ElevationMeasurement == testObject.ElevationMeasurement;
+            return Value.Equals(testObject.Value) && DistanceMeasurement == testObject.DistanceMeasurement;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Value, ElevationMeasurement);
+            return HashCode.Combine(Value, DistanceMeasurement);
         }
 
         public override string ToString()
         {
-            var measurementSymbol = ElevationMeasurement == ElevationMeasurement.Feet ? "'" : " m";
+            var measurementSymbol = DistanceMeasurement == DistanceMeasurement.Feet ? "'" : " m";
             return $"{Value.ToString(CultureInfo.CurrentCulture)}{measurementSymbol}";
         }
 
@@ -75,33 +84,83 @@ namespace GeoFunctions.Core.Coordinates
 
         private string FormatString(string format, IFormatProvider formatProvider)
         {
-            var valueElementHelper = format.FindConsecutiveChars('n');
+            var helper = new FormatHelper(format, formatProvider, format);
 
-            format = valueElementHelper.Aggregate(format, (current, element) => current.Replace(element.StringReplacement, Value.ToString(element.FormatSpecifier, formatProvider)));
+            helper = HandleMeasurements(DistanceMeasurement.Millimeters, 'm', helper);
+            helper = HandleMeasurements(DistanceMeasurement.Centimeters, 'c', helper);
+            helper = HandleMeasurements(DistanceMeasurement.Meters, 't', helper);
+            helper = HandleMeasurements(DistanceMeasurement.Kilometers, 'k', helper);
 
-            format = format.Replace("u", ElevationMeasurement == ElevationMeasurement.Feet ? "ft" : "m");
+            helper = HandleUnits(helper);
 
-            return format;
+            return helper.FormattedString;
+        }
+
+        private FormatHelper HandleMeasurements(DistanceMeasurement measurementHandling, char measurementCode, FormatHelper helper)
+        {
+            var valueElementHelper = helper.Format.FindConsecutiveChars(measurementCode);
+
+            foreach (var element in valueElementHelper)
+            {
+                var conversionRatio = ConvertDistanceMeasurementTo(measurementHandling);
+                helper.FormattedString = helper.FormattedString.Replace(element.StringReplacement, (Value * conversionRatio).ToString(element.FormatSpecifier, helper.FormatProvider));
+            }
+
+            return helper;
+        }
+
+        private double ConvertDistanceMeasurementTo(DistanceMeasurement convertingTo)
+        {
+            if (DistanceMeasurement == convertingTo)
+                return 1.0;
+
+            var centimetersReferencePosition = MetricConversionReference.FindIndex(x => x == convertingTo);
+            var previousReferencePosition = MetricConversionReference.FindIndex(x => x == DistanceMeasurement);
+            return (double) MetricConversionFactors[previousReferencePosition] / MetricConversionFactors[centimetersReferencePosition];
+        }
+
+        private static FormatHelper HandleUnits(FormatHelper helper)
+        {
+            var valueElementHelper = helper.Format.FindConsecutiveChars('u');
+
+            foreach (var element in valueElementHelper)
+            {
+                if (element.PreviousLetter == 'm')
+                    helper.FormattedString = FormatUnits(element, "millimeters", "mm", helper);
+                else if (element.PreviousLetter == 'c')
+                    helper.FormattedString = FormatUnits(element, "centimeters", "cm", helper);
+                else if (element.PreviousLetter == 't')
+                    helper.FormattedString = FormatUnits(element, "meters", "m", helper);
+                else if (element.PreviousLetter == 'k')
+                    helper.FormattedString = FormatUnits(element, "kilometers", "km", helper);
+            }
+
+            return helper;
+        }
+
+        private static string FormatUnits(FormatElementHelper element, string longFormat, string shortFormat, FormatHelper formatHelper)
+        {
+            return formatHelper.FormattedString.Replace(element.StringReplacement, element.StringReplacement.Length > 1 ? longFormat : shortFormat);
         }
 
         public static double ToFeet(double valueInMeters)
         {
-            return valueInMeters / ConversionRatio;
+            return valueInMeters / RatioMetersToFeet;
         }
 
         public double ToFeet()
         {
-            return ElevationMeasurement == ElevationMeasurement.Feet ? Value : ToFeet(Value);
+            return DistanceMeasurement == DistanceMeasurement.Feet ? Value : ToFeet(Value);
         }
 
         public static double ToMeters(double valueInFeet)
         {
-            return valueInFeet * ConversionRatio;
+            return valueInFeet * RatioMetersToFeet;
         }
 
         public double ToMeters()
         {
-            return ElevationMeasurement == ElevationMeasurement.Meters ? Value : ToMeters(Value);
+            return DistanceMeasurement == DistanceMeasurement.Meters ? Value : ToMeters(Value);
         }
     }
 }

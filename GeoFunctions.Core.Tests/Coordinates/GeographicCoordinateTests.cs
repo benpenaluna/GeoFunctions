@@ -38,7 +38,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         {
             ISphericalCoordinate latitude = new Latitude(-37.1);
             ISphericalCoordinate longitude = new Longitude(144.9);
-            IElevation elevation = new Elevation(96, ElevationMeasurement.Meters);
+            IElevation elevation = new Elevation(96, DistanceMeasurement.Meters);
 
             IGeographicCoordinate result = new GeographicCoordinate(latitude, longitude, elevation);
             Assert.NotNull(result);

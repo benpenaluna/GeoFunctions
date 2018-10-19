@@ -4,5 +4,6 @@
     {
         public string FormatSpecifier { get; set; }
         public string StringReplacement { get; set; }
+        public char PreviousLetter { get; set; }
     }
 }

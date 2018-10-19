@@ -19,12 +19,16 @@ namespace GeoFunctions.Core.Common
                 {
                     UpdateHelper('0', charToReplace, helper);
                     charPreviouslyFound = true;
+                    helper.PreviousLetter = formatCharacters[i] != charToReplace && char.IsLetter(formatCharacters[i]) ? formatCharacters[i] : helper.PreviousLetter;
                 }
                 else if (charPreviouslyFound && ExaminingFullStop(formatCharacters, i) && NextCharacterIsCharToReplace(charToReplace, formatCharacters, i))
                     UpdateHelper('.', '.', helper);
                 else
+                {
                     charPreviouslyFound = false;
-
+                    helper.PreviousLetter = char.IsLetter(formatCharacters[i]) ? formatCharacters[i] : helper.PreviousLetter;
+                }
+                
                 if (HelpersNotReadyToBeUpdated(helper, formatCharacters, charPreviouslyFound, i))
                     continue;
 
