@@ -149,16 +149,40 @@ namespace GeoFunctions.Core.Tests.Coordinates
         }
 
         [Theory]
+        //[InlineData("m uu", "1 millimeter", 1.0, DistanceMeasurement.Centimeters)]
         [InlineData("c u", "42 cm", 42.0, DistanceMeasurement.Centimeters)]
         [InlineData("c uu", "42 centimeters", 42.0, DistanceMeasurement.Centimeters)]
+        //[InlineData("c uu", "1 centimeter", 1.0, DistanceMeasurement.Centimeters)]
         [InlineData("t u", "42 m", 42.0, DistanceMeasurement.Meters)]
         [InlineData("t uu", "42 meters", 42.0, DistanceMeasurement.Meters)]
+        //[InlineData("t uu", "1 meter", 1.0, DistanceMeasurement.Meters)]
         [InlineData("c u", "4200 cm", 42.0, DistanceMeasurement.Meters)]
         [InlineData("m u", "42000 mm", 42.0, DistanceMeasurement.Meters)]
         [InlineData("m uu", "42000 millimeters", 42.0, DistanceMeasurement.Meters)]
+        //[InlineData("k uu", "1 kilometer", 1.0, DistanceMeasurement.Meters)]
         [InlineData("k.kkk u", "0.042 km", 42.0, DistanceMeasurement.Meters)]
         [InlineData("k.kkk uu", "0.042 kilometers", 42.0, DistanceMeasurement.Meters)]
-        public void Elevation_CorrectlyParsesFormatStringMetric(string format, string expected, double value, DistanceMeasurement unitOfMeasurement)
+
+        [InlineData("iu", "42\"", 42.0, DistanceMeasurement.Inches)]
+        [InlineData("i uu", "42 inches", 42.0, DistanceMeasurement.Inches)]
+        [InlineData("i.iiiu", "2671992.576\"", 42.1716, DistanceMeasurement.Miles)]
+        [InlineData("fu", "42'", 42.0, DistanceMeasurement.Feet)]
+        [InlineData("f uu", "42 feet", 42.0, DistanceMeasurement.Feet)]
+        [InlineData("fu", "126'", 42.0, DistanceMeasurement.Yards)]
+        [InlineData("yu", "42yd", 42.0, DistanceMeasurement.Yards)]
+        [InlineData("y uu", "42 yards", 42.0, DistanceMeasurement.Yards)]
+        [InlineData("fu", "5280'", 1.0, DistanceMeasurement.Miles)]
+        [InlineData("lu", "10mi", 10.0, DistanceMeasurement.Miles)]
+        [InlineData("l uu", "10 miles", 10.0, DistanceMeasurement.Miles)]
+        [InlineData("l.llllu", "0.0162mi", 1027.0, DistanceMeasurement.Inches)]
+
+        [InlineData("t.ttttu", "0.3048m", 1.0, DistanceMeasurement.Feet)]
+        [InlineData("c.ccu", "30.48cm", 1.0, DistanceMeasurement.Feet)]
+        [InlineData("c.ccu", "91.44cm", 1.0, DistanceMeasurement.Yards)]
+        [InlineData("f.ffffu", "3.2808'", 1.0, DistanceMeasurement.Meters)]
+        [InlineData("i.iiiiu", "39.3701\"", 1.0, DistanceMeasurement.Meters)]
+        [InlineData("i.iiiiu", "0.0394\"", 1.0, DistanceMeasurement.Kilometers)]
+        public void Elevation_CorrectlyParsesFormatString(string format, string expected, double value, DistanceMeasurement unitOfMeasurement)
         {
             IElevation sut = new Elevation(value, unitOfMeasurement);
             var result = sut.ToString(format, CultureInfo.InvariantCulture);

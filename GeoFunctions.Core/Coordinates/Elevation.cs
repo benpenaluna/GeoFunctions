@@ -15,13 +15,23 @@ namespace GeoFunctions.Core.Coordinates
 
         private static readonly List<int> MetricConversionFactors = new List<int> { 1, 10, 1000, 1000000 };
 
-        private static readonly Dictionary<DistanceMeasurement, char> MetricConversionReferences = new Dictionary<DistanceMeasurement, char>()
+        private static readonly List<MeasurementType> MetricConversionReferences = new List<MeasurementType>()
         {
-            {DistanceMeasurement.Millimeters, 'm'},
-            {DistanceMeasurement.Centimeters, 'c'},
-            {DistanceMeasurement.Meters, 't'},
-            {DistanceMeasurement.Kilometers, 'k'}
-    };
+            new MeasurementType(DistanceMeasurement.Millimeters, 'm'),
+            new MeasurementType(DistanceMeasurement.Centimeters, 'c'),
+            new MeasurementType(DistanceMeasurement.Meters, 't'),
+            new MeasurementType(DistanceMeasurement.Kilometers, 'k')
+        };
+
+        private static readonly List<int> ImperialConversionFactors = new List<int> { 1, 12, 36, 63360 };
+
+        private static readonly List<MeasurementType> ImperialConversionReferences = new List<MeasurementType>()
+        {
+            new MeasurementType(DistanceMeasurement.Inches, 'i'),
+            new MeasurementType(DistanceMeasurement.Feet, 'f'),
+            new MeasurementType(DistanceMeasurement.Yards, 'y'),
+            new MeasurementType(DistanceMeasurement.Miles, 'l')
+        };
 
         private double _value;
 
@@ -89,7 +99,12 @@ namespace GeoFunctions.Core.Coordinates
 
             foreach (var measurementType in MetricConversionReferences)
             {
-                helper = HandleMeasurements(measurementType.Key, measurementType.Value, helper); //TODO: .Key should equal .Measurement and .Value should equal .MeasurementCode
+                helper = HandleMetricMeasurements(measurementType.Measurement, measurementType.Code, helper);
+            }
+
+            foreach (var measurementType in ImperialConversionReferences)
+            {
+                helper = HandleImperialMeasurements(measurementType.Measurement, measurementType.Code, helper);
             }
 
             helper = HandleUnits(helper);
@@ -97,29 +112,66 @@ namespace GeoFunctions.Core.Coordinates
             return helper.FormattedString;
         }
 
-        private FormatHelper HandleMeasurements(DistanceMeasurement measurementHandling, char measurementCode, FormatHelper helper)
+        private FormatHelper HandleMetricMeasurements(DistanceMeasurement measurementHandling, char measurementCode, FormatHelper helper)
         {
             var valueElementHelper = helper.Format.FindConsecutiveChars(measurementCode);
 
             foreach (var element in valueElementHelper)
             {
-                var conversionRatio = ConvertDistanceMeasurementTo(measurementHandling);
-                helper.FormattedString = helper.FormattedString.Replace(element.StringReplacement, (Value * conversionRatio).ToString(element.FormatSpecifier, helper.FormatProvider));
+                var conversionRatio = ConvertDistanceMetricMeasurementTo(measurementHandling);
+                helper.FormattedString = helper.FormattedString.Replace(element.StringReplacement, (Value * conversionRatio)
+                                                               .ToString(element.FormatSpecifier, helper.FormatProvider));
             }
 
             return helper;
         }
 
-        private double ConvertDistanceMeasurementTo(DistanceMeasurement convertingTo)
+        private double ConvertDistanceMetricMeasurementTo(DistanceMeasurement convertingTo)
         {
             if (DistanceMeasurement == convertingTo)
                 return 1.0;
 
-            var conversionReferences = MetricConversionReferences.Keys.ToList();
+            var conversionReferences = MetricConversionReferences.Select(x => x.Measurement).ToList();
+            var distanceMeasurement = conversionReferences.Contains(DistanceMeasurement) ? DistanceMeasurement : DistanceMeasurement.Meters;
 
-            var centimetersReferencePosition = conversionReferences.FindIndex(x => x == convertingTo);
-            var previousReferencePosition = conversionReferences.FindIndex(x => x == DistanceMeasurement);
-            return (double) MetricConversionFactors[previousReferencePosition] / MetricConversionFactors[centimetersReferencePosition];
+            var convertingToReferencePosition = conversionReferences.FindIndex(x => x == convertingTo);
+            var previousReferencePosition = conversionReferences.FindIndex(x => x == distanceMeasurement);
+
+            var metricConversionFactor = MetricConversionFactors[previousReferencePosition] / (double)MetricConversionFactors[convertingToReferencePosition];
+            return conversionReferences.Contains(DistanceMeasurement)
+                ? metricConversionFactor
+                : metricConversionFactor * ConvertDistanceImperialMeasurementTo(DistanceMeasurement.Feet) * RatioMetersToFeet;
+        }
+
+        private FormatHelper HandleImperialMeasurements(DistanceMeasurement measurementHandling, char measurementCode, FormatHelper helper)
+        {
+            var valueElementHelper = helper.Format.FindConsecutiveChars(measurementCode);
+
+            foreach (var element in valueElementHelper)
+            {
+                var conversionRatio = ConvertDistanceImperialMeasurementTo(measurementHandling);
+                helper.FormattedString = helper.FormattedString.Replace(element.StringReplacement, (Value * conversionRatio)
+                    .ToString(element.FormatSpecifier, helper.FormatProvider));
+            }
+
+            return helper;
+        }
+
+        private double ConvertDistanceImperialMeasurementTo(DistanceMeasurement convertingTo)
+        {
+            if (DistanceMeasurement == convertingTo)
+                return 1.0;
+
+            var conversionReferences = ImperialConversionReferences.Select(x => x.Measurement).ToList();
+            var distanceMeasurement = conversionReferences.Contains(DistanceMeasurement) ? DistanceMeasurement : DistanceMeasurement.Feet;
+
+            var convertingToReferencePosition = conversionReferences.FindIndex(x => x == convertingTo);
+            var previousReferencePosition = conversionReferences.FindIndex(x => x == distanceMeasurement);
+
+            var imperialConversionFactor = (double)ImperialConversionFactors[previousReferencePosition] / ImperialConversionFactors[convertingToReferencePosition];
+            return conversionReferences.Contains(DistanceMeasurement)
+                ? imperialConversionFactor
+                : imperialConversionFactor / ConvertDistanceMetricMeasurementTo(DistanceMeasurement.Meters) / RatioMetersToFeet;
         }
 
         private static FormatHelper HandleUnits(FormatHelper helper)
@@ -136,6 +188,14 @@ namespace GeoFunctions.Core.Coordinates
                     helper.FormattedString = FormatUnits(element, "meters", "m", helper);
                 else if (element.PreviousLetter == 'k')
                     helper.FormattedString = FormatUnits(element, "kilometers", "km", helper);
+                else if (element.PreviousLetter == 'i')
+                    helper.FormattedString = FormatUnits(element, "inches", "\"", helper);
+                else if (element.PreviousLetter == 'f')
+                    helper.FormattedString = FormatUnits(element, "feet", "'", helper);
+                else if (element.PreviousLetter == 'y')
+                    helper.FormattedString = FormatUnits(element, "yards", "yd", helper);
+                else if (element.PreviousLetter == 'l')
+                    helper.FormattedString = FormatUnits(element, "miles", "mi", helper);
             }
 
             return helper;
