@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using GeoFunctions.Core.Common;
 using GeoFunctions.Core.Coordinates.Measurement;
 
@@ -17,20 +18,20 @@ namespace GeoFunctions.Core.Coordinates
 
         private static readonly List<MeasurementType> MetricConversionReferences = new List<MeasurementType>()
         {
-            new MeasurementType(DistanceMeasurement.Millimeters, 'm'),
-            new MeasurementType(DistanceMeasurement.Centimeters, 'c'),
-            new MeasurementType(DistanceMeasurement.Meters, 't'),
-            new MeasurementType(DistanceMeasurement.Kilometers, 'k')
+            new MeasurementType(DistanceMeasurement.Millimeters, 'm', "millimeter", "millimeters", "mm"),
+            new MeasurementType(DistanceMeasurement.Centimeters, 'c', "centimeter", "centimeters", "cm"),
+            new MeasurementType(DistanceMeasurement.Meters, 't', "meter", "meters", "m"),
+            new MeasurementType(DistanceMeasurement.Kilometers, 'k', "kilometer", "kilometers", "km")
         };
 
         private static readonly List<int> ImperialConversionFactors = new List<int> { 1, 12, 36, 63360 };
 
         private static readonly List<MeasurementType> ImperialConversionReferences = new List<MeasurementType>()
         {
-            new MeasurementType(DistanceMeasurement.Inches, 'i'),
-            new MeasurementType(DistanceMeasurement.Feet, 'f'),
-            new MeasurementType(DistanceMeasurement.Yards, 'y'),
-            new MeasurementType(DistanceMeasurement.Miles, 'l')
+            new MeasurementType(DistanceMeasurement.Inches, 'i', "inch", "inches", "\""),
+            new MeasurementType(DistanceMeasurement.Feet, 'f', "foot", "feet", "'"),
+            new MeasurementType(DistanceMeasurement.Yards, 'y', "yard", "yards", "yd"),
+            new MeasurementType(DistanceMeasurement.Miles, 'l', "mile", "miles", "mi")
         };
 
         private double _value;
@@ -181,29 +182,51 @@ namespace GeoFunctions.Core.Coordinates
             foreach (var element in valueElementHelper)
             {
                 if (element.PreviousLetter == 'm')
-                    helper.FormattedString = FormatUnits(element, "millimeters", "mm", helper);
+                    helper.FormattedString = FormatUnits(element, DistanceMeasurement.Millimeters, helper);
                 else if (element.PreviousLetter == 'c')
-                    helper.FormattedString = FormatUnits(element, "centimeters", "cm", helper);
+                    helper.FormattedString = FormatUnits(element, DistanceMeasurement.Centimeters, helper);
                 else if (element.PreviousLetter == 't')
-                    helper.FormattedString = FormatUnits(element, "meters", "m", helper);
+                    helper.FormattedString = FormatUnits(element, DistanceMeasurement.Meters, helper);
                 else if (element.PreviousLetter == 'k')
-                    helper.FormattedString = FormatUnits(element, "kilometers", "km", helper);
+                    helper.FormattedString = FormatUnits(element, DistanceMeasurement.Kilometers, helper);
                 else if (element.PreviousLetter == 'i')
-                    helper.FormattedString = FormatUnits(element, "inches", "\"", helper);
+                    helper.FormattedString = FormatUnits(element, DistanceMeasurement.Inches, helper);
                 else if (element.PreviousLetter == 'f')
-                    helper.FormattedString = FormatUnits(element, "feet", "'", helper);
+                    helper.FormattedString = FormatUnits(element, DistanceMeasurement.Feet, helper);
                 else if (element.PreviousLetter == 'y')
-                    helper.FormattedString = FormatUnits(element, "yards", "yd", helper);
+                    helper.FormattedString = FormatUnits(element, DistanceMeasurement.Yards, helper);
                 else if (element.PreviousLetter == 'l')
-                    helper.FormattedString = FormatUnits(element, "miles", "mi", helper);
+                    helper.FormattedString = FormatUnits(element, DistanceMeasurement.Miles, helper);
             }
 
             return helper;
         }
 
-        private static string FormatUnits(FormatElementHelper element, string longFormat, string shortFormat, FormatHelper formatHelper)
+        private static string FormatUnits(FormatElementHelper element, DistanceMeasurement measurement, FormatHelper formatHelper)
         {
-            return formatHelper.FormattedString.Replace(element.StringReplacement, element.StringReplacement.Length > 1 ? longFormat : shortFormat);
+            var measurementTypes = new List<MeasurementType>();
+            measurementTypes.AddRange(MetricConversionReferences);
+            measurementTypes.AddRange(ImperialConversionReferences);
+
+            var measurementType = measurementTypes.FirstOrDefault(x => x.Measurement == measurement);
+            if (measurementType is null)
+                throw new NullReferenceException();
+
+            if (element.StringReplacement.Length == 1)
+                return formatHelper.FormattedString.Replace(element.StringReplacement, measurementType.Abbreviation);
+
+            var measurementTypeToUse = DetermineMeasurementPlurality(element, formatHelper, measurementType);
+            return formatHelper.FormattedString.Replace(element.StringReplacement, measurementTypeToUse);
+        }
+
+        private static string DetermineMeasurementPlurality(FormatElementHelper element, FormatHelper formatHelper, MeasurementType measurementType)
+        {
+            var test = formatHelper.FormattedString.Split(new[] { element.StringReplacement }, StringSplitOptions.RemoveEmptyEntries);
+            var measurementToUse = measurementType.PluralName;
+            if (test.Length > 0 && test[0].Trim() == "1")
+                measurementToUse = measurementType.SingularName;
+
+            return measurementToUse;
         }
 
         public static double ToFeet(double valueInMeters)
