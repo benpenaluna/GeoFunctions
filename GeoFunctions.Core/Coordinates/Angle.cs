@@ -65,7 +65,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Value, AngleMeasurement);
+            return HashCode.Combine(Value);
         }
 
         public static bool operator == (Angle a, Angle b)

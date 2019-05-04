@@ -30,14 +30,7 @@ namespace GeoFunctions.Core.Coordinates.Structs
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                var hashCode = Degrees.GetHashCode();
-                hashCode = (hashCode * 397) ^ Minutes.GetHashCode();
-                hashCode = (hashCode * 397) ^ Seconds.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int) Hemisphere;
-                return hashCode;
-            }
+            return HashCode.Combine(DefaultFormat, Tolerance);
         }
 
         public override string ToString()

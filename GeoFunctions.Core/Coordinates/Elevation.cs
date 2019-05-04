@@ -73,7 +73,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Value, DistanceMeasurement);
+            return HashCode.Combine(Value);
         }
 
         public override string ToString()
