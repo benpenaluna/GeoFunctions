@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using GeoFunctions.Core.Coordinates.Structs;
+using GeoFunctions.Core.Common;
 
 namespace GeoFunctions.Core.Coordinates
 {
@@ -45,7 +48,7 @@ namespace GeoFunctions.Core.Coordinates
             return string.Format("{0} {1}", Latitude.ToString(), Longitude.ToString());
         }
 
-        public string ToString(string format, IFormatProvider formatProvider) // TODO: Refactor!
+        public string ToString(string format, IFormatProvider formatProvider)
         {
             if (format is null)
                 return ToString();
@@ -53,26 +56,32 @@ namespace GeoFunctions.Core.Coordinates
             if (formatProvider is null)
                 formatProvider = CultureInfo.InvariantCulture;
 
-            var splits = format.Split(new[] {'[', ']'}, StringSplitOptions.RemoveEmptyEntries);
+            return CustomFormat(format, formatProvider);
+        }
+
+        private string CustomFormat(string format, IFormatProvider formatProvider)
+        {
+            var splits = format.Split(new[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var split in splits)
             {
-                if (split.Contains("lat:"))
+                if (split.ToLower().StartsWith("lat:"))
                 {
-                    var latFormat = split.Substring(4, split.Length - 4);
-                    var latFormatted = Latitude.ToString(latFormat, formatProvider);
-                    format = format.Replace(split, latFormatted);
+                    format = split.Format(Latitude, format, formatProvider);
                 }
-                else if (split.Contains("lon:"))
+                else if (split.ToLower().StartsWith("lon:"))
                 {
-                    var lonFormat = split.Substring(4, split.Length - 4);
-                    var lonFormatted = Longitude.ToString(lonFormat, formatProvider);
-                    format = format.Replace(split, lonFormatted);
+                    format = split.Format(Longitude, format, formatProvider);
+                }
+                else if (split.ToLower().StartsWith("ele:"))
+                {
+                    format = split.Format(Elevation, format, formatProvider);
                 }
             }
 
             format = format.Replace("[", "");
             format = format.Replace("]", "");
+
             return format;
         }
     }

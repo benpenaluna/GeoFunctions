@@ -148,11 +148,26 @@ namespace GeoFunctions.Core.Tests.Coordinates
 
         [Theory]
         [InlineData("[lat:DD° MM' SS\"H] [lon:DDD° MM' SS\"H]", "37° 41' 19\"S 144° 59' 59\"E")]
-        public void GeographicCoordinate_CorrectlyParsesDefaultFormatStringWithFormat(string format, string expected) // TODO: Consider more scenarios and what exceptions are thrown for invalid syntax
+        [InlineData("[LAT:DD° MM' SS\"H] [lon:DDD° MM' SS\"H]", "37° 41' 19\"S 144° 59' 59\"E")]
+        [InlineData("[lat:DD° MM' SS\"H] [LON:DDD° MM' SS\"H]", "37° 41' 19\"S 144° 59' 59\"E")]
+        [InlineData("[lon:DDD° MM' SS\"H],[lat:DD° MM' SS\"H]", "144° 59' 59\"E,37° 41' 19\"S")]
+        [InlineData("[lat:DD° MM' SS.ss\"H] [lon:DDD° MM' SS.ss\"H]", "37° 41' 18.95\"S 144° 59' 58.70\"E")]
+        [InlineData("[lat:DD° MM.mm'H] [lon:DDD° MM.mm'H]", "37° 41.32'S 144° 59.98'E")]
+        [InlineData("[lat:DD.dd°H] [lon:DDD.dd°H]", "37.69°S 145.00°E")]
+        [InlineData("[lat:DD.dd°],[lon:DDD.dd°]", "-37.69°,145.00°")]
+        [InlineData("[lid:DD.dd°],[lon:DDD.dd°]", "lid:DD.dd°,145.00°")]
+        [InlineData("[lat:lon:DD° MM' SS.ss\"H] [lon:DDD° MM' SS.ss\"H]", "LON:37° 41' 18.95\"S 144° 59' 58.70\"E")]
+        [InlineData("[lat:DD° MM' SS.ss\"H] [lon:lat:DDD° MM' SS.ss\"H]", "37° 41' 18.95\"S LAT:144° 59' 58.70\"E")]
+        [InlineData("[Alat:DD° MM' SS.ss\"H] [lon:DDD° MM' SS.ss\"H]", "Alat:DD° MM' SS.ss\"H 144° 59' 58.70\"E")]
+        [InlineData("[lat:DD° MM' SS\"H] [lon:DDD° MM' SS\"H] [ele:t u]", "37° 41' 19\"S 144° 59' 59\"E 119 m")]
+        [InlineData("[lon:DDD.dddddddddddd],[lat:DD.ddddddddddddd],[ele:f.ffffffff]", "144.999637777534,-37.6885966980243,389.31430446")]
+        [InlineData("[lon:DDD.dddddddddddd],[lat:DD.ddddddddddddd],[lat:ele:f.ffffffff]", "144.999637777534,-37.6885966980243,ELE:F.FFFFFFFF")]
+        public void GeographicCoordinate_CorrectlyParsesDefaultFormatStringWithFormat(string format, string expected)
         {
             ISphericalCoordinate latitude = new Latitude(-37.6885966980243);
             ISphericalCoordinate longitude = new Longitude(144.999637777534);
-            IGeographicCoordinate sut = new GeographicCoordinate(latitude, longitude);
+            IElevation elevation = new Elevation(118.663,DistanceMeasurement.Meters);
+            IGeographicCoordinate sut = new GeographicCoordinate(latitude, longitude, elevation);
             var result = sut.ToString(format, CultureInfo.InvariantCulture);
 
             Assert.Equal(expected, result);

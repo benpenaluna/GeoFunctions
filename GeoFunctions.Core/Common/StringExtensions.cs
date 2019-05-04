@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace GeoFunctions.Core.Common
@@ -39,6 +40,13 @@ namespace GeoFunctions.Core.Common
             return helpers.OrderByDescending(x => x.StringReplacement.Length)
                           .ThenBy(x => x.StringReplacement.Contains('.'));
         }
+
+        public static string Format(this string subject, IFormattable formattableObject, string format, IFormatProvider formatProvider)
+        {
+            var latFormat = subject.Substring(4, subject.Length - 4);
+            var latFormatted = formattableObject.ToString(latFormat, formatProvider);
+            return format.Replace(subject, latFormatted);
+        } 
 
         private static bool ExaminingCharToReplace(char charToReplace, IReadOnlyList<char> formatCharacters, int i)
         {
