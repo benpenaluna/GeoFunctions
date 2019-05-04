@@ -1,5 +1,4 @@
 ﻿using System;
-using GeoFunctions.Core.Coordinates.Structs;
 
 namespace GeoFunctions.Core.Coordinates
 {

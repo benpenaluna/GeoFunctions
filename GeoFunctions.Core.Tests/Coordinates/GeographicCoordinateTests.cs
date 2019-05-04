@@ -2,7 +2,6 @@
 using System.Globalization;
 using GeoFunctions.Core.Coordinates;
 using GeoFunctions.Core.Coordinates.Measurement;
-using GeoFunctions.Core.Coordinates.Structs;
 using Xunit;
 
 namespace GeoFunctions.Core.Tests.Coordinates

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using GeoFunctions.Core.Common;
 using GeoFunctions.Core.Coordinates.Measurement;
 
