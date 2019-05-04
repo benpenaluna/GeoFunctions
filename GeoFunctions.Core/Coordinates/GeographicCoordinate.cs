@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using GeoFunctions.Core.Coordinates.Structs;
 using GeoFunctions.Core.Common;
 
 namespace GeoFunctions.Core.Coordinates
@@ -45,7 +41,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public override string ToString()
         {
-            return string.Format("{0} {1}", Latitude.ToString(), Longitude.ToString());
+            return $"{Latitude.ToString()} {Longitude.ToString()}";
         }
 
         public string ToString(string format, IFormatProvider formatProvider)
