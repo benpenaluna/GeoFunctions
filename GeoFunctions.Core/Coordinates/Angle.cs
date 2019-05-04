@@ -19,8 +19,7 @@ namespace GeoFunctions.Core.Coordinates
             {
                 if (double.IsNaN(value) || Math.Abs(value) > MaxValueToEnsurePrecision)
                 {
-                    var errorMessage = string.Format("Value must be between -1.0E+10 and 1.0E+10. {0} is an invalid number",
-                                                     value.ToString(CultureInfo.InvariantCulture));
+                    var errorMessage = $"Value must be between -1.0E+10 and 1.0E+10. {value.ToString(CultureInfo.InvariantCulture)} is an invalid number";
                     throw new ArgumentOutOfRangeException(errorMessage);
                 }
                 
