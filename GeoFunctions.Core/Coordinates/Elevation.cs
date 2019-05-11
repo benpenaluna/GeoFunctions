@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Globalization;
 using System.Linq;
 using GeoFunctions.Core.Common;
@@ -10,6 +11,8 @@ namespace GeoFunctions.Core.Coordinates
     public class Elevation : IElevation
     {
         private const double RatioMetersToFeet = 0.3048;
+        private const double RatioNMtoMeters = 1852.0;
+        private const double RatioNMtoFeet = 6076.115486;
 
         private const string DefaultFormat = "nu";
 
@@ -31,6 +34,11 @@ namespace GeoFunctions.Core.Coordinates
             new MeasurementType(DistanceMeasurement.Feet, 'f', "foot", "feet", "'"),
             new MeasurementType(DistanceMeasurement.Yards, 'y', "yard", "yards", "yd"),
             new MeasurementType(DistanceMeasurement.Miles, 'l', "mile", "miles", "mi")
+        };
+
+        private static readonly List<MeasurementType> GeographicConversionReferences = new List<MeasurementType>()
+        {
+            new MeasurementType(DistanceMeasurement.NauticalMiles, 'n', "nautical mile", "nautical miles", "nm")
         };
 
         private double _value;
@@ -106,6 +114,11 @@ namespace GeoFunctions.Core.Coordinates
                 helper = HandleImperialMeasurements(measurementType.Measurement, measurementType.Code, helper);
             }
 
+            foreach (var measurementType in GeographicConversionReferences)
+            {
+                helper = HandleGeographicalMeasurements(measurementType.Measurement, measurementType.Code, helper);
+            }
+
             helper = HandleUnits(helper);
 
             return helper.FormattedString;
@@ -130,16 +143,21 @@ namespace GeoFunctions.Core.Coordinates
             if (DistanceMeasurement == convertingTo)
                 return 1.0;
 
-            var conversionReferences = MetricConversionReferences.Select(x => x.Measurement).ToList();
-            var distanceMeasurement = conversionReferences.Contains(DistanceMeasurement) ? DistanceMeasurement : DistanceMeasurement.Meters;
+            var metricConversionReferences = MetricConversionReferences.Select(x => x.Measurement).ToList();
+            var distanceMeasurement = metricConversionReferences.Contains(DistanceMeasurement) ? DistanceMeasurement : DistanceMeasurement.Meters;
 
-            var convertingToReferencePosition = conversionReferences.FindIndex(x => x == convertingTo);
-            var previousReferencePosition = conversionReferences.FindIndex(x => x == distanceMeasurement);
+            var convertingToReferencePosition = metricConversionReferences.FindIndex(x => x == convertingTo);
+            var previousReferencePosition = metricConversionReferences.FindIndex(x => x == distanceMeasurement);
 
             var metricConversionFactor = MetricConversionFactors[previousReferencePosition] / (double)MetricConversionFactors[convertingToReferencePosition];
-            return conversionReferences.Contains(DistanceMeasurement)
-                ? metricConversionFactor
-                : metricConversionFactor * ConvertDistanceImperialMeasurementTo(DistanceMeasurement.Feet) * RatioMetersToFeet;
+
+            if (metricConversionReferences.Contains(DistanceMeasurement))
+                return metricConversionFactor;
+
+            var imperialConversionReferences = ImperialConversionReferences.Select(x => x.Measurement).ToList();
+            return imperialConversionReferences.Contains(DistanceMeasurement)
+                ? metricConversionFactor * ConvertDistanceImperialMeasurementTo(DistanceMeasurement.Feet) * RatioMetersToFeet
+                : metricConversionFactor * ConvertDistanceGeographicalMeasurementTo(DistanceMeasurement.NauticalMiles) * RatioNMtoMeters;
         }
 
         private FormatHelper HandleImperialMeasurements(DistanceMeasurement measurementHandling, char measurementCode, FormatHelper helper)
@@ -161,16 +179,51 @@ namespace GeoFunctions.Core.Coordinates
             if (DistanceMeasurement == convertingTo)
                 return 1.0;
 
-            var conversionReferences = ImperialConversionReferences.Select(x => x.Measurement).ToList();
-            var distanceMeasurement = conversionReferences.Contains(DistanceMeasurement) ? DistanceMeasurement : DistanceMeasurement.Feet;
+            var imperialConversionReferences = ImperialConversionReferences.Select(x => x.Measurement).ToList();
+            var distanceMeasurement = imperialConversionReferences.Contains(DistanceMeasurement) ? DistanceMeasurement : DistanceMeasurement.Feet;
 
-            var convertingToReferencePosition = conversionReferences.FindIndex(x => x == convertingTo);
-            var previousReferencePosition = conversionReferences.FindIndex(x => x == distanceMeasurement);
+            var convertingToReferencePosition = imperialConversionReferences.FindIndex(x => x == convertingTo);
+            var previousReferencePosition = imperialConversionReferences.FindIndex(x => x == distanceMeasurement);
 
             var imperialConversionFactor = (double)ImperialConversionFactors[previousReferencePosition] / ImperialConversionFactors[convertingToReferencePosition];
-            return conversionReferences.Contains(DistanceMeasurement)
-                ? imperialConversionFactor
-                : imperialConversionFactor / ConvertDistanceMetricMeasurementTo(DistanceMeasurement.Meters) / RatioMetersToFeet;
+
+            if (imperialConversionReferences.Contains(DistanceMeasurement))
+                return imperialConversionFactor;
+
+            var metricConversionReferences = MetricConversionReferences.Select(x => x.Measurement).ToList();
+            return metricConversionReferences.Contains(DistanceMeasurement)
+                ? imperialConversionFactor / ConvertDistanceMetricMeasurementTo(DistanceMeasurement.Meters) / RatioMetersToFeet
+                : imperialConversionFactor / ConvertDistanceGeographicalMeasurementTo(DistanceMeasurement.NauticalMiles) * RatioNMtoFeet;
+        }
+
+        private FormatHelper HandleGeographicalMeasurements(DistanceMeasurement measurementHandling, char measurementCode, FormatHelper helper)
+        {
+            var valueElementHelper = helper.Format.FindConsecutiveChars(measurementCode);
+
+            foreach (var element in valueElementHelper)
+            {
+                var conversionRatio = ConvertDistanceGeographicalMeasurementTo(measurementHandling);
+                helper.FormattedString = helper.FormattedString.Replace(element.StringReplacement, (Value / conversionRatio)
+                    .ToString(element.FormatSpecifier, helper.FormatProvider));
+            }
+
+            return helper;
+        }
+
+        private double ConvertDistanceGeographicalMeasurementTo(DistanceMeasurement convertingTo)
+        {
+            if (DistanceMeasurement == convertingTo)
+                return 1.0;
+
+            var geographicalConversionReferences = GeographicConversionReferences.Select(x => x.Measurement).ToList();
+            var geographicalConversionFactor = 1.0;
+            if (geographicalConversionReferences.Contains(DistanceMeasurement))
+                return geographicalConversionFactor;
+
+            var metricConversionReferences = MetricConversionReferences.Select(x => x.Measurement).ToList();
+            return metricConversionReferences.Contains(DistanceMeasurement)
+                ? geographicalConversionFactor / ConvertDistanceMetricMeasurementTo(DistanceMeasurement.Meters) * RatioNMtoMeters
+                : geographicalConversionFactor / ConvertDistanceImperialMeasurementTo(DistanceMeasurement.Feet) * RatioNMtoFeet;
         }
 
         private static FormatHelper HandleUnits(FormatHelper helper)
@@ -195,6 +248,8 @@ namespace GeoFunctions.Core.Coordinates
                     helper.FormattedString = FormatUnits(element, DistanceMeasurement.Yards, helper);
                 else if (element.PreviousLetter == 'l')
                     helper.FormattedString = FormatUnits(element, DistanceMeasurement.Miles, helper);
+                else if (element.PreviousLetter == 'n')
+                    helper.FormattedString = FormatUnits(element, DistanceMeasurement.NauticalMiles, helper);
             }
 
             return helper;
@@ -205,6 +260,7 @@ namespace GeoFunctions.Core.Coordinates
             var measurementTypes = new List<MeasurementType>();
             measurementTypes.AddRange(MetricConversionReferences);
             measurementTypes.AddRange(ImperialConversionReferences);
+            measurementTypes.AddRange(GeographicConversionReferences);
 
             var measurementType = measurementTypes.FirstOrDefault(x => x.Measurement == measurement);
             if (measurementType is null)
@@ -221,30 +277,69 @@ namespace GeoFunctions.Core.Coordinates
         {
             var test = formatHelper.FormattedString.Split(new[] { element.StringReplacement }, StringSplitOptions.RemoveEmptyEntries);
             var measurementToUse = measurementType.PluralName;
-            if (test.Length > 0 && test[0].Trim() == "1")
+
+            double.TryParse(test[0].Trim(), out var numericValue);
+            if (Math.Abs(numericValue - 1.0) < 1.0E-11)
                 measurementToUse = measurementType.SingularName;
 
             return measurementToUse;
         }
 
-        public static double ToFeet(double valueInMeters)
+        public static double ToFeet(double value, DistanceMeasurement measurement)
         {
-            return valueInMeters / RatioMetersToFeet;
+            if (measurement == DistanceMeasurement.Feet)
+                return value;
+
+            if (measurement == DistanceMeasurement.Meters)
+                return value / RatioMetersToFeet;
+
+            if (measurement == DistanceMeasurement.NauticalMiles)
+                return value * RatioNMtoFeet;
+
+            return double.NaN;
         }
 
         public double ToFeet()
         {
-            return DistanceMeasurement == DistanceMeasurement.Feet ? Value : ToFeet(Value);
+            return DistanceMeasurement == DistanceMeasurement.Feet ? Value : ToFeet(Value, DistanceMeasurement);  // TODO: Refactor to account for each conversion ratio
         }
 
-        public static double ToMeters(double valueInFeet)
+        public static double ToMeters(double value, DistanceMeasurement measurement)
         {
-            return valueInFeet * RatioMetersToFeet;
+            if (measurement == DistanceMeasurement.Meters)
+                return value;
+
+            if (measurement == DistanceMeasurement.Feet)
+                return value * RatioMetersToFeet;
+
+            if (measurement == DistanceMeasurement.NauticalMiles)
+                return value * RatioNMtoMeters;
+
+            return double.NaN;
         }
 
         public double ToMeters()
         {
-            return DistanceMeasurement == DistanceMeasurement.Meters ? Value : ToMeters(Value);
+            return DistanceMeasurement == DistanceMeasurement.Meters ? Value : ToMeters(Value, DistanceMeasurement);  // TODO: Refactor to account for each conversion ratio
+        }
+
+        public static double ToNauticalMiles(double value, DistanceMeasurement measurement)
+        {
+            if (measurement == DistanceMeasurement.NauticalMiles)
+                return value;
+
+            if (measurement == DistanceMeasurement.Feet)
+                return value / RatioNMtoFeet;
+
+            if (measurement == DistanceMeasurement.Meters)
+                return value / RatioNMtoMeters;
+
+            return double.NaN;
+        }
+
+        public double ToNauticalMiles()
+        {
+            return DistanceMeasurement == DistanceMeasurement.NauticalMiles ? Value : ToNauticalMiles(Value, DistanceMeasurement); // TODO: Refactor to account for each conversion ratio 
         }
     }
 }

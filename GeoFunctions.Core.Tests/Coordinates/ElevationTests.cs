@@ -150,7 +150,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
 
         [Theory]
         [InlineData("m uu", "1 millimeter", 1.0, DistanceMeasurement.Millimeters)]
-        [InlineData("m.m uu", "1.0 millimeters", 1.0, DistanceMeasurement.Millimeters)]
+        [InlineData("m.m uu", "1.0 millimeter", 1.0, DistanceMeasurement.Millimeters)]
         [InlineData("c u", "42 cm", 42.0, DistanceMeasurement.Centimeters)]
         [InlineData("c uu", "42 centimeters", 42.0, DistanceMeasurement.Centimeters)]
         [InlineData("c uu", "1 centimeter", 1.0, DistanceMeasurement.Centimeters)]
@@ -187,6 +187,26 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData("f.ffffu", "3.2808'", 1.0, DistanceMeasurement.Meters)]
         [InlineData("i.iiiiu", "39.3701\"", 1.0, DistanceMeasurement.Meters)]
         [InlineData("i.iiiiu", "0.0394\"", 1.0, DistanceMeasurement.Kilometers)]
+
+        [InlineData("", "1nm", 1.0, DistanceMeasurement.NauticalMiles)]
+        [InlineData("m u", "1852000 mm", 1.0, DistanceMeasurement.NauticalMiles)]
+        [InlineData("c u", "185200 cm", 1.0, DistanceMeasurement.NauticalMiles)]
+        [InlineData("t u", "1852 m", 1.0, DistanceMeasurement.NauticalMiles)]
+        [InlineData("k.kkk u", "1.852 km", 1.0, DistanceMeasurement.NauticalMiles)]
+        [InlineData("i.iiiii uu", "72913.38583 inches", 1.0, DistanceMeasurement.NauticalMiles)]
+        [InlineData("f.ffffff uu", "6076.115486 feet", 1.0, DistanceMeasurement.NauticalMiles)]
+        [InlineData("y.yyyyyy uu", "2025.371829 yards", 1.0, DistanceMeasurement.NauticalMiles)]
+        [InlineData("l.lllllllll uu", "1.150779448 miles", 1.0, DistanceMeasurement.NauticalMiles)]
+        [InlineData("n.n u", "1.0 nm", 1852000, DistanceMeasurement.Millimeters)]
+        [InlineData("n.n u", "1.0 nm", 185200, DistanceMeasurement.Centimeters)]
+        [InlineData("n.n u", "1.0 nm", 1852, DistanceMeasurement.Meters)]
+        [InlineData("n.n uu", "1.0 nautical mile", 1852, DistanceMeasurement.Meters)]
+        [InlineData("n.n uu", "2.0 nautical miles", 3704, DistanceMeasurement.Meters)]
+        [InlineData("n.n u", "1.0 nm", 1.852, DistanceMeasurement.Kilometers)]
+        [InlineData("n.n u", "1.0 nm", 72913.38583, DistanceMeasurement.Inches)]
+        [InlineData("n.n u", "1.0 nm", 6076.115486, DistanceMeasurement.Feet)]
+        [InlineData("n.n u", "1.0 nm", 2025.371829, DistanceMeasurement.Yards)]
+        [InlineData("n.n u", "1.0 nm", 1.150779448, DistanceMeasurement.Miles)]
         public void Elevation_CorrectlyParsesFormatString(string format, string expected, double value, DistanceMeasurement unitOfMeasurement)
         {
             IElevation sut = new Elevation(value, unitOfMeasurement);
@@ -227,11 +247,12 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10)]
         [InlineData(0.0)]
         [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToFeetStatically(double value)
+        public void Elevation_CorrectlyConvertsToFeetFromNauticalMiles(double value)
         {
-            var expected = value / 0.3048;
+            var expected = value * 6076.115486;
 
-            var result = Elevation.ToFeet(value);
+            IElevation sut = new Elevation(value, DistanceMeasurement.NauticalMiles);
+            var result = sut.ToFeet();
 
             Assert.Equal(expected, result);
         }
@@ -268,11 +289,171 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10)]
         [InlineData(0.0)]
         [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToMetersStatically(double value)
+        public void Elevation_CorrectlyConvertsToMetersFromNauticalMiles(double value)
+        {
+            var expected = value * 1852.0;
+
+            IElevation sut = new Elevation(value, DistanceMeasurement.NauticalMiles);
+            var result = sut.ToMeters();
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10)]
+        [InlineData(0.0)]
+        [InlineData(1.0E+10)]
+        public void Elevation_CorrectlyConvertsToNMFromNM(double value)
+        {
+            var expected = value;
+
+            IElevation sut = new Elevation(value, DistanceMeasurement.NauticalMiles);
+            var result = sut.ToNauticalMiles();
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10)]
+        [InlineData(0.0)]
+        [InlineData(1.0E+10)]
+        public void Elevation_CorrectlyConvertsToNMFromFeet(double value)
+        {
+            var expected = value / 6076.115486;
+
+            IElevation sut = new Elevation(value);
+            var result = sut.ToNauticalMiles();
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10)]
+        [InlineData(0.0)]
+        [InlineData(1.0E+10)]
+        public void Elevation_CorrectlyConvertsToNMFromMeters(double value)
+        {
+            var expected = value / 1852.0;
+
+            IElevation sut = new Elevation(value, DistanceMeasurement.Meters);
+            var result = sut.ToNauticalMiles();
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10)]
+        [InlineData(0.0)]
+        [InlineData(1.0E+10)]
+        public void Elevation_CorrectlyConvertsToMetersFromMetersStatically(double value)
+        {
+            var expected = value;
+
+            var result = Elevation.ToMeters(value, DistanceMeasurement.Meters);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10)]
+        [InlineData(0.0)]
+        [InlineData(1.0E+10)]
+        public void Elevation_CorrectlyConvertsToMetersFromFeetStatically(double value)
         {
             var expected = value * 0.3048;
 
-            var result = Elevation.ToMeters(value);
+            var result = Elevation.ToMeters(value, DistanceMeasurement.Feet);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10)]
+        [InlineData(0.0)]
+        [InlineData(1.0E+10)]
+        public void Elevation_CorrectlyConvertsToMetersFromNMStatically(double value)
+        {
+            var expected = value * 1852.0;
+
+            var result = Elevation.ToMeters(value, DistanceMeasurement.NauticalMiles);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10)]
+        [InlineData(0.0)]
+        [InlineData(1.0E+10)]
+        public void Elevation_CorrectlyConvertsToFeetFromFeetStatically(double value)
+        {
+            var expected = value;
+
+            var result = Elevation.ToFeet(value, DistanceMeasurement.Feet);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10)]
+        [InlineData(0.0)]
+        [InlineData(1.0E+10)]
+        public void Elevation_CorrectlyConvertsToFeetFromMetersStatically(double value)
+        {
+            var expected = value / 0.3048;
+
+            var result = Elevation.ToFeet(value, DistanceMeasurement.Meters);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10)]
+        [InlineData(0.0)]
+        [InlineData(1.0E+10)]
+        public void Elevation_CorrectlyConvertsToFeetFromNMStatically(double value)
+        {
+            var expected = value * 6076.115486;
+
+            var result = Elevation.ToFeet(value, DistanceMeasurement.NauticalMiles);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10)]
+        [InlineData(0.0)]
+        [InlineData(1.0E+10)]
+        public void Elevation_CorrectlyConvertsToNMFromNMStatically(double value)
+        {
+            var expected = value;
+
+            var result = Elevation.ToNauticalMiles(value, DistanceMeasurement.NauticalMiles);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10)]
+        [InlineData(0.0)]
+        [InlineData(1.0E+10)]
+        public void Elevation_CorrectlyConvertsToNMFromFeetStatically(double value)
+        {
+            var expected = value / 6076.115486;
+
+            var result = Elevation.ToNauticalMiles(value, DistanceMeasurement.Feet);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10)]
+        [InlineData(0.0)]
+        [InlineData(1.0E+10)]
+        public void Elevation_CorrectlyConvertsToNMFromMetersStatically(double value)
+        {
+            var expected = value / 1852.0;
+
+            var result = Elevation.ToNauticalMiles(value, DistanceMeasurement.Meters);
 
             Assert.Equal(expected, result);
         }

@@ -11,5 +11,6 @@ namespace GeoFunctions.Core.Coordinates
 
     double ToFeet();
     double ToMeters();
+    double ToNauticalMiles();
     }
 }
