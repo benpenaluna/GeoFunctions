@@ -136,7 +136,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         }
 
         [Theory]
-        [InlineData(-37.6885966980243, 37.0, 41.0, 18.94811289)]
+        [InlineData(-37.6885966980243, 37.0, 41.0, 18.9481128874741)]
         [InlineData(37.8059488030474, 37.0, 48.0, 21.4156909706401)]
         public void Latitude_CanConvertToDms(double angle, double degrees, double minutes, double seconds)
         {
