@@ -236,6 +236,9 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 1000000.0)]
         [InlineData(0.0, DistanceMeasurement.Kilometers, 1000000.0)]
         [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 1000000.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Inches, 25.4)]
+        [InlineData(0.0, DistanceMeasurement.Inches, 25.4)]
+        [InlineData(1.0E+10, DistanceMeasurement.Inches, 25.4)]
         [InlineData(-1.0E+10, DistanceMeasurement.Feet, 304.8)]
         [InlineData(0.0, DistanceMeasurement.Feet, 304.8)]
         [InlineData(1.0E+10, DistanceMeasurement.Feet, 304.8)]
@@ -267,6 +270,9 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 1000000.0)]
         [InlineData(0.0, DistanceMeasurement.Kilometers, 1000000.0)]
         [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 1000000.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Inches, 25.4)]
+        [InlineData(0.0, DistanceMeasurement.Inches, 25.4)]
+        [InlineData(1.0E+10, DistanceMeasurement.Inches, 25.4)]
         [InlineData(-1.0E+10, DistanceMeasurement.Feet, 304.8)]
         [InlineData(0.0, DistanceMeasurement.Feet, 304.8)]
         [InlineData(1.0E+10, DistanceMeasurement.Feet, 304.8)]
@@ -296,6 +302,9 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 100000.0)]
         [InlineData(0.0, DistanceMeasurement.Kilometers, 100000.0)]
         [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 100000.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Inches, 2.54)]
+        [InlineData(0.0, DistanceMeasurement.Inches, 2.54)]
+        [InlineData(1.0E+10, DistanceMeasurement.Inches, 2.54)]
         [InlineData(-1.0E+10, DistanceMeasurement.Feet, 30.48)]
         [InlineData(0.0, DistanceMeasurement.Feet, 30.48)]
         [InlineData(1.0E+10, DistanceMeasurement.Feet, 30.48)]
@@ -327,6 +336,9 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 100000.0)]
         [InlineData(0.0, DistanceMeasurement.Kilometers, 100000.0)]
         [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 100000.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Inches, 2.54)]
+        [InlineData(0.0, DistanceMeasurement.Inches, 2.54)]
+        [InlineData(1.0E+10, DistanceMeasurement.Inches, 2.54)]
         [InlineData(-1.0E+10, DistanceMeasurement.Feet, 30.48)]
         [InlineData(0.0, DistanceMeasurement.Feet, 30.48)]
         [InlineData(1.0E+10, DistanceMeasurement.Feet, 30.48)]
@@ -356,6 +368,9 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 1000.0)]
         [InlineData(0.0, DistanceMeasurement.Kilometers, 1000.0)]
         [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 1000.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Inches, 0.0254)]
+        [InlineData(0.0, DistanceMeasurement.Inches, 0.0254)]
+        [InlineData(1.0E+10, DistanceMeasurement.Inches, 0.0254)]
         [InlineData(-1.0E+10, DistanceMeasurement.Feet, 0.3048)]
         [InlineData(0.0, DistanceMeasurement.Feet, 0.3048)]
         [InlineData(1.0E+10, DistanceMeasurement.Feet, 0.3048)]
@@ -386,6 +401,9 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 1000.0)]
         [InlineData(0.0, DistanceMeasurement.Kilometers, 1000.0)]
         [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 1000.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Inches, 0.0254)]
+        [InlineData(0.0, DistanceMeasurement.Inches, 0.0254)]
+        [InlineData(1.0E+10, DistanceMeasurement.Inches, 0.0254)]
         [InlineData(-1.0E+10, DistanceMeasurement.Feet, 0.3048)]
         [InlineData(0.0, DistanceMeasurement.Feet, 0.3048)]
         [InlineData(1.0E+10, DistanceMeasurement.Feet, 0.3048)]
@@ -415,6 +433,9 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 1.0, ArithmeticOperator.Multiply)]
         [InlineData(0.0, DistanceMeasurement.Kilometers, 1.0, ArithmeticOperator.Multiply)]
         [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Inches, 0.0000254, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.Inches, 0.0000254, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.Inches, 0.0000254, ArithmeticOperator.Multiply)]
         [InlineData(-1.0E+10, DistanceMeasurement.Feet, 0.0003048, ArithmeticOperator.Multiply)]
         [InlineData(0.0, DistanceMeasurement.Feet, 0.0003048, ArithmeticOperator.Multiply)]
         [InlineData(1.0E+10, DistanceMeasurement.Feet, 0.0003048, ArithmeticOperator.Multiply)]
@@ -445,6 +466,9 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 1.0, ArithmeticOperator.Multiply)]
         [InlineData(0.0, DistanceMeasurement.Kilometers, 1.0, ArithmeticOperator.Multiply)]
         [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Inches, 0.0000254, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.Inches, 0.0000254, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.Inches, 0.0000254, ArithmeticOperator.Multiply)]
         [InlineData(-1.0E+10, DistanceMeasurement.Feet, 0.0003048, ArithmeticOperator.Multiply)]
         [InlineData(0.0, DistanceMeasurement.Feet, 0.0003048, ArithmeticOperator.Multiply)]
         [InlineData(1.0E+10, DistanceMeasurement.Feet, 0.0003048, ArithmeticOperator.Multiply)]
@@ -456,6 +480,71 @@ namespace GeoFunctions.Core.Tests.Coordinates
             var expected = arithmeticOperator == ArithmeticOperator.Multiply ? value * factor : value / factor;
 
             var result = Elevation.ToKilometers(value, measurement);
+
+            var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
+            Assert.True(testAssertion);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10, DistanceMeasurement.Millimeters, 25.4, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Millimeters, 25.4, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Millimeters, 25.4, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Centimeters, 2.54, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Centimeters, 2.54, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Centimeters, 2.54, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Meters, 0.0254, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Meters, 0.0254, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Meters, 0.0254, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 0.0000254, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Kilometers, 0.0000254, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 0.0000254, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Inches, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.Inches, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.Inches, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Feet, 12.0, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.Feet, 12.0, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.Feet, 12.0, ArithmeticOperator.Multiply)]
+        [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 72913.385832, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.NauticalMiles, 72913.385832, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 72913.385832, ArithmeticOperator.Multiply)]
+        public void Elevation_CorrectlyConvertsToInches(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
+        {
+            var expected = arithmeticOperator == ArithmeticOperator.Multiply ? value * factor : value / factor;
+
+            IElevation sut = new Elevation(value, measurement);
+            var result = sut.ToInches();
+
+            var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
+            Assert.True(testAssertion);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10, DistanceMeasurement.Millimeters, 25.4, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Millimeters, 25.4, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Millimeters, 25.4, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Centimeters, 2.54, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Centimeters, 2.54, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Centimeters, 2.54, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Meters, 0.0254, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Meters, 0.0254, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Meters, 0.0254, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 0.0000254, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Kilometers, 0.0000254, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 0.0000254, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Inches, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.Inches, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.Inches, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Feet, 12.0, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.Feet, 12.0, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.Feet, 12.0, ArithmeticOperator.Multiply)]
+        [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 72913.385832, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.NauticalMiles, 72913.385832, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 72913.385832, ArithmeticOperator.Multiply)]
+        public void Elevation_CorrectlyConvertsToInchesStatically(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
+        {
+            var expected = arithmeticOperator == ArithmeticOperator.Multiply ? value * factor : value / factor;
+
+            var result = Elevation.ToInches(value, measurement);
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
             Assert.True(testAssertion);
@@ -474,6 +563,9 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 0.0003048, ArithmeticOperator.Divide)]
         [InlineData(0.0, DistanceMeasurement.Kilometers, 0.0003048, ArithmeticOperator.Divide)]
         [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 0.0003048, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Inches, 12.0, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Inches, 12.0, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Inches, 12.0, ArithmeticOperator.Divide)]
         [InlineData(-1.0E+10, DistanceMeasurement.Feet, 1.0, ArithmeticOperator.Multiply)]
         [InlineData(0.0, DistanceMeasurement.Feet, 1.0, ArithmeticOperator.Multiply)]
         [InlineData(1.0E+10, DistanceMeasurement.Feet, 1.0, ArithmeticOperator.Multiply)]
@@ -504,6 +596,9 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 0.0003048, ArithmeticOperator.Divide)]
         [InlineData(0.0, DistanceMeasurement.Kilometers, 0.0003048, ArithmeticOperator.Divide)]
         [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 0.0003048, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Inches, 12.0, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Inches, 12.0, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Inches, 12.0, ArithmeticOperator.Divide)]
         [InlineData(-1.0E+10, DistanceMeasurement.Feet, 1.0, ArithmeticOperator.Multiply)]
         [InlineData(0.0, DistanceMeasurement.Feet, 1.0, ArithmeticOperator.Multiply)]
         [InlineData(1.0E+10, DistanceMeasurement.Feet, 1.0, ArithmeticOperator.Multiply)]
@@ -533,6 +628,9 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 1.852)]
         [InlineData(0.0, DistanceMeasurement.Kilometers, 1.852)]
         [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 1.852)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Inches, 72913.385832)]
+        [InlineData(0.0, DistanceMeasurement.Inches, 72913.385832)]
+        [InlineData(1.0E+10, DistanceMeasurement.Inches, 72913.385832)]
         [InlineData(-1.0E+10, DistanceMeasurement.Feet, 6076.115486)]
         [InlineData(0.0, DistanceMeasurement.Feet, 6076.115486)]
         [InlineData(1.0E+10, DistanceMeasurement.Feet, 6076.115486)]
@@ -563,6 +661,9 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 1.852)]
         [InlineData(0.0, DistanceMeasurement.Kilometers, 1.852)]
         [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 1.852)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Inches, 72913.385832)]
+        [InlineData(0.0, DistanceMeasurement.Inches, 72913.385832)]
+        [InlineData(1.0E+10, DistanceMeasurement.Inches, 72913.385832)]
         [InlineData(-1.0E+10, DistanceMeasurement.Feet, 6076.115486)]
         [InlineData(0.0, DistanceMeasurement.Feet, 6076.115486)]
         [InlineData(1.0E+10, DistanceMeasurement.Feet, 6076.115486)]

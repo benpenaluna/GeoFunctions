@@ -11,6 +11,7 @@ namespace GeoFunctions.Core.Coordinates
 
     double ToCentimeters();
     double ToFeet();
+    double ToInches();
     double ToKilometers();
     double ToMeters();
     double ToMillimeters();

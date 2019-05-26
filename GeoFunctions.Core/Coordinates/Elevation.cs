@@ -353,8 +353,33 @@ namespace GeoFunctions.Core.Coordinates
             return ToMeters(value, measurement) / 1000.0;
         }
 
+        public double ToInches()
+        {
+            if (DistanceMeasurement == DistanceMeasurement.Inches)
+                return Value;
+
+            if (DistanceMeasurement == DistanceMeasurement.Millimeters)
+                return Value / 25.4;
+
+            return ToFeet() * 12.0;
+        }
+
+        public static double ToInches(double value, DistanceMeasurement measurement)
+        {
+            if (measurement == DistanceMeasurement.Inches)
+                return value;
+
+            if (measurement == DistanceMeasurement.Millimeters)
+                return value / 25.4;
+
+            return ToFeet(value, measurement) * 12.0;
+        }
+
         public double ToFeet()
         {
+            if (DistanceMeasurement == DistanceMeasurement.Inches)
+                return Value / 12.0;
+
             return DistanceMeasurement == DistanceMeasurement.Feet ? Value : ToFeet(Value, DistanceMeasurement);  // TODO: Refactor to account for each conversion ratio
         }
 
@@ -364,15 +389,16 @@ namespace GeoFunctions.Core.Coordinates
                 return value;
 
             if (measurement == DistanceMeasurement.Kilometers)
-            {
                 return value / RatioMetersToFeet * 1000.0;
-            }
 
             if (MetricDistanceMeasurements.Contains(measurement))
             {
                 var valueInMeters = value * ConvertDistanceMetricMeasurement(measurement, DistanceMeasurement.Meters);
                 return valueInMeters / RatioMetersToFeet;
             }
+
+            if (measurement == DistanceMeasurement.Inches)
+                return value / 12.0;
 
             if (ImperialDistanceMeasurements.Contains(measurement))
             {
