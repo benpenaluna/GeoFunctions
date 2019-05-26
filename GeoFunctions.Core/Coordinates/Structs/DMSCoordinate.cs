@@ -8,7 +8,7 @@ namespace GeoFunctions.Core.Coordinates.Structs
     {
         private const string DefaultFormat = "DD° MM' SS\"H";
 
-        private const double Tolerance = 1.0E+11;
+        private const double Tolerance = 1.0E-11;
 
         public double Degrees;
         public double Minutes;

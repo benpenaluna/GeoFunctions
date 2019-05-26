@@ -9,8 +9,11 @@ namespace GeoFunctions.Core.Coordinates
     double Value { get; set; }
     DistanceMeasurement DistanceMeasurement { get; }
 
+    double ToCentimeters();
     double ToFeet();
+    double ToKilometers();
     double ToMeters();
+    double ToMillimeters();
     double ToNauticalMiles();
     }
 }

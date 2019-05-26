@@ -8,6 +8,14 @@ namespace GeoFunctions.Core.Tests.Coordinates
 {
     public class ElevationTests
     {
+        public enum ArithmeticOperator
+        {
+            Multiply,
+            Divide
+        }
+
+        private const double DoubleFloatingPointTolerance = 1.0E-11;
+
         [Fact]
         public void Elevation_CanInstantiate()
         {
@@ -216,246 +224,359 @@ namespace GeoFunctions.Core.Tests.Coordinates
         }
 
         [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToFeetFromFeet(double value)
+        [InlineData(-1.0E+10, DistanceMeasurement.Millimeters, 1.0)]
+        [InlineData(0.0, DistanceMeasurement.Millimeters, 1.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Millimeters, 1.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Centimeters, 10.0)]
+        [InlineData(0.0, DistanceMeasurement.Centimeters, 10.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Centimeters, 10.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Meters, 1000.0)]
+        [InlineData(0.0, DistanceMeasurement.Meters, 1000.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Meters, 1000.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 1000000.0)]
+        [InlineData(0.0, DistanceMeasurement.Kilometers, 1000000.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 1000000.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Feet, 304.8)]
+        [InlineData(0.0, DistanceMeasurement.Feet, 304.8)]
+        [InlineData(1.0E+10, DistanceMeasurement.Feet, 304.8)]
+        [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1852000.0)]
+        [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1852000.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1852000.0)]
+        public void Elevation_CorrectlyConvertsToMillimeters(double value, DistanceMeasurement measurement, double factor)
         {
-            var expected = value;
+            var expected = value * factor;
 
-            IElevation sut = new Elevation(value);
-            var result = sut.ToFeet();
+            IElevation sut = new Elevation(value, measurement);
+            var result = sut.ToMillimeters();
 
-            Assert.Equal(expected, result);
+            var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
+            Assert.True(testAssertion);
+        }
+
+
+        [Theory]
+        [InlineData(-1.0E+10, DistanceMeasurement.Millimeters, 1.0)]
+        [InlineData(0.0, DistanceMeasurement.Millimeters, 1.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Millimeters, 1.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Centimeters, 10.0)]
+        [InlineData(0.0, DistanceMeasurement.Centimeters, 10.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Centimeters, 10.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Meters, 1000.0)]
+        [InlineData(0.0, DistanceMeasurement.Meters, 1000.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Meters, 1000.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 1000000.0)]
+        [InlineData(0.0, DistanceMeasurement.Kilometers, 1000000.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 1000000.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Feet, 304.8)]
+        [InlineData(0.0, DistanceMeasurement.Feet, 304.8)]
+        [InlineData(1.0E+10, DistanceMeasurement.Feet, 304.8)]
+        [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1852000.0)]
+        [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1852000.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1852000.0)]
+        public void Elevation_CorrectlyConvertsToMillimetersStatically(double value, DistanceMeasurement measurement, double factor)
+        {
+            var expected = value * factor;
+
+            var result = Elevation.ToMillimeters(value, measurement);
+
+            var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
+            Assert.True(testAssertion);
         }
 
         [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToFeetFromMeters(double value)
+        [InlineData(-1.0E+10, DistanceMeasurement.Millimeters, 0.1)]
+        [InlineData(0.0, DistanceMeasurement.Millimeters, 0.1)]
+        [InlineData(1.0E+10, DistanceMeasurement.Millimeters, 0.1)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Centimeters, 1.0)]
+        [InlineData(0.0, DistanceMeasurement.Centimeters, 1.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Centimeters, 1.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Meters, 100.0)]
+        [InlineData(0.0, DistanceMeasurement.Meters, 100.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Meters, 100.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 100000.0)]
+        [InlineData(0.0, DistanceMeasurement.Kilometers, 100000.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 100000.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Feet, 30.48)]
+        [InlineData(0.0, DistanceMeasurement.Feet, 30.48)]
+        [InlineData(1.0E+10, DistanceMeasurement.Feet, 30.48)]
+        [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 185200.0)]
+        [InlineData(0.0, DistanceMeasurement.NauticalMiles, 185200.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 185200.0)]
+        public void Elevation_CorrectlyConvertsToCentimeters(double value, DistanceMeasurement measurement, double factor)
         {
-            var expected = value / 0.3048;
+            var expected = value * factor;
 
-            IElevation sut = new Elevation(value, DistanceMeasurement.Meters);
-            var result = sut.ToFeet();
+            IElevation sut = new Elevation(value, measurement);
+            var result = sut.ToCentimeters();
 
-            Assert.Equal(expected, result);
+            var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
+            Assert.True(testAssertion);
+        }
+
+
+        [Theory]
+        [InlineData(-1.0E+10, DistanceMeasurement.Millimeters, 0.1)]
+        [InlineData(0.0, DistanceMeasurement.Millimeters, 0.1)]
+        [InlineData(1.0E+10, DistanceMeasurement.Millimeters, 0.1)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Centimeters, 1.0)]
+        [InlineData(0.0, DistanceMeasurement.Centimeters, 1.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Centimeters, 1.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Meters, 100.0)]
+        [InlineData(0.0, DistanceMeasurement.Meters, 100.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Meters, 100.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 100000.0)]
+        [InlineData(0.0, DistanceMeasurement.Kilometers, 100000.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 100000.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Feet, 30.48)]
+        [InlineData(0.0, DistanceMeasurement.Feet, 30.48)]
+        [InlineData(1.0E+10, DistanceMeasurement.Feet, 30.48)]
+        [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 185200.0)]
+        [InlineData(0.0, DistanceMeasurement.NauticalMiles, 185200.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 185200.0)]
+        public void Elevation_CorrectlyConvertsToCentimetersStatically(double value, DistanceMeasurement measurement, double factor)
+        {
+            var expected = value * factor;
+
+            var result = Elevation.ToCentimeters(value, measurement);
+
+            var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
+            Assert.True(testAssertion);
         }
 
         [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToFeetFromNauticalMiles(double value)
+        [InlineData(-1.0E+10, DistanceMeasurement.Millimeters, 0.001)]
+        [InlineData(0.0, DistanceMeasurement.Millimeters, 0.001)]
+        [InlineData(1.0E+10, DistanceMeasurement.Millimeters, 0.001)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Centimeters, 0.01)]
+        [InlineData(0.0, DistanceMeasurement.Centimeters, 0.01)]
+        [InlineData(1.0E+10, DistanceMeasurement.Centimeters, 0.01)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Meters, 1.0)]
+        [InlineData(0.0, DistanceMeasurement.Meters, 1.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Meters, 1.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 1000.0)]
+        [InlineData(0.0, DistanceMeasurement.Kilometers, 1000.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 1000.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Feet, 0.3048)]
+        [InlineData(0.0, DistanceMeasurement.Feet, 0.3048)]
+        [InlineData(1.0E+10, DistanceMeasurement.Feet, 0.3048)]
+        [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1852.0)]
+        [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1852.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1852.0)]
+        public void Elevation_CorrectlyConvertsToMeters(double value, DistanceMeasurement measurement, double factor)
         {
-            var expected = value * 6076.115486;
+            var expected = value * factor;
 
-            IElevation sut = new Elevation(value, DistanceMeasurement.NauticalMiles);
-            var result = sut.ToFeet();
-
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToMetersFromMeters(double value)
-        {
-            var expected = value;
-
-            IElevation sut = new Elevation(value, DistanceMeasurement.Meters);
+            IElevation sut = new Elevation(value, measurement);
             var result = sut.ToMeters();
 
-            Assert.Equal(expected, result);
+            var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
+            Assert.True(testAssertion);
         }
 
         [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToMetersFromFeet(double value)
+        [InlineData(-1.0E+10, DistanceMeasurement.Millimeters, 0.001)]
+        [InlineData(0.0, DistanceMeasurement.Millimeters, 0.001)]
+        [InlineData(1.0E+10, DistanceMeasurement.Millimeters, 0.001)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Centimeters, 0.01)]
+        [InlineData(0.0, DistanceMeasurement.Centimeters, 0.01)]
+        [InlineData(1.0E+10, DistanceMeasurement.Centimeters, 0.01)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Meters, 1.0)]
+        [InlineData(0.0, DistanceMeasurement.Meters, 1.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Meters, 1.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 1000.0)]
+        [InlineData(0.0, DistanceMeasurement.Kilometers, 1000.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 1000.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Feet, 0.3048)]
+        [InlineData(0.0, DistanceMeasurement.Feet, 0.3048)]
+        [InlineData(1.0E+10, DistanceMeasurement.Feet, 0.3048)]
+        [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1852.0)]
+        [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1852.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1852.0)]
+        public void Elevation_CorrectlyConvertsToMetersStatically(double value, DistanceMeasurement measurement, double factor)
         {
-            var expected = value * 0.3048;
+            var expected = value * factor;
 
-            IElevation sut = new Elevation(value);
-            var result = sut.ToMeters();
+            var result = Elevation.ToMeters(value, measurement);
 
-            Assert.Equal(expected, result);
+            var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
+            Assert.True(testAssertion);
         }
 
         [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToMetersFromNauticalMiles(double value)
+        [InlineData(-1.0E+10, DistanceMeasurement.Millimeters, 0.000001, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.Millimeters, 0.000001, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.Millimeters, 0.000001, ArithmeticOperator.Multiply)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Centimeters, 100000.0, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Centimeters, 100000.0, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Centimeters, 100000.0, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Meters, 0.001, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.Meters, 0.001, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.Meters, 0.001, ArithmeticOperator.Multiply)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.Kilometers, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Feet, 0.0003048, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.Feet, 0.0003048, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.Feet, 0.0003048, ArithmeticOperator.Multiply)]
+        [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1.852, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1.852, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1.852, ArithmeticOperator.Multiply)]
+        public void Elevation_CorrectlyConvertsToKilometers(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
         {
-            var expected = value * 1852.0;
+            var expected = arithmeticOperator == ArithmeticOperator.Multiply ? value * factor: value / factor;
 
-            IElevation sut = new Elevation(value, DistanceMeasurement.NauticalMiles);
-            var result = sut.ToMeters();
+            IElevation sut = new Elevation(value, measurement);
+            var result = sut.ToKilometers();
 
-            Assert.Equal(expected, result);
+            var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
+            Assert.True(testAssertion);
         }
 
         [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToNMFromNM(double value)
+        [InlineData(-1.0E+10, DistanceMeasurement.Millimeters, 0.000001, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.Millimeters, 0.000001, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.Millimeters, 0.000001, ArithmeticOperator.Multiply)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Centimeters, 100000.0, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Centimeters, 100000.0, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Centimeters, 100000.0, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Meters, 0.001, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.Meters, 0.001, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.Meters, 0.001, ArithmeticOperator.Multiply)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.Kilometers, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Feet, 0.0003048, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.Feet, 0.0003048, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.Feet, 0.0003048, ArithmeticOperator.Multiply)]
+        [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1.852, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1.852, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1.852, ArithmeticOperator.Multiply)]
+        public void Elevation_CorrectlyConvertsToKilometersStatically(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
         {
-            var expected = value;
+            var expected = arithmeticOperator == ArithmeticOperator.Multiply ? value * factor : value / factor;
 
-            IElevation sut = new Elevation(value, DistanceMeasurement.NauticalMiles);
+            var result = Elevation.ToKilometers(value, measurement);
+
+            var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
+            Assert.True(testAssertion);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10, DistanceMeasurement.Millimeters, 304.8, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Millimeters, 304.8, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Millimeters, 304.8, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Centimeters, 30.48, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Centimeters, 30.48, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Centimeters, 30.48, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Meters, 0.3048, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Meters, 0.3048, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Meters, 0.3048, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 0.0003048, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Kilometers, 0.0003048, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 0.0003048, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Feet, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.Feet, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.Feet, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 6076.115486, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.NauticalMiles, 6076.115486, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 6076.115486, ArithmeticOperator.Multiply)]
+        public void Elevation_CorrectlyConvertsToFeet(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
+        {
+            var expected = arithmeticOperator == ArithmeticOperator.Multiply ? value * factor : value / factor;
+
+            IElevation sut = new Elevation(value, measurement);
+            var result = sut.ToFeet();
+
+            var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
+            Assert.True(testAssertion);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10, DistanceMeasurement.Millimeters, 304.8, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Millimeters, 304.8, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Millimeters, 304.8, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Centimeters, 30.48, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Centimeters, 30.48, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Centimeters, 30.48, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Meters, 0.3048, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Meters, 0.3048, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Meters, 0.3048, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 0.0003048, ArithmeticOperator.Divide)]
+        [InlineData(0.0, DistanceMeasurement.Kilometers, 0.0003048, ArithmeticOperator.Divide)]
+        [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 0.0003048, ArithmeticOperator.Divide)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Feet, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.Feet, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.Feet, 1.0, ArithmeticOperator.Multiply)]
+        [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 6076.115486, ArithmeticOperator.Multiply)]
+        [InlineData(0.0, DistanceMeasurement.NauticalMiles, 6076.115486, ArithmeticOperator.Multiply)]
+        [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 6076.115486, ArithmeticOperator.Multiply)]
+        public void Elevation_CorrectlyConvertsToFeetStatically(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
+        {
+            var expected = arithmeticOperator == ArithmeticOperator.Multiply ? value * factor : value / factor;
+
+            var result = Elevation.ToFeet(value, measurement);
+
+            var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
+            Assert.True(testAssertion);
+        }
+
+        [Theory]
+        [InlineData(-1.0E+10, DistanceMeasurement.Millimeters, 1852000.0)]
+        [InlineData(0.0, DistanceMeasurement.Millimeters, 1852000.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Millimeters, 1852000.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Centimeters, 185200.0)]
+        [InlineData(0.0, DistanceMeasurement.Centimeters, 185200.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Centimeters, 185200.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Meters, 1852.0)]
+        [InlineData(0.0, DistanceMeasurement.Meters, 1852.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Meters, 1852.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 1.852)]
+        [InlineData(0.0, DistanceMeasurement.Kilometers, 1.852)]
+        [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 1.852)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Feet, 6076.115486)]
+        [InlineData(0.0, DistanceMeasurement.Feet, 6076.115486)]
+        [InlineData(1.0E+10, DistanceMeasurement.Feet, 6076.115486)]
+        [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1.0)]
+        [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1.0)]
+        public void Elevation_CorrectlyConvertsToNM(double value, DistanceMeasurement measurement, double factor)
+        {
+            var expected = value / factor;
+
+            IElevation sut = new Elevation(value, measurement);
             var result = sut.ToNauticalMiles();
 
-            Assert.Equal(expected, result);
+            var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
+            Assert.True(testAssertion);
         }
 
         [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToNMFromFeet(double value)
+        [InlineData(-1.0E+10, DistanceMeasurement.Millimeters, 1852000.0)]
+        [InlineData(0.0, DistanceMeasurement.Millimeters, 1852000.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Millimeters, 1852000.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Centimeters, 185200.0)]
+        [InlineData(0.0, DistanceMeasurement.Centimeters, 185200.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Centimeters, 185200.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Meters, 1852.0)]
+        [InlineData(0.0, DistanceMeasurement.Meters, 1852.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.Meters, 1852.0)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Kilometers, 1.852)]
+        [InlineData(0.0, DistanceMeasurement.Kilometers, 1.852)]
+        [InlineData(1.0E+10, DistanceMeasurement.Kilometers, 1.852)]
+        [InlineData(-1.0E+10, DistanceMeasurement.Feet, 6076.115486)]
+        [InlineData(0.0, DistanceMeasurement.Feet, 6076.115486)]
+        [InlineData(1.0E+10, DistanceMeasurement.Feet, 6076.115486)]
+        [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1.0)]
+        [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1.0)]
+        [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1.0)]
+        public void Elevation_CorrectlyConvertsToNMFromNMStatically(double value, DistanceMeasurement measurement, double factor)
         {
-            var expected = value / 6076.115486;
+            var expected = value / factor;
 
-            IElevation sut = new Elevation(value);
-            var result = sut.ToNauticalMiles();
+            var result = Elevation.ToNauticalMiles(value, measurement);
 
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToNMFromMeters(double value)
-        {
-            var expected = value / 1852.0;
-
-            IElevation sut = new Elevation(value, DistanceMeasurement.Meters);
-            var result = sut.ToNauticalMiles();
-
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToMetersFromMetersStatically(double value)
-        {
-            var expected = value;
-
-            var result = Elevation.ToMeters(value, DistanceMeasurement.Meters);
-
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToMetersFromFeetStatically(double value)
-        {
-            var expected = value * 0.3048;
-
-            var result = Elevation.ToMeters(value, DistanceMeasurement.Feet);
-
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToMetersFromNMStatically(double value)
-        {
-            var expected = value * 1852.0;
-
-            var result = Elevation.ToMeters(value, DistanceMeasurement.NauticalMiles);
-
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToFeetFromFeetStatically(double value)
-        {
-            var expected = value;
-
-            var result = Elevation.ToFeet(value, DistanceMeasurement.Feet);
-
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToFeetFromMetersStatically(double value)
-        {
-            var expected = value / 0.3048;
-
-            var result = Elevation.ToFeet(value, DistanceMeasurement.Meters);
-
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToFeetFromNMStatically(double value)
-        {
-            var expected = value * 6076.115486;
-
-            var result = Elevation.ToFeet(value, DistanceMeasurement.NauticalMiles);
-
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToNMFromNMStatically(double value)
-        {
-            var expected = value;
-
-            var result = Elevation.ToNauticalMiles(value, DistanceMeasurement.NauticalMiles);
-
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToNMFromFeetStatically(double value)
-        {
-            var expected = value / 6076.115486;
-
-            var result = Elevation.ToNauticalMiles(value, DistanceMeasurement.Feet);
-
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
-        [InlineData(-1.0E+10)]
-        [InlineData(0.0)]
-        [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyConvertsToNMFromMetersStatically(double value)
-        {
-            var expected = value / 1852.0;
-
-            var result = Elevation.ToNauticalMiles(value, DistanceMeasurement.Meters);
-
-            Assert.Equal(expected, result);
+            var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
+            Assert.True(testAssertion);
         }
 
         private static Elevation InstantiateNewElevation()
