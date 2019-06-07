@@ -300,7 +300,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public double ToMillimeters()
         {
-            return ToMeters() * 1000.0;
+            return ToMillimeters(Value, DistanceMeasurement);
         }
 
         public static double ToMillimeters(double value, DistanceMeasurement measurement)
@@ -310,7 +310,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public double ToCentimeters()
         {
-            return ToMeters() * 100.0;
+            return ToCentimeters(Value, DistanceMeasurement);
         }
 
         public static double ToCentimeters(double value, DistanceMeasurement measurement)
@@ -320,7 +320,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public double ToMeters()
         {
-            return DistanceMeasurement == DistanceMeasurement.Meters ? Value : ToMeters(Value, DistanceMeasurement);
+            return ToMeters(Value, DistanceMeasurement);
         }
 
         public static double ToMeters(double value, DistanceMeasurement measurement)
@@ -345,7 +345,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public double ToKilometers()
         {
-            return ToMeters() / 1000.0;
+            return ToKilometers(Value, DistanceMeasurement);
         }
 
         public static double ToKilometers(double value, DistanceMeasurement measurement)
@@ -355,16 +355,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public double ToInches()
         {
-            if (DistanceMeasurement == DistanceMeasurement.Inches)
-                return Value;
-
-            if (DistanceMeasurement == DistanceMeasurement.Millimeters)
-                return Value / 25.4;
-
-            if (DistanceMeasurement == DistanceMeasurement.NauticalMiles)
-                return Value * 72913.3858267717;
-
-            return ToFeet() * 12.0;
+            return ToInches(Value, DistanceMeasurement);
         }
 
         public static double ToInches(double value, DistanceMeasurement measurement)
@@ -383,10 +374,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public double ToFeet()
         {
-            if (DistanceMeasurement == DistanceMeasurement.Inches)
-                return Value / 12.0;
-
-            return DistanceMeasurement == DistanceMeasurement.Feet ? Value : ToFeet(Value, DistanceMeasurement);  // TODO: Refactor to account for each conversion ratio
+            return ToFeet(Value, DistanceMeasurement);
         }
 
         public static double ToFeet(double value, DistanceMeasurement measurement)
