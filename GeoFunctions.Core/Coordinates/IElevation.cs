@@ -16,5 +16,6 @@ namespace GeoFunctions.Core.Coordinates
     double ToMeters();
     double ToMillimeters();
     double ToNauticalMiles();
+    double ToYards();
     }
 }
