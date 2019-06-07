@@ -9,9 +9,22 @@ namespace GeoFunctions.Core.Coordinates
 {
     public class Elevation : IElevation
     {
-        private const double RatioMetersToFeet = 0.3048;
-        private const double RatioNMtoMeters = 1852.0;
-        private const double RatioNMtoFeet = 6076.1154855643;
+        private const double RatioCentimetersPerMeter = 100.0;
+        private const double RatioMetersPerKilometer = 1000.0;
+
+        private const double RatioMillimetersPerInch = 25.4;
+        private const double RatioCentimetersPerYard = 91.44;
+        private const double RatioMetersPerFoot = 0.3048;
+        private const double RatioMetersPerNM = 1852.0;
+        
+        private const double RatioInchesPerFoot = 12.0;
+        private const double RatioFeetPerYard = 3.0;
+
+        private const double RatioInchesPerNM = 72913.3858267717;
+        private const double RatioFeetPerNM = 6076.1154855643;
+        private const double RatioYardsPerNM = 2025.37182852143;
+
+        private const double DoubleFloatingPointTolerance = 1.0E-11;
 
         private const string DefaultFormat = "nu";
 
@@ -162,8 +175,8 @@ namespace GeoFunctions.Core.Coordinates
                 return metricConversionFactor;
 
             return ImperialDistanceMeasurements.Contains(convertingFrom)
-                ? metricConversionFactor * ConvertDistanceImperialMeasurement(convertingFrom, DistanceMeasurement.Feet) * RatioMetersToFeet
-                : metricConversionFactor * ConvertDistanceGeographicalMeasurement(convertingFrom, DistanceMeasurement.NauticalMiles) * RatioNMtoMeters;
+                ? metricConversionFactor * ConvertDistanceImperialMeasurement(convertingFrom, DistanceMeasurement.Feet) * RatioMetersPerFoot
+                : metricConversionFactor * ConvertDistanceGeographicalMeasurement(convertingFrom, DistanceMeasurement.NauticalMiles) * RatioMetersPerNM;
         }
 
         private FormatHelper HandleImperialMeasurements(DistanceMeasurement measurementHandling, char measurementCode, FormatHelper helper)
@@ -201,8 +214,8 @@ namespace GeoFunctions.Core.Coordinates
                 return imperialConversionFactor;
 
             return MetricDistanceMeasurements.Contains(convertingFrom)
-                ? imperialConversionFactor / ConvertDistanceMetricMeasurement(convertingFrom, DistanceMeasurement.Meters) / RatioMetersToFeet
-                : imperialConversionFactor / ConvertDistanceGeographicalMeasurement(convertingFrom, DistanceMeasurement.NauticalMiles) * RatioNMtoFeet;
+                ? imperialConversionFactor / ConvertDistanceMetricMeasurement(convertingFrom, DistanceMeasurement.Meters) / RatioMetersPerFoot
+                : imperialConversionFactor / ConvertDistanceGeographicalMeasurement(convertingFrom, DistanceMeasurement.NauticalMiles) * RatioFeetPerNM;
         }
 
         private FormatHelper HandleGeographicalMeasurements(DistanceMeasurement measurementHandling, char measurementCode, FormatHelper helper)
@@ -235,8 +248,8 @@ namespace GeoFunctions.Core.Coordinates
                 return geographicalConversionFactor;
 
             return MetricDistanceMeasurements.Contains(convertingFrom)
-                ? geographicalConversionFactor / ConvertDistanceMetricMeasurement(convertingFrom, DistanceMeasurement.Meters) * RatioNMtoMeters
-                : geographicalConversionFactor / ConvertDistanceImperialMeasurement(convertingFrom, DistanceMeasurement.Feet) * RatioNMtoFeet;
+                ? geographicalConversionFactor / ConvertDistanceMetricMeasurement(convertingFrom, DistanceMeasurement.Meters) * RatioMetersPerNM
+                : geographicalConversionFactor / ConvertDistanceImperialMeasurement(convertingFrom, DistanceMeasurement.Feet) * RatioFeetPerNM;
         }
 
         private static FormatHelper HandleUnits(FormatHelper helper)
@@ -292,7 +305,7 @@ namespace GeoFunctions.Core.Coordinates
             var measurementToUse = measurementType.PluralName;
 
             double.TryParse(test[0].Trim(), out var numericValue);
-            if (Math.Abs(numericValue - 1.0) < 1.0E-11)
+            if (Math.Abs(numericValue - 1.0) < DoubleFloatingPointTolerance)
                 measurementToUse = measurementType.SingularName;
 
             return measurementToUse;
@@ -305,7 +318,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public static double ToMillimeters(double value, DistanceMeasurement measurement)
         {
-            return ToMeters(value, measurement) * 1000.0;
+            return ToMeters(value, measurement) * RatioMetersPerKilometer;
         }
 
         public double ToCentimeters()
@@ -315,7 +328,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public static double ToCentimeters(double value, DistanceMeasurement measurement)
         {
-            return ToMeters(value, measurement) * 100.0;
+            return ToMeters(value, measurement) * RatioCentimetersPerMeter;
         }
 
         public double ToMeters()
@@ -334,11 +347,11 @@ namespace GeoFunctions.Core.Coordinates
             if (ImperialDistanceMeasurements.Contains(measurement))
             {
                 var valueInFeet = value * ConvertDistanceImperialMeasurement( measurement, DistanceMeasurement.Feet);
-                return valueInFeet * RatioMetersToFeet;
+                return valueInFeet * RatioMetersPerFoot;
             }
 
             if (measurement == DistanceMeasurement.NauticalMiles)
-                return value * RatioNMtoMeters;
+                return value * RatioMetersPerNM;
 
             return double.NaN;
         }
@@ -350,7 +363,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public static double ToKilometers(double value, DistanceMeasurement measurement)
         {
-            return ToMeters(value, measurement) / 1000.0;
+            return ToMeters(value, measurement) / RatioMetersPerKilometer;
         }
 
         public double ToInches()
@@ -364,12 +377,12 @@ namespace GeoFunctions.Core.Coordinates
                 return value;
 
             if (measurement == DistanceMeasurement.Millimeters)
-                return value / 25.4;
+                return value / RatioMillimetersPerInch;
 
             if (measurement == DistanceMeasurement.NauticalMiles)
-                return value * 72913.3858267717;
+                return value * RatioInchesPerNM;
 
-            return ToFeet(value, measurement) * 12.0;
+            return ToFeet(value, measurement) * RatioInchesPerFoot;
         }
 
         public double ToFeet()
@@ -383,16 +396,16 @@ namespace GeoFunctions.Core.Coordinates
                 return value;
 
             if (measurement == DistanceMeasurement.Kilometers)
-                return value / RatioMetersToFeet * 1000.0;
+                return value / RatioMetersPerFoot * RatioMetersPerKilometer;
 
             if (MetricDistanceMeasurements.Contains(measurement))
             {
                 var valueInMeters = value * ConvertDistanceMetricMeasurement(measurement, DistanceMeasurement.Meters);
-                return valueInMeters / RatioMetersToFeet;
+                return valueInMeters / RatioMetersPerFoot;
             }
 
             if (measurement == DistanceMeasurement.Inches)
-                return value / 12.0;
+                return value / RatioInchesPerFoot;
 
             if (ImperialDistanceMeasurements.Contains(measurement))
             {
@@ -400,7 +413,7 @@ namespace GeoFunctions.Core.Coordinates
             }
 
             if (measurement == DistanceMeasurement.NauticalMiles)
-                return value * RatioNMtoFeet;
+                return value * RatioFeetPerNM;
 
             return double.NaN;
         }
@@ -413,14 +426,14 @@ namespace GeoFunctions.Core.Coordinates
         public static double ToYards(double value, DistanceMeasurement measurement)
         {
             if (measurement == DistanceMeasurement.Centimeters)
-                return value / 91.44;
+                return value / RatioCentimetersPerYard;
 
             if (measurement == DistanceMeasurement.NauticalMiles)
             {
-                return value * 2025.37182852143;
+                return value * RatioYardsPerNM;
             }
 
-            return ToFeet(value, measurement) / 3.0;
+            return ToFeet(value, measurement) / RatioFeetPerYard;
         }
 
         public double ToNauticalMiles()
@@ -435,25 +448,25 @@ namespace GeoFunctions.Core.Coordinates
 
             if (measurement == DistanceMeasurement.Kilometers)
             {
-                return value / (RatioNMtoMeters / 1000.0);
+                return value / (RatioMetersPerNM / RatioMetersPerKilometer);
             }
 
             if (MetricDistanceMeasurements.Contains(measurement))
             {
                 var valueInMeters = value * ConvertDistanceMetricMeasurement(measurement, DistanceMeasurement.Meters);
-                return valueInMeters / RatioNMtoMeters;
+                return valueInMeters / RatioMetersPerNM;
             }
 
             if (measurement == DistanceMeasurement.Inches)
-                return value / 72913.3858267717;
+                return value / RatioInchesPerNM;
 
             if (measurement == DistanceMeasurement.Yards)
-                return value / 2025.37182852143;
+                return value / RatioYardsPerNM;
 
             if (ImperialDistanceMeasurements.Contains(measurement))
             {
                 var valueInFeet = value * ConvertDistanceImperialMeasurement( measurement, DistanceMeasurement.Feet);
-                return valueInFeet / RatioNMtoFeet;
+                return valueInFeet / RatioFeetPerNM;
             }
 
             return double.NaN;
