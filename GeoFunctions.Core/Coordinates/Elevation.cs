@@ -19,10 +19,12 @@ namespace GeoFunctions.Core.Coordinates
         
         private const double RatioInchesPerFoot = 12.0;
         private const double RatioFeetPerYard = 3.0;
+        private const double RatioFeetPerMile = 5280.0;
 
         private const double RatioInchesPerNM = 72913.3858267717;
         private const double RatioFeetPerNM = 6076.1154855643;
         private const double RatioYardsPerNM = 2025.37182852143;
+        private const double RatioMilesPerNM = 1.15077944802354;
 
         private const double DoubleFloatingPointTolerance = 1.0E-11;
 
@@ -434,6 +436,19 @@ namespace GeoFunctions.Core.Coordinates
             }
 
             return ToFeet(value, measurement) / RatioFeetPerYard;
+        }
+
+        public double ToMiles()
+        {
+            return ToMiles(Value, DistanceMeasurement);
+        }
+
+        public static double ToMiles(double value, DistanceMeasurement measurement)
+        {
+            if (measurement == DistanceMeasurement.NauticalMiles)
+                return value * RatioMilesPerNM;
+
+            return ToFeet(value, measurement) / RatioFeetPerMile;
         }
 
         public double ToNauticalMiles()

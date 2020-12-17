@@ -14,6 +14,7 @@ namespace GeoFunctions.Core.Coordinates
     double ToInches();
     double ToKilometers();
     double ToMeters();
+    double ToMiles();
     double ToMillimeters();
     double ToNauticalMiles();
     double ToYards();
