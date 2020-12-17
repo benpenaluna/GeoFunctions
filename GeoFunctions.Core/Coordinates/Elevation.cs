@@ -478,6 +478,9 @@ namespace GeoFunctions.Core.Coordinates
             if (measurement == DistanceMeasurement.Yards)
                 return value / RatioYardsPerNM;
 
+            if (measurement == DistanceMeasurement.Miles)
+                return value / RatioMilesPerNM;
+
             if (ImperialDistanceMeasurements.Contains(measurement))
             {
                 var valueInFeet = value * ConvertDistanceImperialMeasurement( measurement, DistanceMeasurement.Feet);
