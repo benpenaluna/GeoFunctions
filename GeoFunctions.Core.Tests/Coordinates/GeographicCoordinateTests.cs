@@ -37,7 +37,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         {
             ISphericalCoordinate latitude = new Latitude(-37.1);
             ISphericalCoordinate longitude = new Longitude(144.9);
-            IElevation elevation = new Elevation(96, DistanceMeasurement.Meters);
+            IDistance elevation = new Distance(96, DistanceMeasurement.Meters);
 
             IGeographicCoordinate result = new GeographicCoordinate(latitude, longitude, elevation);
             Assert.NotNull(result);
@@ -110,7 +110,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(1.0E+10)]
         public void GeographicCoordinate_CanUpdateValidElevation(double elevation)
         {
-            IElevation expected = new Elevation(elevation);
+            IDistance expected = new Distance(elevation);
 
             var sut = InstantiateNewGeographicCoordinate();
             sut.Elevation.Value = elevation;
@@ -165,7 +165,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         {
             ISphericalCoordinate latitude = new Latitude(-37.6885966980243);
             ISphericalCoordinate longitude = new Longitude(144.999637777534);
-            IElevation elevation = new Elevation(118.663,DistanceMeasurement.Meters);
+            IDistance elevation = new Distance(118.663,DistanceMeasurement.Meters);
             IGeographicCoordinate sut = new GeographicCoordinate(latitude, longitude, elevation);
             var result = sut.ToString(format, CultureInfo.InvariantCulture);
 

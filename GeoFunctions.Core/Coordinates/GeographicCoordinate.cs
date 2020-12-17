@@ -10,29 +10,29 @@ namespace GeoFunctions.Core.Coordinates
 
         public ISphericalCoordinate Longitude { get; set; }
 
-        public IElevation Elevation { get; set; }
+        public IDistance Elevation { get; set; }
 
         public GeographicCoordinate()
         {
-            Initialise(new Latitude(), new Longitude(), new Elevation());
+            Initialise(new Latitude(), new Longitude(), new Distance());
         }
 
         public GeographicCoordinate(ISphericalCoordinate latitude, ISphericalCoordinate longitude)
         {
-            Initialise(latitude, longitude, new Elevation());
+            Initialise(latitude, longitude, new Distance());
         }
         
         public GeographicCoordinate(double latitude, double longitude, double elevation = 0)
         {
-            Initialise(new Latitude(latitude), new Longitude(longitude), new Elevation(elevation));
+            Initialise(new Latitude(latitude), new Longitude(longitude), new Distance(elevation));
         }
 
-        public GeographicCoordinate(ISphericalCoordinate latitude, ISphericalCoordinate longitude, IElevation elevation)
+        public GeographicCoordinate(ISphericalCoordinate latitude, ISphericalCoordinate longitude, IDistance elevation)
         {
             Initialise(latitude, longitude, elevation);
         }
 
-        private void Initialise(ISphericalCoordinate latitude, ISphericalCoordinate longitude, IElevation elevation)
+        private void Initialise(ISphericalCoordinate latitude, ISphericalCoordinate longitude, IDistance elevation)
         {
             Latitude = latitude;
             Longitude = longitude;

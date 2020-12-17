@@ -10,13 +10,13 @@ namespace GeoFunctions.Core.Common
         private const double ellipsoidFlattening = 1.0 / 298.257223563;
         private static double semiMinorAxis = (1.0 - ellipsoidFlattening) * semiMajorAxis;
 
-        public static IElevation GreatCircleDistanceTo(this IGeographicCoordinate pointA, IGeographicCoordinate pointB)
+        public static IDistance GreatCircleDistanceTo(this IGeographicCoordinate pointA, IGeographicCoordinate pointB)
         {
             return VincentysInverseFormula(pointA, pointB);
         }
 
 
-        private static IElevation VincentysInverseFormula(IGeographicCoordinate pointA, IGeographicCoordinate pointB, int maxInterations = 200, double tolerance = 1.0E-12)
+        private static IDistance VincentysInverseFormula(IGeographicCoordinate pointA, IGeographicCoordinate pointB, int maxInterations = 200, double tolerance = 1.0E-12)
         {
             var reducedLatitude_pointA = Math.Atan((1.0 - ellipsoidFlattening) * Math.Tan(pointA.Latitude.Angle.ToRadians()));
             var reducedLatitude_pointB = Math.Atan((1.0 - ellipsoidFlattening) * Math.Tan(pointA.Latitude.Angle.ToRadians()));
@@ -64,7 +64,7 @@ namespace GeoFunctions.Core.Common
             
             var s = semiMinorAxis * A * (sigma - delta_sig);
 
-            return new Elevation(s, DistanceMeasurement.Meters);
+            return new Distance(s, DistanceMeasurement.Meters);
         }
     }
 }

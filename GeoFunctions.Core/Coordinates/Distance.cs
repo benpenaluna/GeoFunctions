@@ -7,7 +7,7 @@ using GeoFunctions.Core.Coordinates.Measurement;
 
 namespace GeoFunctions.Core.Coordinates
 {
-    public class Elevation : IElevation
+    public class Distance : IDistance
     {
         private const double RatioCentimetersPerMeter = 100.0;
         private const double RatioMetersPerKilometer = 1000.0;
@@ -78,7 +78,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public DistanceMeasurement DistanceMeasurement { get; protected set; }
         
-        public Elevation(double elevation = 0.0, DistanceMeasurement measurement = DistanceMeasurement.Feet)
+        public Distance(double elevation = 0.0, DistanceMeasurement measurement = DistanceMeasurement.Feet)
         {
             Value = elevation;
             DistanceMeasurement = measurement;
@@ -86,12 +86,12 @@ namespace GeoFunctions.Core.Coordinates
 
         public override bool Equals(object obj)
         {
-            if (obj.GetType() != typeof(Elevation))
+            if (obj.GetType() != typeof(Distance))
             {
                 return false;
             }
 
-            var testObject = (Elevation) obj;
+            var testObject = (Distance) obj;
 
             return Value.Equals(testObject.Value) && DistanceMeasurement == testObject.DistanceMeasurement;
         }

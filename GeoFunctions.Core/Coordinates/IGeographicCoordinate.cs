@@ -6,6 +6,6 @@ namespace GeoFunctions.Core.Coordinates
     {
         ISphericalCoordinate Latitude { get; set; }
         ISphericalCoordinate Longitude { get; set; }
-        IElevation Elevation { get; set; }
+        IDistance Elevation { get; set; }
     }
 }

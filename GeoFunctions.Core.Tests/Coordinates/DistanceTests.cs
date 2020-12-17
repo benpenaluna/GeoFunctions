@@ -6,7 +6,7 @@ using Xunit;
 
 namespace GeoFunctions.Core.Tests.Coordinates
 {
-    public class ElevationTests
+    public class DistanceTests
     {
         public enum ArithmeticOperator
         {
@@ -17,50 +17,50 @@ namespace GeoFunctions.Core.Tests.Coordinates
         private const double DoubleFloatingPointTolerance = 1.0E-11;
 
         [Fact]
-        public void Elevation_CanInstantiate()
+        public void Distance_CanInstantiate()
         {
-            IElevation sut = InstantiateNewElevation();
+            IDistance sut = InstantiateNewDistance();
 
             Assert.NotNull(sut);
         }
 
         [Fact]
-        public void Elevation_CanInstantiateWithValue()
+        public void Distance_CanInstantiateWithValue()
         {
             const double value = 999.0;
-            IElevation sut = new Elevation(value);
+            IDistance sut = new Distance(value);
 
             Assert.NotNull(sut);
         }
 
         [Fact]
-        public void Elevation_CanInstantiateWithValueAndMeasurement()
+        public void Distance_CanInstantiateWithValueAndMeasurement()
         {
             const double value = 999.0;
             const DistanceMeasurement measurement = DistanceMeasurement.Meters;
-            IElevation sut = new Elevation(value, measurement);
+            IDistance sut = new Distance(value, measurement);
 
             Assert.NotNull(sut);
         }
 
         [Fact]
-        public void Elevation_MeasurementDefaultsToFeet()
+        public void Distance_MeasurementDefaultsToFeet()
         {
             const DistanceMeasurement expected = DistanceMeasurement.Feet;
 
-            IElevation sut = InstantiateNewElevation();
+            IDistance sut = InstantiateNewDistance();
             var result = sut.DistanceMeasurement;
 
             Assert.Equal(expected, result);
         }
 
         [Fact]
-        public void Elevation_MeasurementDefaultsToFeetValueSpecified()
+        public void Distance_MeasurementDefaultsToFeetValueSpecified()
         {
             const DistanceMeasurement expected = DistanceMeasurement.Feet;
 
             const double value = 99.09;
-            IElevation sut = new Elevation(value);
+            IDistance sut = new Distance(value);
             var result = sut.DistanceMeasurement;
 
             Assert.Equal(expected, result);
@@ -70,12 +70,12 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10)]
         [InlineData(0.0)]
         [InlineData(1.0E+10)]
-        public void Elevation_CanSetValidValue(double elevation)
+        public void Distance_CanSetValidValue(double distance)
         {
-            var expected = elevation;
+            var expected = distance;
 
-            IElevation sut = InstantiateNewElevation();
-            sut.Value = elevation;
+            IDistance sut = InstantiateNewDistance();
+            sut.Value = distance;
             var result = sut.Value;
 
             Assert.Equal(expected, result);
@@ -87,21 +87,21 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10 - 0.00001)]
         [InlineData(1.0E+10 + 0.00001)]
         [InlineData(double.MaxValue)]
-        public void Elevation_CanNotSetInvalidValue(double elevation)
+        public void Distance_CanNotSetInvalidValue(double distance)
         {
-            IElevation sut = InstantiateNewElevation();
-            Assert.Throws<ArgumentException>(() => sut.Value = elevation);
+            IDistance sut = InstantiateNewDistance();
+            Assert.Throws<ArgumentException>(() => sut.Value = distance);
 
         }
 
         [Theory]
         [InlineData(DistanceMeasurement.Feet)]
         [InlineData(DistanceMeasurement.Meters)]
-        public void Elevation_CanGetMeasurement(DistanceMeasurement measurement)
+        public void Distance_CanGetMeasurement(DistanceMeasurement measurement)
         {
             var expected = measurement;
 
-            IElevation sut = new Elevation(0.0, measurement);
+            IDistance sut = new Distance(0.0, measurement);
             var result = sut.DistanceMeasurement;
 
             Assert.Equal(expected, result);
@@ -111,10 +111,10 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10)]
         [InlineData(0.0)]
         [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyChecksEqualityOfValue(double value)
+        public void Distance_CorrectlyChecksEqualityOfValue(double value)
         {
-            IElevation sut = new Elevation(value);
-            IElevation testObject = new Elevation(value);
+            IDistance sut = new Distance(value);
+            IDistance testObject = new Distance(value);
 
             Assert.True(sut.Equals(testObject));
         }
@@ -123,12 +123,12 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10)]
         [InlineData(0.0)]
         [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyFindsInequalityOfValue(double value)
+        public void Distance_CorrectlyFindsInequalityOfValue(double value)
         {
             var valueOffset = value > 0 ? -1.0 : 1.0;
 
-            IElevation sut = new Elevation(value);
-            IElevation testObject = new Elevation(value + valueOffset);
+            IDistance sut = new Distance(value);
+            IDistance testObject = new Distance(value + valueOffset);
 
             Assert.False(sut.Equals(testObject));
         }
@@ -137,10 +137,10 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10)]
         [InlineData(0.0)]
         [InlineData(1.0E+10)]
-        public void Elevation_CorrectlyFindsInequalityOfMeasurement(double value)
+        public void Distance_CorrectlyFindsInequalityOfMeasurement(double value)
         {
-            IElevation sut = new Elevation(value);
-            IElevation testObject = new Elevation(value, DistanceMeasurement.Meters);
+            IDistance sut = new Distance(value);
+            IDistance testObject = new Distance(value, DistanceMeasurement.Meters);
 
             Assert.False(sut.Equals(testObject));
         }
@@ -148,9 +148,9 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [Theory]
         [InlineData(42.0, DistanceMeasurement.Feet, "42'")]
         [InlineData(42.0, DistanceMeasurement.Meters, "42 m")]
-        public void Elevation_CorrectlyReturnToString(double value, DistanceMeasurement distanceMeasurement, string expected)
+        public void Distance_CorrectlyReturnToString(double value, DistanceMeasurement distanceMeasurement, string expected)
         {
-            IElevation sut = new Elevation(value, distanceMeasurement);
+            IDistance sut = new Distance(value, distanceMeasurement);
             var result = sut.ToString();
 
             Assert.Equal(expected, result);
@@ -215,9 +215,9 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData("n.n u", "1.0 nm", 6076.1154855643, DistanceMeasurement.Feet)]
         [InlineData("n.n u", "1.0 nm", 2025.371829, DistanceMeasurement.Yards)]
         [InlineData("n.n u", "1.0 nm", 1.150779448, DistanceMeasurement.Miles)]
-        public void Elevation_CorrectlyParsesFormatString(string format, string expected, double value, DistanceMeasurement unitOfMeasurement)
+        public void Distance_CorrectlyParsesFormatString(string format, string expected, double value, DistanceMeasurement unitOfMeasurement)
         {
-            IElevation sut = new Elevation(value, unitOfMeasurement);
+            IDistance sut = new Distance(value, unitOfMeasurement);
             var result = sut.ToString(format, CultureInfo.InvariantCulture);
 
             Assert.Equal(expected, result);
@@ -251,11 +251,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1852000.0)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1852000.0)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1852000.0)]
-        public void Elevation_CorrectlyConvertsToMillimeters(double value, DistanceMeasurement measurement, double factor)
+        public void Distance_CorrectlyConvertsToMillimeters(double value, DistanceMeasurement measurement, double factor)
         {
             var expected = value * factor;
 
-            IElevation sut = new Elevation(value, measurement);
+            IDistance sut = new Distance(value, measurement);
             var result = sut.ToMillimeters();
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
@@ -291,11 +291,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1852000.0)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1852000.0)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1852000.0)]
-        public void Elevation_CorrectlyConvertsToMillimetersStatically(double value, DistanceMeasurement measurement, double factor)
+        public void Distance_CorrectlyConvertsToMillimetersStatically(double value, DistanceMeasurement measurement, double factor)
         {
             var expected = value * factor;
 
-            var result = Elevation.ToMillimeters(value, measurement);
+            var result = Distance.ToMillimeters(value, measurement);
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
             Assert.True(testAssertion);
@@ -329,11 +329,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 185200.0)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 185200.0)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 185200.0)]
-        public void Elevation_CorrectlyConvertsToCentimeters(double value, DistanceMeasurement measurement, double factor)
+        public void Distance_CorrectlyConvertsToCentimeters(double value, DistanceMeasurement measurement, double factor)
         {
             var expected = value * factor;
 
-            IElevation sut = new Elevation(value, measurement);
+            IDistance sut = new Distance(value, measurement);
             var result = sut.ToCentimeters();
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
@@ -369,11 +369,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 185200.0)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 185200.0)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 185200.0)]
-        public void Elevation_CorrectlyConvertsToCentimetersStatically(double value, DistanceMeasurement measurement, double factor)
+        public void Distance_CorrectlyConvertsToCentimetersStatically(double value, DistanceMeasurement measurement, double factor)
         {
             var expected = value * factor;
 
-            var result = Elevation.ToCentimeters(value, measurement);
+            var result = Distance.ToCentimeters(value, measurement);
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
             Assert.True(testAssertion);
@@ -407,11 +407,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1852.0)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1852.0)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1852.0)]
-        public void Elevation_CorrectlyConvertsToMeters(double value, DistanceMeasurement measurement, double factor)
+        public void Distance_CorrectlyConvertsToMeters(double value, DistanceMeasurement measurement, double factor)
         {
             var expected = value * factor;
 
-            IElevation sut = new Elevation(value, measurement);
+            IDistance sut = new Distance(value, measurement);
             var result = sut.ToMeters();
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
@@ -446,11 +446,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1852.0)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1852.0)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1852.0)]
-        public void Elevation_CorrectlyConvertsToMetersStatically(double value, DistanceMeasurement measurement, double factor)
+        public void Distance_CorrectlyConvertsToMetersStatically(double value, DistanceMeasurement measurement, double factor)
         {
             var expected = value * factor;
 
-            var result = Elevation.ToMeters(value, measurement);
+            var result = Distance.ToMeters(value, measurement);
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
             Assert.True(testAssertion);
@@ -484,11 +484,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1.852, ArithmeticOperator.Multiply)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1.852, ArithmeticOperator.Multiply)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1.852, ArithmeticOperator.Multiply)]
-        public void Elevation_CorrectlyConvertsToKilometers(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
+        public void Distance_CorrectlyConvertsToKilometers(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
         {
             var expected = arithmeticOperator == ArithmeticOperator.Multiply ? Math.Round(value * factor) : value / factor;
 
-            IElevation sut = new Elevation(value, measurement);
+            IDistance sut = new Distance(value, measurement);
             var result = sut.ToKilometers();
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
@@ -523,11 +523,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1.852, ArithmeticOperator.Multiply)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1.852, ArithmeticOperator.Multiply)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1.852, ArithmeticOperator.Multiply)]
-        public void Elevation_CorrectlyConvertsToKilometersStatically(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
+        public void Distance_CorrectlyConvertsToKilometersStatically(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
         {
             var expected = arithmeticOperator == ArithmeticOperator.Multiply ? Math.Round(value * factor) : value / factor;
 
-            var result = Elevation.ToKilometers(value, measurement);
+            var result = Distance.ToKilometers(value, measurement);
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
             Assert.True(testAssertion);
@@ -561,11 +561,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 72913.3858267717, ArithmeticOperator.Multiply)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 72913.3858267717, ArithmeticOperator.Multiply)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 72913.3858267717, ArithmeticOperator.Multiply)]
-        public void Elevation_CorrectlyConvertsToInches(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
+        public void Distance_CorrectlyConvertsToInches(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
         {
             var expected = arithmeticOperator == ArithmeticOperator.Multiply ? value * factor : value / factor;
 
-            IElevation sut = new Elevation(value, measurement);
+            IDistance sut = new Distance(value, measurement);
             var result = sut.ToInches();
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
@@ -600,11 +600,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 72913.3858267717, ArithmeticOperator.Multiply)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 72913.3858267717, ArithmeticOperator.Multiply)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 72913.3858267717, ArithmeticOperator.Multiply)]
-        public void Elevation_CorrectlyConvertsToInchesStatically(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
+        public void Distance_CorrectlyConvertsToInchesStatically(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
         {
             var expected = arithmeticOperator == ArithmeticOperator.Multiply ? value * factor : value / factor;
 
-            var result = Elevation.ToInches(value, measurement);
+            var result = Distance.ToInches(value, measurement);
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
             Assert.True(testAssertion);
@@ -638,11 +638,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 6076.1154855643, ArithmeticOperator.Multiply)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 6076.1154855643, ArithmeticOperator.Multiply)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 6076.1154855643, ArithmeticOperator.Multiply)]
-        public void Elevation_CorrectlyConvertsToFeet(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
+        public void Distance_CorrectlyConvertsToFeet(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
         {
             var expected = arithmeticOperator == ArithmeticOperator.Multiply ? value * factor : value / factor;
 
-            IElevation sut = new Elevation(value, measurement);
+            IDistance sut = new Distance(value, measurement);
             var result = sut.ToFeet();
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
@@ -677,11 +677,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 6076.1154855643, ArithmeticOperator.Multiply)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 6076.1154855643, ArithmeticOperator.Multiply)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 6076.1154855643, ArithmeticOperator.Multiply)]
-        public void Elevation_CorrectlyConvertsToFeetStatically(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
+        public void Distance_CorrectlyConvertsToFeetStatically(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
         {
             var expected = arithmeticOperator == ArithmeticOperator.Multiply ? value * factor : value / factor;
 
-            var result = Elevation.ToFeet(value, measurement);
+            var result = Distance.ToFeet(value, measurement);
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
             Assert.True(testAssertion);
@@ -715,11 +715,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 2025.37182852143, ArithmeticOperator.Multiply)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 2025.37182852143, ArithmeticOperator.Multiply)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 2025.37182852143, ArithmeticOperator.Multiply)]
-        public void Elevation_CorrectlyConvertsToYards(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
+        public void Distance_CorrectlyConvertsToYards(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
         {
             var expected = arithmeticOperator == ArithmeticOperator.Multiply ? value * factor : value / factor;
 
-            IElevation sut = new Elevation(value, measurement);
+            IDistance sut = new Distance(value, measurement);
             var result = sut.ToYards();
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
@@ -754,11 +754,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 2025.37182852143, ArithmeticOperator.Multiply)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 2025.37182852143, ArithmeticOperator.Multiply)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 2025.37182852143, ArithmeticOperator.Multiply)]
-        public void Elevation_CorrectlyConvertsToYardsStatically(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
+        public void Distance_CorrectlyConvertsToYardsStatically(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
         {
             var expected = arithmeticOperator == ArithmeticOperator.Multiply ? value * factor : value / factor;
 
-            var result = Elevation.ToYards(value, measurement);
+            var result = Distance.ToYards(value, measurement);
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
             Assert.True(testAssertion);
@@ -792,11 +792,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1.15077944802354, ArithmeticOperator.Multiply)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1.15077944802354, ArithmeticOperator.Multiply)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1.15077944802354, ArithmeticOperator.Multiply)]
-        public void Elevation_CorrectlyConvertsToMiles(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
+        public void Distance_CorrectlyConvertsToMiles(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
         {
             var expected = arithmeticOperator == ArithmeticOperator.Multiply ? value * factor : value / factor;
 
-            IElevation sut = new Elevation(value, measurement);
+            IDistance sut = new Distance(value, measurement);
             var result = sut.ToMiles();
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
@@ -831,11 +831,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1.15077944802354, ArithmeticOperator.Multiply)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1.15077944802354, ArithmeticOperator.Multiply)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1.15077944802354, ArithmeticOperator.Multiply)]
-        public void Elevation_CorrectlyConvertsToMilesStatically(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
+        public void Distance_CorrectlyConvertsToMilesStatically(double value, DistanceMeasurement measurement, double factor, ArithmeticOperator arithmeticOperator)
         {
             var expected = arithmeticOperator == ArithmeticOperator.Multiply ? value * factor : value / factor;
 
-            var result = Elevation.ToMiles(value, measurement);
+            var result = Distance.ToMiles(value, measurement);
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
             Assert.True(testAssertion);
@@ -869,11 +869,11 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1.0)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1.0)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1.0)]
-        public void Elevation_CorrectlyConvertsToNM(double value, DistanceMeasurement measurement, double factor)
+        public void Distance_CorrectlyConvertsToNM(double value, DistanceMeasurement measurement, double factor)
         {
             var expected = value / factor;
 
-            IElevation sut = new Elevation(value, measurement);
+            IDistance sut = new Distance(value, measurement);
             var result = sut.ToNauticalMiles();
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
@@ -908,19 +908,19 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-1.0E+10, DistanceMeasurement.NauticalMiles, 1.0)]
         [InlineData(0.0, DistanceMeasurement.NauticalMiles, 1.0)]
         [InlineData(1.0E+10, DistanceMeasurement.NauticalMiles, 1.0)]
-        public void Elevation_CorrectlyConvertsToNMFromNMStatically(double value, DistanceMeasurement measurement, double factor)
+        public void Distance_CorrectlyConvertsToNMFromNMStatically(double value, DistanceMeasurement measurement, double factor)
         {
             var expected = value / factor;
 
-            var result = Elevation.ToNauticalMiles(value, measurement);
+            var result = Distance.ToNauticalMiles(value, measurement);
 
             var testAssertion = Math.Abs(expected - result) < DoubleFloatingPointTolerance;
             Assert.True(testAssertion);
         }
 
-        private static Elevation InstantiateNewElevation()
+        private static Distance InstantiateNewDistance()
         {
-            return new Elevation();
+            return new Distance();
         }
     }
 }
