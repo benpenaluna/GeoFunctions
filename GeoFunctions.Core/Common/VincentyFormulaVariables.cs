@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GeoFunctions.Core.Common
 {
-    internal class VincentyFormulaElements
+    internal class VincentyFormulaVariables
     {
         public double Lambda { get; set; }
         public double LambdaPrevious { get; set; }
@@ -20,12 +20,20 @@ namespace GeoFunctions.Core.Common
         public double SinReducedLatitudePointB { get; set; }
         
         public double Sigma { get; set; }
+        public double DeltaSigma { get; set; }
         public double CosSigma { get; set; }
         public double SinSigma { get; set; }
 
         public double CosSquaredAlpha { get; set; }
         public double Cos2SigmaM { get; set; }
 
+        public double USquared { get; set; }
+        public double A { get; set; }
+        public double B { get; set; }
+
+        public double GeodesicLength { get; set; }
+        public double ForwardAzimuth { get; set; }
+        public double BackwardAzimuth { get; set; }
 
     }
 }
