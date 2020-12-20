@@ -10,7 +10,6 @@ namespace GeoFunctions.Core.Common
         private const double ellipsoidFlattening = 1.0 / 298.257223563;
         private static double semiMinorAxis = (1.0 - ellipsoidFlattening) * semiMajorAxis;
 
-        
         public static IDistance GreatCircleDistanceTo(this IGeographicCoordinate pointA, IGeographicCoordinate pointB, int maxInterations = 200, double tolerance = 1.0E-12)
         {
             return VincentysInverseFormula(pointA, pointB, maxInterations, tolerance).Distance;
@@ -143,6 +142,66 @@ namespace GeoFunctions.Core.Common
 
             var azimuth = Math.Atan2(dividend, divisor);
             return azimuth >= 0 ? azimuth - Math.PI : azimuth + Math.PI;
+        }
+
+        public static IGeographicCoordinate DestinationCoordinates(this IGeographicCoordinate pointA, IAngle initialBearing, IDistance distance, 
+                                                                   int maxInterations = 200, double tolerance = 1.0E-12)
+        {
+            return VincentysDirectFormula(pointA, initialBearing, distance, maxInterations, tolerance);
+        }
+
+        private static IGeographicCoordinate VincentysDirectFormula(IGeographicCoordinate pointA, IAngle initialBearing, IDistance distance, 
+                                                                    int maxInterations = 200, double tolerance = 1.0E-12)
+        {
+            var sinα1 = Math.Sin(initialBearing.ToRadians());
+            var cosα1 = Math.Cos(initialBearing.ToRadians());
+
+            var tanU1 = (1.0 - ellipsoidFlattening) * Math.Tan(pointA.Latitude.Angle.ToRadians());
+            var cosU1 = 1.0 / Math.Sqrt((1 + Math.Pow(tanU1, 2.0)));
+            var sinU1 = tanU1 * cosU1;
+
+            var σ1 = Math.Atan2(tanU1, cosα1);
+            var sinα = cosU1 * sinα1;
+            var cosSqα = 1.0 - Math.Pow(sinα, 2.0);
+            var uSq = cosSqα * (Math.Pow(semiMajorAxis, 2.0) - Math.Pow(semiMinorAxis, 2.0)) / Math.Pow(semiMinorAxis, 2.0);
+            var A = 1 + uSq / 16384.0 * (4096.0 + uSq * (-768.0 + uSq * (320.0 - 175.0 * uSq)));
+            var B = uSq / 1024.0 * (256.0 + uSq * (-128.0 + uSq * (74.0 - 47.0 * uSq)));
+
+            
+            
+            var σ = distance.ToMeters() / (semiMinorAxis * A);
+            double cos2σM = 0.0;
+            double sinσ = 0.0;
+            double cosσ = 0.0;
+            for (var i = 0; i < maxInterations; i++)
+            {
+                cos2σM = Math.Cos(2 * σ1 + σ);
+                sinσ = Math.Sin(σ);
+                cosσ = Math.Cos(σ);
+                var Δσ = B * sinσ * (cos2σM + B / 4.0 * (cosσ * (-1.0 + 2.0 * Math.Pow(cos2σM, 2.0)) -
+                         B / 6.0 * cos2σM * (-3.0 + 4.0 * Math.Pow(sinσ, 2.0)) * (-3.0 + 4.0 * Math.Pow(cos2σM, 2.0))));
+
+                double σ_previous = σ;
+                σ = distance.ToMeters() / (semiMinorAxis * A) + Δσ;
+
+                var diff = Math.Abs(σ - σ_previous);
+                if (diff <= tolerance)
+                    break;
+            }
+
+            var tmp = sinU1 * sinσ - cosU1 * cosσ * cosα1;
+            var φ2 = Math.Atan2(sinU1 * cosσ + cosU1 * sinσ * cosα1, (1 - ellipsoidFlattening) * Math.Sqrt(Math.Pow(sinα, 2.0) + Math.Pow(tmp, 2.0)));
+            var λ = Math.Atan2(sinσ * sinα1, cosU1 * cosσ - sinU1 * sinσ * cosα1);
+            var C = ellipsoidFlattening / 16.0 * cosSqα * (4.0 + ellipsoidFlattening * (4.0 - 3.0 * cosSqα));
+            var L = λ - (1.0 - C) * ellipsoidFlattening * sinα *
+                    (σ + C * sinσ * (cos2σM + C * cosσ * (-1.0 + 2.0 * Math.Pow(cos2σM, 2.0))));
+            var λ2 = (pointA.Longitude.Angle.ToRadians() + L + 3.0 * Math.PI) % (2.0 * Math.PI) - Math.PI;  // normalise to -180...+180
+            
+            var revAz = Math.Atan2(sinα, -tmp);
+
+            var latitude = Angle.ToDegrees(φ2);
+            var longitude = Angle.ToDegrees(λ2);
+            return new GeographicCoordinate(latitude, longitude); 
         }
     }
 }

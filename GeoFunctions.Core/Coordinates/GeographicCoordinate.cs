@@ -80,5 +80,22 @@ namespace GeoFunctions.Core.Coordinates
 
             return format;
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj.GetType() == typeof(GeographicCoordinate) && Equals ((GeographicCoordinate) obj);
+        }
+
+        protected bool Equals(GeographicCoordinate other)
+        {
+            return Equals(Latitude, other.Latitude) &&
+                   Equals(Longitude, other.Longitude) &&
+                   Equals(Elevation, other.Elevation);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

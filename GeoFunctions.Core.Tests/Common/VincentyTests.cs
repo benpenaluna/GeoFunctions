@@ -169,5 +169,20 @@ namespace GeoFunctions.Core.Tests.Common
                 angles.TryDequeue(out result);
             }
         }
+
+        [Theory]
+        [InlineData(-37.95103342, 144.4248679, 5.355859732, 54972.271, -37.652821149141957, 143.92649553423738, 200, 1.0E-12)]
+        public void Vincenty_CorrectlyCalculatesDestinationCoordinates(double latA, double lonA, double bearingInRadians, double distanceInMeters, 
+                                                                       double expectedLat, double expectedLon, int maxIterations, double tolerance)
+        {
+            IGeographicCoordinate pointA = new GeographicCoordinate(latA, lonA);
+                        
+            IGeographicCoordinate expected = new GeographicCoordinate(expectedLat, expectedLon);
+
+            IGeographicCoordinate result = pointA.DestinationCoordinates(new Angle(bearingInRadians, AngleMeasurement.Radians), new Distance(distanceInMeters, DistanceMeasurement.Meters), 
+                                                                         maxIterations, tolerance);
+
+            Assert.Equal(expected, result);
+        }
     }
 }
