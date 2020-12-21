@@ -172,6 +172,9 @@ namespace GeoFunctions.Core.Tests.Common
 
         [Theory]
         [InlineData(-37.95103342, 144.4248679, 5.355859732, 54972.271, -37.652821149141957, 143.92649553423738, 200, 1.0E-12)]
+        [InlineData(-37.81996667, 144.98345, 0.94019000526431273, 714102.60631513281, -33.856783329998891, 151.2152972000016, 200, 1.0E-12)]
+        [InlineData(40.68925, -74.0445, 0.93747586784865922, 5853100.327933725, 48.858369440010456, 2.2944805559602606, 200, 1.0E-12)]
+        [InlineData(51.50329722, -0.119552778, 0.91781936198368552, 18913621.974381331, -45.03016389001283, 168.66161390001733, 200, 1.0E-12)]
         public void Vincenty_CorrectlyCalculatesDestinationCoordinates(double latA, double lonA, double bearingInRadians, double distanceInMeters, 
                                                                        double expectedLat, double expectedLon, int maxIterations, double tolerance)
         {

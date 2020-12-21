@@ -6,9 +6,9 @@ namespace GeoFunctions.Core.Common
 {
     public static class Vincenty
     {
-        private const double semiMajorAxis = 6378137.0;
-        private const double ellipsoidFlattening = 1.0 / 298.257223563;
-        private static double semiMinorAxis = (1.0 - ellipsoidFlattening) * semiMajorAxis;
+        private const double a = 6378137.0;
+        private const double f = 1.0 / 298.257223563;
+        private static double b = (1.0 - f) * a;
 
         public static IDistance GreatCircleDistanceTo(this IGeographicCoordinate pointA, IGeographicCoordinate pointB, int maxInterations = 200, double tolerance = 1.0E-12)
         {
@@ -27,9 +27,11 @@ namespace GeoFunctions.Core.Common
 
         private static IBearingDistance VincentysInverseFormula(IGeographicCoordinate pointA, IGeographicCoordinate pointB, int maxInterations = 200, double tolerance = 1.0E-12)
         {
-            VincentyFormulaVariables v = PrepareLambdaConvergenceLoop(pointA, pointB);
+            // Source: https://nathanrooy.github.io/posts/2016-12-18/vincenty-formula-with-python/
+
+            VincentyFormulaVariables v = PrepareλConvergenceLoop(pointA, pointB);
             
-            v = RecalculateLambaUntilConvergence(v, maxInterations, tolerance);
+            v = RecalculateλUntilConvergence(v, maxInterations, tolerance);
 
             v = CalculateGeodesicDistanceAzimuth(v);
 
@@ -43,34 +45,34 @@ namespace GeoFunctions.Core.Common
             return bearingDistance;
         }
 
-        private static VincentyFormulaVariables PrepareLambdaConvergenceLoop(IGeographicCoordinate pointA, IGeographicCoordinate pointB)
+        private static VincentyFormulaVariables PrepareλConvergenceLoop(IGeographicCoordinate pointA, IGeographicCoordinate pointB)
         {
             var v = new VincentyFormulaVariables
             {
-                ReducedLatitudePointA = Math.Atan((1.0 - ellipsoidFlattening) * Math.Tan(pointA.Latitude.Angle.ToRadians())),
-                ReducedLatitudePointB = Math.Atan((1.0 - ellipsoidFlattening) * Math.Tan(pointB.Latitude.Angle.ToRadians())),
+                U1 = Math.Atan((1.0 - f) * Math.Tan(pointA.Latitude.Angle.ToRadians())),
+                U2 = Math.Atan((1.0 - f) * Math.Tan(pointB.Latitude.Angle.ToRadians())),
 
-                LongitudeDifference = Angle.ToRadians(pointB.Longitude.Angle.ToDegrees() - pointA.Longitude.Angle.ToDegrees())
+                L = Angle.ToRadians(pointB.Longitude.Angle.ToDegrees() - pointA.Longitude.Angle.ToDegrees())
             };
 
-            v.Lambda = v.LongitudeDifference;
+            v.λ = v.L;
 
-            v.SinReducedLatitudePointA = Math.Sin(v.ReducedLatitudePointA);
-            v.CosReducedLatitudePointA = Math.Cos(v.ReducedLatitudePointA);
-            v.SinReducedLatitudePointB = Math.Sin(v.ReducedLatitudePointB);
-            v.CosReducedLatitudePointB = Math.Cos(v.ReducedLatitudePointB);
+            v.SinU1 = Math.Sin(v.U1);
+            v.CosU1 = Math.Cos(v.U1);
+            v.SinU2 = Math.Sin(v.U2);
+            v.CosU2 = Math.Cos(v.U2);
 
             return v;
         }
 
-        private static VincentyFormulaVariables RecalculateLambaUntilConvergence(VincentyFormulaVariables v, int maxInterations, double tolerance)
+        private static VincentyFormulaVariables RecalculateλUntilConvergence(VincentyFormulaVariables v, int maxInterations, double tolerance)
         {
             for (var i = 0; i < maxInterations; i++)
             {
-                double Lambda_prev = v.Lambda;
-                v = RecalculateLambda(v);
+                double Lambda_prev = v.λ;
+                v = Recalculateλ(v);
 
-                var diff = Math.Abs(Lambda_prev - v.Lambda);
+                var diff = Math.Abs(Lambda_prev - v.λ);
                 if (diff <= tolerance)
                     break;
             }
@@ -78,67 +80,65 @@ namespace GeoFunctions.Core.Common
             return v;
         }
 
-        private static VincentyFormulaVariables RecalculateLambda(VincentyFormulaVariables v)
+        private static VincentyFormulaVariables Recalculateλ(VincentyFormulaVariables v)
         {
-            var cos_lambda = Math.Cos(v.Lambda);
-            var sin_lambda = Math.Sin(v.Lambda);
+            var cosλ = Math.Cos(v.λ);
+            var sinλ = Math.Sin(v.λ);
 
-            v.SinSigma = Math.Sqrt(Math.Pow(v.CosReducedLatitudePointB * Math.Sin(v.Lambda), 2.0) +
-                                   Math.Pow(v.CosReducedLatitudePointA * v.SinReducedLatitudePointB -
-                                   v.SinReducedLatitudePointA * v.CosReducedLatitudePointB * cos_lambda, 2.0));
+            v.Sinσ = Math.Sqrt(Math.Pow(v.CosU2 * Math.Sin(v.λ), 2.0) +
+                                   Math.Pow(v.CosU1 * v.SinU2 -
+                                   v.SinU1 * v.CosU2 * cosλ, 2.0));
 
-            v.CosSigma = v.SinReducedLatitudePointA * v.SinReducedLatitudePointB +
-                         v.CosReducedLatitudePointA * v.CosReducedLatitudePointB * cos_lambda;
+            v.Cosσ = v.SinU1 * v.SinU2 +
+                         v.CosU1 * v.CosU2 * cosλ;
 
-            v.Sigma = Math.Atan2(v.SinSigma, v.CosSigma);
+            v.σ = Math.Atan2(v.Sinσ, v.Cosσ);
 
-            var sin_alpha = (v.CosReducedLatitudePointA * v.CosReducedLatitudePointB * sin_lambda) / v.SinSigma;
+            v.sinα = (v.CosU1 * v.CosU2 * sinλ) / v.Sinσ;
 
-            v.CosSquaredAlpha = 1 - Math.Pow(sin_alpha, 2.0);
+            v.CosSqα = 1 - Math.Pow(v.sinα, 2.0);
 
-            v.Cos2SigmaM = v.CosSigma - ((2.0 * v.SinReducedLatitudePointA * v.SinReducedLatitudePointB) / v.CosSquaredAlpha);
+            v.Cos2σM = v.Cosσ - ((2.0 * v.SinU1 * v.SinU2) / v.CosSqα);
 
-            var C = (ellipsoidFlattening / 16.0) * v.CosSquaredAlpha * (4 + ellipsoidFlattening * (4.0 - 3.0 * v.CosSquaredAlpha));
+            v.C = (f / 16.0) * v.CosSqα * (4 + f * (4.0 - 3.0 * v.CosSqα));
 
-            v.Lambda = v.LongitudeDifference + (1.0 - C) * ellipsoidFlattening * sin_alpha *
-                                                  (v.Sigma + C * v.SinSigma * (v.Cos2SigmaM + C * v.CosSigma *
-                                                                               (-1.0 + 2.0 * Math.Pow(v.Cos2SigmaM, 2.0))));
+            v.λ = v.L + (1.0 - v.C) * f * v.sinα * (v.σ + v.C * v.Sinσ * (v.Cos2σM + v.C * v.Cosσ * (-1.0 + 2.0 * Math.Pow(v.Cos2σM, 2.0))));
 
             return v;
         }
 
         private static VincentyFormulaVariables CalculateGeodesicDistanceAzimuth(VincentyFormulaVariables v)
         {
-            v.USquared = v.CosSquaredAlpha * ((Math.Pow(semiMajorAxis, 2.0) - Math.Pow(semiMinorAxis, 2.0)) / Math.Pow(semiMinorAxis, 2.0));
+            v.USquared = v.CosSqα * ((Math.Pow(a, 2.0) - Math.Pow(b, 2.0)) / Math.Pow(b, 2.0));
             v.A = 1 + (v.USquared / 16384.0) * (4096.0 + v.USquared * (-768.0 + v.USquared * (320.0 - 175.0 * v.USquared)));
             v.B = (v.USquared / 1024.0) * (256.0 + v.USquared * (-128.0 + v.USquared * (74.0 - 47.0 * v.USquared)));
             
-            v.DeltaSigma = v.B * v.SinSigma * (v.Cos2SigmaM + 0.25 * v.B * (v.CosSigma * (-1.0 + 2.0 * Math.Pow(v.Cos2SigmaM, 2.0)) -
-                                               (1.0 / 6.0) * v.B * v.Cos2SigmaM * (-3.0 + 4.0 * Math.Pow(v.SinSigma, 2.0)) * 
-                                               (-3.0 + 4.0 * Math.Pow(v.Cos2SigmaM, 2.0))));
+            v.Δσ = v.B * v.Sinσ * (v.Cos2σM + 0.25 * v.B * (v.Cosσ * (-1.0 + 2.0 * Math.Pow(v.Cos2σM, 2.0)) -
+                                               (1.0 / 6.0) * v.B * v.Cos2σM * (-3.0 + 4.0 * Math.Pow(v.Sinσ, 2.0)) * 
+                                               (-3.0 + 4.0 * Math.Pow(v.Cos2σM, 2.0))));
 
-            v.GeodesicLength = semiMinorAxis * v.A * (v.Sigma - v.DeltaSigma);
+            v.GeodesicLength = b * v.A * (v.σ - v.Δσ);
             v.ForwardAzimuth = CalculateForwardAzimuth(v);
-            v.BackwardAzimuth = CalcaulateBackwardAzimuth(v);
+            v.BackwardAzimuth = CalcaulateBackwardAzimuthInverseMethod(v);
 
             return v;
         }
 
         private static double CalculateForwardAzimuth(VincentyFormulaVariables v)
         {
-            var dividend = Math.Cos(v.ReducedLatitudePointB) * Math.Sin(v.Lambda);
-            var divisor = Math.Cos(v.ReducedLatitudePointA) * Math.Sin(v.ReducedLatitudePointB) - 
-                          Math.Sin(v.ReducedLatitudePointA) * Math.Cos(v.ReducedLatitudePointB) * Math.Cos(v.Lambda);
+            var dividend = Math.Cos(v.U2) * Math.Sin(v.λ);
+            var divisor = Math.Cos(v.U1) * Math.Sin(v.U2) - 
+                          Math.Sin(v.U1) * Math.Cos(v.U2) * Math.Cos(v.λ);
             
             var azimuth = Math.Atan2(dividend, divisor);
             return azimuth;
         }
 
-        private static double CalcaulateBackwardAzimuth(VincentyFormulaVariables v)
+        private static double CalcaulateBackwardAzimuthInverseMethod(VincentyFormulaVariables v)
         {
-            var dividend = Math.Cos(v.ReducedLatitudePointA) * Math.Sin(v.Lambda);
-            var divisor = Math.Cos(v.ReducedLatitudePointA) * Math.Sin(v.ReducedLatitudePointB) * Math.Cos(v.Lambda) - 
-                          Math.Sin(v.ReducedLatitudePointA) * Math.Cos(v.ReducedLatitudePointB);
+            var dividend = Math.Cos(v.U1) * Math.Sin(v.λ);
+            var divisor = Math.Cos(v.U1) * Math.Sin(v.U2) * Math.Cos(v.λ) - 
+                          Math.Sin(v.U1) * Math.Cos(v.U2);
 
             var azimuth = Math.Atan2(dividend, divisor);
             return azimuth >= 0 ? azimuth - Math.PI : azimuth + Math.PI;
@@ -147,61 +147,81 @@ namespace GeoFunctions.Core.Common
         public static IGeographicCoordinate DestinationCoordinates(this IGeographicCoordinate pointA, IAngle initialBearing, IDistance distance, 
                                                                    int maxInterations = 200, double tolerance = 1.0E-12)
         {
-            return VincentysDirectFormula(pointA, initialBearing, distance, maxInterations, tolerance);
+            return VincentysDirectFormula(pointA, initialBearing, distance, maxInterations, tolerance).DestinationCoordinates;
         }
 
-        private static IGeographicCoordinate VincentysDirectFormula(IGeographicCoordinate pointA, IAngle initialBearing, IDistance distance, 
+        private static VincentyFormulaVariables VincentysDirectFormula(IGeographicCoordinate pointA, IAngle initialBearing, IDistance distance, 
                                                                     int maxInterations = 200, double tolerance = 1.0E-12)
         {
-            var sinα1 = Math.Sin(initialBearing.ToRadians());
-            var cosα1 = Math.Cos(initialBearing.ToRadians());
+            // Source: https://www.movable-type.co.uk/scripts/latlong-vincenty.html
 
-            var tanU1 = (1.0 - ellipsoidFlattening) * Math.Tan(pointA.Latitude.Angle.ToRadians());
-            var cosU1 = 1.0 / Math.Sqrt((1 + Math.Pow(tanU1, 2.0)));
-            var sinU1 = tanU1 * cosU1;
+            VincentyFormulaVariables v = PrepareσConvergenceLoop(pointA, initialBearing, distance);
 
-            var σ1 = Math.Atan2(tanU1, cosα1);
-            var sinα = cosU1 * sinα1;
-            var cosSqα = 1.0 - Math.Pow(sinα, 2.0);
-            var uSq = cosSqα * (Math.Pow(semiMajorAxis, 2.0) - Math.Pow(semiMinorAxis, 2.0)) / Math.Pow(semiMinorAxis, 2.0);
-            var A = 1 + uSq / 16384.0 * (4096.0 + uSq * (-768.0 + uSq * (320.0 - 175.0 * uSq)));
-            var B = uSq / 1024.0 * (256.0 + uSq * (-128.0 + uSq * (74.0 - 47.0 * uSq)));
+            v = RecalculateσUntilConvergence(distance, maxInterations, tolerance, v);
 
+            v.DestinationCoordinates = CalculateDestinationCoordinates(pointA, v);
+            v.BackwardAzimuth = Math.Atan2(v.sinα, -(v.SinU1 * v.Sinσ - v.CosU1 * v.Cosσ * v.Cosα1));
+
+            return v;
+        }
+
+        private static VincentyFormulaVariables PrepareσConvergenceLoop(IGeographicCoordinate pointA, IAngle initialBearing, IDistance distance)
+        {
+            VincentyFormulaVariables v = new VincentyFormulaVariables();
+
+            v.Sinα1 = Math.Sin(initialBearing.ToRadians());
+            v.Cosα1 = Math.Cos(initialBearing.ToRadians());
+
+            v.TanU1 = (1.0 - f) * Math.Tan(pointA.Latitude.Angle.ToRadians());
+            v.CosU1 = 1.0 / Math.Sqrt((1 + Math.Pow(v.TanU1, 2.0)));
+            v.SinU1 = v.TanU1 * v.CosU1;
+
+            v.σ1 = Math.Atan2(v.TanU1, v.Cosα1);
+            v.sinα = v.CosU1 * v.Sinα1;
+            v.CosSqα = 1.0 - Math.Pow(v.sinα, 2.0);
+            v.USquared = v.CosSqα * (Math.Pow(a, 2.0) - Math.Pow(b, 2.0)) / Math.Pow(b, 2.0);
+            v.A = 1 + v.USquared / 16384.0 * (4096.0 + v.USquared * (-768.0 + v.USquared * (320.0 - 175.0 * v.USquared)));
+            v.B = v.USquared / 1024.0 * (256.0 + v.USquared * (-128.0 + v.USquared * (74.0 - 47.0 * v.USquared)));
             
-            
-            var σ = distance.ToMeters() / (semiMinorAxis * A);
-            double cos2σM = 0.0;
-            double sinσ = 0.0;
-            double cosσ = 0.0;
+            v.σ = distance.ToMeters() / (b * v.A);
+
+            return v;
+        }
+
+        private static VincentyFormulaVariables RecalculateσUntilConvergence(IDistance distance, int maxInterations, double tolerance, VincentyFormulaVariables v)
+        {
             for (var i = 0; i < maxInterations; i++)
             {
-                cos2σM = Math.Cos(2 * σ1 + σ);
-                sinσ = Math.Sin(σ);
-                cosσ = Math.Cos(σ);
-                var Δσ = B * sinσ * (cos2σM + B / 4.0 * (cosσ * (-1.0 + 2.0 * Math.Pow(cos2σM, 2.0)) -
-                         B / 6.0 * cos2σM * (-3.0 + 4.0 * Math.Pow(sinσ, 2.0)) * (-3.0 + 4.0 * Math.Pow(cos2σM, 2.0))));
+                v.Cos2σM = Math.Cos(2 * v.σ1 + v.σ);
+                v.Sinσ = Math.Sin(v.σ);
+                v.Cosσ = Math.Cos(v.σ);
+                v.Δσ = v.B * v.Sinσ * (v.Cos2σM + v.B / 4.0 * (v.Cosσ * (-1.0 + 2.0 * Math.Pow(v.Cos2σM, 2.0)) -
+                       v.B / 6.0 * v.Cos2σM * (-3.0 + 4.0 * Math.Pow(v.Sinσ, 2.0)) * (-3.0 + 4.0 * Math.Pow(v.Cos2σM, 2.0))));
 
-                double σ_previous = σ;
-                σ = distance.ToMeters() / (semiMinorAxis * A) + Δσ;
+                v.σPrevious = v.σ;
+                v.σ = distance.ToMeters() / (b * v.A) + v.Δσ;
 
-                var diff = Math.Abs(σ - σ_previous);
+                var diff = Math.Abs(v.σ - v.σPrevious);
                 if (diff <= tolerance)
                     break;
             }
 
-            var tmp = sinU1 * sinσ - cosU1 * cosσ * cosα1;
-            var φ2 = Math.Atan2(sinU1 * cosσ + cosU1 * sinσ * cosα1, (1 - ellipsoidFlattening) * Math.Sqrt(Math.Pow(sinα, 2.0) + Math.Pow(tmp, 2.0)));
-            var λ = Math.Atan2(sinσ * sinα1, cosU1 * cosσ - sinU1 * sinσ * cosα1);
-            var C = ellipsoidFlattening / 16.0 * cosSqα * (4.0 + ellipsoidFlattening * (4.0 - 3.0 * cosSqα));
-            var L = λ - (1.0 - C) * ellipsoidFlattening * sinα *
-                    (σ + C * sinσ * (cos2σM + C * cosσ * (-1.0 + 2.0 * Math.Pow(cos2σM, 2.0))));
-            var λ2 = (pointA.Longitude.Angle.ToRadians() + L + 3.0 * Math.PI) % (2.0 * Math.PI) - Math.PI;  // normalise to -180...+180
-            
-            var revAz = Math.Atan2(sinα, -tmp);
+            return v;
+        }
 
-            var latitude = Angle.ToDegrees(φ2);
-            var longitude = Angle.ToDegrees(λ2);
-            return new GeographicCoordinate(latitude, longitude); 
+        private static IGeographicCoordinate CalculateDestinationCoordinates(IGeographicCoordinate pointA, VincentyFormulaVariables v)
+        {
+            var tmp = v.SinU1 * v.Sinσ - v.CosU1 * v.Cosσ * v.Cosα1;
+            v.φ2 = Math.Atan2(v.SinU1 * v.Cosσ + v.CosU1 * v.Sinσ * v.Cosα1, (1 - f) * Math.Sqrt(Math.Pow(v.sinα, 2.0) + Math.Pow(tmp, 2.0)));
+            v.λ = Math.Atan2(v.Sinσ * v.Sinα1, v.CosU1 * v.Cosσ - v.SinU1 * v.Sinσ * v.Cosα1);
+            v.C = f / 16.0 * v.CosSqα * (4.0 + f * (4.0 - 3.0 * v.CosSqα));
+            v.L = v.λ - (1.0 - v.C) * f * v.sinα *
+                    (v.σ + v.C * v.Sinσ * (v.Cos2σM + v.C * v.Cosσ * (-1.0 + 2.0 * Math.Pow(v.Cos2σM, 2.0))));
+            v.λ2 = (pointA.Longitude.Angle.ToRadians() + v.L + 3.0 * Math.PI) % (2.0 * Math.PI) - Math.PI;  // normalise to -180...+180
+
+            var latitude = Angle.ToDegrees(v.φ2);
+            var longitude = Angle.ToDegrees(v.λ2);
+            return new GeographicCoordinate(latitude, longitude);
         }
     }
 }
