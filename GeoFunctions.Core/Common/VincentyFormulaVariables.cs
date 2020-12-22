@@ -1,7 +1,5 @@
 ﻿using GeoFunctions.Core.Coordinates;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace GeoFunctions.Core.Common
 {
@@ -19,7 +17,7 @@ namespace GeoFunctions.Core.Common
         public double SinU1 { get; set; }
         public double CosU2 { get; set; }
         public double SinU2 { get; set; }
-        
+
         public double σ { get; set; }
         public double σPrevious { get; set; }
         public double Δσ { get; set; }
@@ -37,7 +35,33 @@ namespace GeoFunctions.Core.Common
 
         public double GeodesicLength { get; set; }
         public double ForwardAzimuth { get; set; }
-        public double BackwardAzimuth { get; set; }
+
+        private double _backwardAzimuth;
+
+        public double BackwardAzimuth
+        {
+            get { return _backwardAzimuth; }
+            set
+            {
+                _backwardAzimuth = value;
+                _finalBearing = value > Math.PI ? value - Math.PI : value + Math.PI;
+            }
+        }
+
+        private double _finalBearing;
+
+        public double FinalBearing
+        {
+            get { return _finalBearing; }
+            set
+            {
+                _finalBearing = value;
+                _backwardAzimuth = value > Math.PI ? value - Math.PI : value + Math.PI;
+            }
+        }
+
+
+
         public IGeographicCoordinate DestinationCoordinates { get; set; }
 
         public double Sinα1 { get; set; }

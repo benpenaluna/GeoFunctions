@@ -38,16 +38,16 @@ namespace GeoFunctions.Core.Tests.Common
             IDistance expected = new Distance(distanceinMeters, DistanceMeasurement.Meters);
 
             var distances = new ConcurrentQueue<IDistance>() { };
-            Action action = () => distances.Enqueue(pointA.GreatCircleDistanceTo(pointB, maxIterations, tolerance));
-            Action[] actions = Enumerable.Repeat(action, 10).ToArray();
+            void action() => distances.Enqueue(pointA.GreatCircleDistanceTo(pointB, maxIterations, tolerance));
+            Action[] actions = Enumerable.Repeat((Action)action, 10).ToArray();
 
             Parallel.Invoke(actions);
 
-            while(distances.Count > 0)
+            while (distances.Count > 0)
             {
                 IDistance result;
                 distances.TryPeek(out result);
-                                
+
                 Assert.Equal(expected, result);
 
                 distances.TryDequeue(out result);
@@ -96,8 +96,8 @@ namespace GeoFunctions.Core.Tests.Common
             IAngle expected = new Angle(bearingInRadians, AngleMeasurement.Radians);
 
             var angles = new ConcurrentQueue<IAngle>() { };
-            Action action = () => angles.Enqueue(pointA.BearingTo(pointB, maxIterations, tolerance));
-            Action[] actions = Enumerable.Repeat(action, 10).ToArray();
+            void action() => angles.Enqueue(pointA.BearingTo(pointB, maxIterations, tolerance));
+            Action[] actions = Enumerable.Repeat((Action)action, 10).ToArray();
 
             Parallel.Invoke(actions);
 
@@ -154,15 +154,14 @@ namespace GeoFunctions.Core.Tests.Common
             IAngle expected = new Angle(bearingInRadians, AngleMeasurement.Radians);
 
             var angles = new ConcurrentQueue<IAngle>() { };
-            Action action = () => angles.Enqueue(pointA.BearingFrom(pointB, maxIterations, tolerance));
-            Action[] actions = Enumerable.Repeat(action, 10).ToArray();
+            void action() => angles.Enqueue(pointA.BearingFrom(pointB, maxIterations, tolerance));
+            Action[] actions = Enumerable.Repeat((Action)action, 10).ToArray();
 
             Parallel.Invoke(actions);
 
             while (angles.Count > 0)
             {
-                IAngle result;
-                angles.TryPeek(out result);
+                angles.TryPeek(out IAngle result);
 
                 Assert.Equal(expected, result);
 
@@ -175,17 +174,138 @@ namespace GeoFunctions.Core.Tests.Common
         [InlineData(-37.81996667, 144.98345, 0.94019000526431273, 714102.60631513281, -33.856783329998891, 151.2152972000016, 200, 1.0E-12)]
         [InlineData(40.68925, -74.0445, 0.93747586784865922, 5853100.327933725, 48.858369440010456, 2.2944805559602606, 200, 1.0E-12)]
         [InlineData(51.50329722, -0.119552778, 0.91781936198368552, 18913621.974381331, -45.03016389001283, 168.66161390001733, 200, 1.0E-12)]
-        public void Vincenty_CorrectlyCalculatesDestinationCoordinates(double latA, double lonA, double bearingInRadians, double distanceInMeters, 
+        public void Vincenty_CorrectlyCalculatesDestinationCoordinates(double latA, double lonA, double bearingInRadians, double distanceInMeters,
                                                                        double expectedLat, double expectedLon, int maxIterations, double tolerance)
         {
             IGeographicCoordinate pointA = new GeographicCoordinate(latA, lonA);
-                        
+
             IGeographicCoordinate expected = new GeographicCoordinate(expectedLat, expectedLon);
 
-            IGeographicCoordinate result = pointA.DestinationCoordinates(new Angle(bearingInRadians, AngleMeasurement.Radians), new Distance(distanceInMeters, DistanceMeasurement.Meters), 
+            IGeographicCoordinate result = pointA.DestinationCoordinates(new Angle(bearingInRadians, AngleMeasurement.Radians), new Distance(distanceInMeters, DistanceMeasurement.Meters),
                                                                          maxIterations, tolerance);
 
             Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(-37.95103342, 144.4248679, 5.355859732, 54972.271, -37.652821149141957, 143.92649553423738, 200, 1.0E-12)]
+        [InlineData(-37.81996667, 144.98345, 0.94019000526431273, 714102.60631513281, -33.856783329998891, 151.2152972000016, 200, 1.0E-12)]
+        [InlineData(40.68925, -74.0445, 0.93747586784865922, 5853100.327933725, 48.858369440010456, 2.2944805559602606, 200, 1.0E-12)]
+        [InlineData(51.50329722, -0.119552778, 0.91781936198368552, 18913621.974381331, -45.03016389001283, 168.66161390001733, 200, 1.0E-12)]
+        public void Vincenty_CorrectlyCalculatesDestinationCoordinatesConcurrently(double latA, double lonA, double bearingInRadians, double distanceInMeters,
+                                                                                   double expectedLat, double expectedLon, int maxIterations, double tolerance)
+        {
+            IGeographicCoordinate pointA = new GeographicCoordinate(latA, lonA);
+
+            IGeographicCoordinate expected = new GeographicCoordinate(expectedLat, expectedLon);
+
+            var coordinates = new ConcurrentQueue<IGeographicCoordinate>() { };
+            void action() => coordinates.Enqueue(pointA.DestinationCoordinates(new Angle(bearingInRadians, AngleMeasurement.Radians), new Distance(distanceInMeters, DistanceMeasurement.Meters),
+                                                                         maxIterations, tolerance));
+            Action[] actions = Enumerable.Repeat((Action)action, 10).ToArray();
+
+            while (coordinates.Count > 0)
+            {
+                coordinates.TryPeek(out IGeographicCoordinate result);
+
+                Assert.Equal(expected, result);
+
+                coordinates.TryDequeue(out result);
+            }
+        }
+
+        [Theory]
+        [InlineData(-37.95103342, 144.4248679, 5.355859732, 54972.271, -0.92199409297205726 + 2.0 * Math.PI, 200, 1.0E-12)]
+        [InlineData(-37.81996667, 144.98345, 0.94019000526431273, 714102.60631513281, 0.87642759894758449, 200, 1.0E-12)]
+        [InlineData(40.68925, -74.0445, 0.93747586784865922, 5853100.327933725, 1.9511055800427943, 200, 1.0E-12)]
+        [InlineData(51.50329722, -0.119552778, 0.91781936198368552, 18913621.974381331, 2.3664203971648994, 200, 1.0E-12)]
+        public void Vincenty_CorrectlyCalculatesFinalBearing(double latA, double lonA, double bearingInRadians, double distanceInMeters,
+                                                                                double expectedBearing, int maxIterations, double tolerance)
+        {
+            IGeographicCoordinate pointA = new GeographicCoordinate(latA, lonA);
+            IAngle initialBearing = new Angle(bearingInRadians, AngleMeasurement.Radians);
+            IDistance distance = new Distance(distanceInMeters, DistanceMeasurement.Meters);
+
+            IAngle expected = new Angle(expectedBearing, AngleMeasurement.Radians);
+
+            IAngle result = pointA.FinalBearing(initialBearing, distance, maxIterations, tolerance);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(-37.95103342, 144.4248679, 5.355859732, 54972.271, -0.92199409297205726 + 2.0 * Math.PI, 200, 1.0E-12)]
+        [InlineData(-37.81996667, 144.98345, 0.94019000526431273, 714102.60631513281, 0.87642759894758449, 200, 1.0E-12)]
+        [InlineData(40.68925, -74.0445, 0.93747586784865922, 5853100.327933725, 1.9511055800427943, 200, 1.0E-12)]
+        [InlineData(51.50329722, -0.119552778, 0.91781936198368552, 18913621.974381331, 2.3664203971648994, 200, 1.0E-12)]
+        public void Vincenty_CorrectlyCalculatesFinalBearingConcurrently(double latA, double lonA, double bearingInRadians, double distanceInMeters,
+                                                                                double expectedBearing, int maxIterations, double tolerance)
+        {
+            IGeographicCoordinate pointA = new GeographicCoordinate(latA, lonA);
+            IAngle initialBearing = new Angle(bearingInRadians, AngleMeasurement.Radians);
+            IDistance distance = new Distance(distanceInMeters, DistanceMeasurement.Meters);
+
+            IAngle expected = new Angle(expectedBearing, AngleMeasurement.Radians);
+
+            var angles = new ConcurrentQueue<IAngle>() { };
+            void action() => angles.Enqueue(pointA.FinalBearing(initialBearing, distance, maxIterations, tolerance));
+            Action[] actions = Enumerable.Repeat((Action)action, 10).ToArray();
+
+            while (angles.Count > 0)
+            {
+                angles.TryPeek(out IAngle result);
+
+                Assert.Equal(expected, result);
+
+                angles.TryDequeue(out result);
+            }
+        }
+
+        [Theory]
+        [InlineData(-37.95103342, 144.4248679, 5.355859732, 54972.271, -0.92199409297205726 + Math.PI, 200, 1.0E-12)]
+        [InlineData(-37.81996667, 144.98345, 0.94019000526431273, 714102.60631513281, 0.87642759894758449 + Math.PI, 200, 1.0E-12)]
+        [InlineData(40.68925, -74.0445, 0.93747586784865922, 5853100.327933725, 1.9511055800427943 + Math.PI, 200, 1.0E-12)]
+        [InlineData(51.50329722, -0.119552778, 0.91781936198368552, 18913621.974381331, 2.3664203971648994 + Math.PI, 200, 1.0E-12)]
+        public void Vincenty_CorrectlyCalculatesBearingFromPointBearingDistance(double latA, double lonA, double bearingInRadians, double distanceInMeters,
+                                                                                double expectedBearing, int maxIterations, double tolerance)
+        {
+            IGeographicCoordinate pointA = new GeographicCoordinate(latA, lonA);
+            IAngle initialBearing = new Angle(bearingInRadians, AngleMeasurement.Radians);
+            IDistance distance = new Distance(distanceInMeters, DistanceMeasurement.Meters);
+
+            IAngle expected = new Angle(expectedBearing, AngleMeasurement.Radians);
+
+            IAngle result = pointA.BearingFrom(initialBearing, distance, maxIterations, tolerance);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(-37.95103342, 144.4248679, 5.355859732, 54972.271, -0.92199409297205726 + Math.PI, 200, 1.0E-12)]
+        [InlineData(-37.81996667, 144.98345, 0.94019000526431273, 714102.60631513281, 0.87642759894758449 + Math.PI, 200, 1.0E-12)]
+        [InlineData(40.68925, -74.0445, 0.93747586784865922, 5853100.327933725, 1.9511055800427943 + Math.PI, 200, 1.0E-12)]
+        [InlineData(51.50329722, -0.119552778, 0.91781936198368552, 18913621.974381331, 2.3664203971648994 + Math.PI, 200, 1.0E-12)]
+        public void Vincenty_CorrectlyCalculatesBearingFromPointBearingDistanceConcurrently(double latA, double lonA, double bearingInRadians, double distanceInMeters,
+                                                                                            double expectedBearing, int maxIterations, double tolerance)
+        {
+            IGeographicCoordinate pointA = new GeographicCoordinate(latA, lonA);
+            IAngle initialBearing = new Angle(bearingInRadians, AngleMeasurement.Radians);
+            IDistance distance = new Distance(distanceInMeters, DistanceMeasurement.Meters);
+
+            IAngle expected = new Angle(expectedBearing, AngleMeasurement.Radians);
+
+            var angles = new ConcurrentQueue<IAngle>() { };
+            void action() => angles.Enqueue(pointA.BearingFrom(initialBearing, distance, maxIterations, tolerance));
+            Action[] actions = Enumerable.Repeat((Action)action, 10).ToArray();
+
+            while (angles.Count > 0)
+            {
+                angles.TryPeek(out IAngle result);
+
+                Assert.Equal(expected, result);
+
+                angles.TryDequeue(out result);
+            }
         }
     }
 }

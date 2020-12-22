@@ -30,7 +30,7 @@ namespace GeoFunctions.Core.Common
             // Source: https://nathanrooy.github.io/posts/2016-12-18/vincenty-formula-with-python/
 
             VincentyFormulaVariables v = PrepareλConvergenceLoop(pointA, pointB);
-            
+
             v = RecalculateλUntilConvergence(v, maxInterations, tolerance);
 
             v = CalculateGeodesicDistanceAzimuth(v);
@@ -112,9 +112,9 @@ namespace GeoFunctions.Core.Common
             v.USquared = v.CosSqα * ((Math.Pow(a, 2.0) - Math.Pow(b, 2.0)) / Math.Pow(b, 2.0));
             v.A = 1 + (v.USquared / 16384.0) * (4096.0 + v.USquared * (-768.0 + v.USquared * (320.0 - 175.0 * v.USquared)));
             v.B = (v.USquared / 1024.0) * (256.0 + v.USquared * (-128.0 + v.USquared * (74.0 - 47.0 * v.USquared)));
-            
+
             v.Δσ = v.B * v.Sinσ * (v.Cos2σM + 0.25 * v.B * (v.Cosσ * (-1.0 + 2.0 * Math.Pow(v.Cos2σM, 2.0)) -
-                                               (1.0 / 6.0) * v.B * v.Cos2σM * (-3.0 + 4.0 * Math.Pow(v.Sinσ, 2.0)) * 
+                                               (1.0 / 6.0) * v.B * v.Cos2σM * (-3.0 + 4.0 * Math.Pow(v.Sinσ, 2.0)) *
                                                (-3.0 + 4.0 * Math.Pow(v.Cos2σM, 2.0))));
 
             v.GeodesicLength = b * v.A * (v.σ - v.Δσ);
@@ -127,9 +127,9 @@ namespace GeoFunctions.Core.Common
         private static double CalculateForwardAzimuth(VincentyFormulaVariables v)
         {
             var dividend = Math.Cos(v.U2) * Math.Sin(v.λ);
-            var divisor = Math.Cos(v.U1) * Math.Sin(v.U2) - 
+            var divisor = Math.Cos(v.U1) * Math.Sin(v.U2) -
                           Math.Sin(v.U1) * Math.Cos(v.U2) * Math.Cos(v.λ);
-            
+
             var azimuth = Math.Atan2(dividend, divisor);
             return azimuth;
         }
@@ -137,20 +137,34 @@ namespace GeoFunctions.Core.Common
         private static double CalcaulateBackwardAzimuthInverseMethod(VincentyFormulaVariables v)
         {
             var dividend = Math.Cos(v.U1) * Math.Sin(v.λ);
-            var divisor = Math.Cos(v.U1) * Math.Sin(v.U2) * Math.Cos(v.λ) - 
+            var divisor = Math.Cos(v.U1) * Math.Sin(v.U2) * Math.Cos(v.λ) -
                           Math.Sin(v.U1) * Math.Cos(v.U2);
 
             var azimuth = Math.Atan2(dividend, divisor);
             return azimuth >= 0 ? azimuth - Math.PI : azimuth + Math.PI;
         }
 
-        public static IGeographicCoordinate DestinationCoordinates(this IGeographicCoordinate pointA, IAngle initialBearing, IDistance distance, 
+        public static IGeographicCoordinate DestinationCoordinates(this IGeographicCoordinate pointA, IAngle initialBearing, IDistance distance,
                                                                    int maxInterations = 200, double tolerance = 1.0E-12)
         {
             return VincentysDirectFormula(pointA, initialBearing, distance, maxInterations, tolerance).DestinationCoordinates;
         }
 
-        private static VincentyFormulaVariables VincentysDirectFormula(IGeographicCoordinate pointA, IAngle initialBearing, IDistance distance, 
+        public static IAngle FinalBearing(this IGeographicCoordinate pointA, IAngle initialBearing, IDistance distance, int maxInterations = 200, double tolerance = 1.0E-12)
+        {
+            var finalBearing = VincentysDirectFormula(pointA, initialBearing, distance, maxInterations, tolerance).FinalBearing;
+
+            return new Angle(finalBearing, AngleMeasurement.Radians);
+        }
+
+        public static IAngle BearingFrom(this IGeographicCoordinate pointA, IAngle initialBearing, IDistance distance, int maxInterations = 200, double tolerance = 1.0E-12)
+        {
+            var backwardAzimuth = VincentysDirectFormula(pointA, initialBearing, distance, maxInterations, tolerance).BackwardAzimuth;
+
+            return new Angle(backwardAzimuth, AngleMeasurement.Radians);
+        }
+
+        private static VincentyFormulaVariables VincentysDirectFormula(IGeographicCoordinate pointA, IAngle initialBearing, IDistance distance,
                                                                     int maxInterations = 200, double tolerance = 1.0E-12)
         {
             // Source: https://www.movable-type.co.uk/scripts/latlong-vincenty.html
@@ -160,7 +174,7 @@ namespace GeoFunctions.Core.Common
             v = RecalculateσUntilConvergence(distance, maxInterations, tolerance, v);
 
             v.DestinationCoordinates = CalculateDestinationCoordinates(pointA, v);
-            v.BackwardAzimuth = Math.Atan2(v.sinα, -(v.SinU1 * v.Sinσ - v.CosU1 * v.Cosσ * v.Cosα1));
+            v.FinalBearing = Math.Atan2(v.sinα, -1.0 * (v.SinU1 * v.Sinσ - v.CosU1 * v.Cosσ * v.Cosα1));
 
             return v;
         }
@@ -182,7 +196,7 @@ namespace GeoFunctions.Core.Common
             v.USquared = v.CosSqα * (Math.Pow(a, 2.0) - Math.Pow(b, 2.0)) / Math.Pow(b, 2.0);
             v.A = 1 + v.USquared / 16384.0 * (4096.0 + v.USquared * (-768.0 + v.USquared * (320.0 - 175.0 * v.USquared)));
             v.B = v.USquared / 1024.0 * (256.0 + v.USquared * (-128.0 + v.USquared * (74.0 - 47.0 * v.USquared)));
-            
+
             v.σ = distance.ToMeters() / (b * v.A);
 
             return v;
