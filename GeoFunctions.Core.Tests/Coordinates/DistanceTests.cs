@@ -1,7 +1,7 @@
-﻿using System;
-using System.Globalization;
-using GeoFunctions.Core.Coordinates;
+﻿using GeoFunctions.Core.Coordinates;
 using GeoFunctions.Core.Coordinates.Measurement;
+using System;
+using System.Globalization;
 using Xunit;
 
 namespace GeoFunctions.Core.Tests.Coordinates

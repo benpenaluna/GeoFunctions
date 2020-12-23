@@ -1,11 +1,11 @@
-﻿using System;
-using System.Globalization;
-using GeoFunctions.Core.Coordinates.Measurement;
+﻿using GeoFunctions.Core.Coordinates.Measurement;
 using GeoFunctions.Core.Coordinates.Structs;
+using System;
+using System.Globalization;
 
 namespace GeoFunctions.Core.Coordinates
 {
-    public class Longitude : SphericalCoordinate 
+    public class Longitude : SphericalCoordinate
     {
         private IAngle _angle;
 
@@ -41,7 +41,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public override bool Equals(object obj)
         {
-            return obj.GetType() == typeof(Longitude) && Equals((Longitude) obj);
+            return obj.GetType() == typeof(Longitude) && Equals((Longitude)obj);
         }
 
         protected bool Equals(Longitude other)

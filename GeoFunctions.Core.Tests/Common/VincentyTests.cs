@@ -45,8 +45,7 @@ namespace GeoFunctions.Core.Tests.Common
 
             while (distances.Count > 0)
             {
-                IDistance result;
-                distances.TryPeek(out result);
+                distances.TryPeek(out IDistance result);
 
                 Assert.Equal(expected, result);
 
@@ -103,8 +102,7 @@ namespace GeoFunctions.Core.Tests.Common
 
             while (angles.Count > 0)
             {
-                IAngle result;
-                angles.TryPeek(out result);
+                angles.TryPeek(out IAngle result);
 
                 Assert.Equal(expected, result);
 

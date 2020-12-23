@@ -1,6 +1,6 @@
-﻿using System;
+﻿using GeoFunctions.Core.Common;
+using System;
 using System.Globalization;
-using GeoFunctions.Core.Common;
 
 namespace GeoFunctions.Core.Coordinates
 {
@@ -21,7 +21,7 @@ namespace GeoFunctions.Core.Coordinates
         {
             Initialise(latitude, longitude, new Distance());
         }
-        
+
         public GeographicCoordinate(double latitude, double longitude, double elevation = 0)
         {
             Initialise(new Latitude(latitude), new Longitude(longitude), new Distance(elevation));
@@ -41,7 +41,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public override string ToString()
         {
-            return $"{Latitude.ToString()} {Longitude.ToString()}";
+            return $"{Latitude} {Longitude}";
         }
 
         public string ToString(string format, IFormatProvider formatProvider)
@@ -83,7 +83,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public override bool Equals(object obj)
         {
-            return obj.GetType() == typeof(GeographicCoordinate) && Equals ((GeographicCoordinate) obj);
+            return obj.GetType() == typeof(GeographicCoordinate) && Equals((GeographicCoordinate)obj);
         }
 
         protected bool Equals(GeographicCoordinate other)

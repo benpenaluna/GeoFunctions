@@ -1,6 +1,6 @@
-﻿using System;
+﻿using GeoFunctions.Core.Coordinates.Structs;
+using System;
 using System.Globalization;
-using GeoFunctions.Core.Coordinates.Structs;
 
 namespace GeoFunctions.Core.Coordinates
 {
@@ -10,7 +10,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public abstract DmsCoordinate DmsCoordinate { get; }
 
-        protected DmsCoordinate CalculateDmsCoordinate(Hemisphere hemisphere) 
+        protected DmsCoordinate CalculateDmsCoordinate(Hemisphere hemisphere)
         {
             var value = Math.Abs(Angle.Value);
             var degrees = Math.Floor(value);

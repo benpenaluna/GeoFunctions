@@ -1,9 +1,9 @@
-﻿using System;
+﻿using GeoFunctions.Core.Common;
+using GeoFunctions.Core.Coordinates.Measurement;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using GeoFunctions.Core.Common;
-using GeoFunctions.Core.Coordinates.Measurement;
 
 namespace GeoFunctions.Core.Coordinates
 {
@@ -16,7 +16,7 @@ namespace GeoFunctions.Core.Coordinates
         private const double RatioCentimetersPerYard = 91.44;
         private const double RatioMetersPerFoot = 0.3048;
         private const double RatioMetersPerNM = 1852.0;
-        
+
         private const double RatioInchesPerFoot = 12.0;
         private const double RatioFeetPerYard = 3.0;
         private const double RatioFeetPerMile = 5280.0;
@@ -77,7 +77,7 @@ namespace GeoFunctions.Core.Coordinates
         }
 
         public DistanceMeasurement DistanceMeasurement { get; protected set; }
-        
+
         public Distance(double elevation = 0.0, DistanceMeasurement measurement = DistanceMeasurement.Feet)
         {
             Value = elevation;
@@ -91,7 +91,7 @@ namespace GeoFunctions.Core.Coordinates
                 return false;
             }
 
-            var testObject = (Distance) obj;
+            var testObject = (Distance)obj;
 
             return Value.Equals(testObject.Value) && DistanceMeasurement == testObject.DistanceMeasurement;
         }
@@ -348,7 +348,7 @@ namespace GeoFunctions.Core.Coordinates
 
             if (ImperialDistanceMeasurements.Contains(measurement))
             {
-                var valueInFeet = value * ConvertDistanceImperialMeasurement( measurement, DistanceMeasurement.Feet);
+                var valueInFeet = value * ConvertDistanceImperialMeasurement(measurement, DistanceMeasurement.Feet);
                 return valueInFeet * RatioMetersPerFoot;
             }
 
@@ -483,7 +483,7 @@ namespace GeoFunctions.Core.Coordinates
 
             if (ImperialDistanceMeasurements.Contains(measurement))
             {
-                var valueInFeet = value * ConvertDistanceImperialMeasurement( measurement, DistanceMeasurement.Feet);
+                var valueInFeet = value * ConvertDistanceImperialMeasurement(measurement, DistanceMeasurement.Feet);
                 return valueInFeet / RatioFeetPerNM;
             }
 

@@ -1,5 +1,5 @@
-﻿using System;
-using GeoFunctions.Core.Coordinates.Structs;
+﻿using GeoFunctions.Core.Coordinates.Structs;
+using System;
 
 namespace GeoFunctions.Core.Coordinates
 {

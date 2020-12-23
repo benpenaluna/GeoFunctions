@@ -60,8 +60,6 @@ namespace GeoFunctions.Core.Common
             }
         }
 
-
-
         public IGeographicCoordinate DestinationCoordinates { get; set; }
 
         public double Sinα1 { get; set; }
