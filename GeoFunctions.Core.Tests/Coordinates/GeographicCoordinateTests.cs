@@ -1,7 +1,7 @@
-﻿using GeoFunctions.Core.Coordinates;
-using GeoFunctions.Core.Coordinates.Measurement;
-using System;
+﻿using System;
 using System.Globalization;
+using GeoFunctions.Core.Coordinates;
+using GeoFunctions.Core.Coordinates.Measurement;
 using Xunit;
 
 namespace GeoFunctions.Core.Tests.Coordinates
@@ -165,7 +165,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         {
             ISphericalCoordinate latitude = new Latitude(-37.6885966980243);
             ISphericalCoordinate longitude = new Longitude(144.999637777534);
-            IDistance elevation = new Distance(118.663, DistanceMeasurement.Meters);
+            IDistance elevation = new Distance(118.663,DistanceMeasurement.Meters);
             IGeographicCoordinate sut = new GeographicCoordinate(latitude, longitude, elevation);
             var result = sut.ToString(format, CultureInfo.InvariantCulture);
 

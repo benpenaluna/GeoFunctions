@@ -1,5 +1,5 @@
-﻿using GeoFunctions.Core.Coordinates.Measurement;
-using System;
+﻿using System;
+using GeoFunctions.Core.Coordinates.Measurement;
 
 namespace GeoFunctions.Core.Coordinates
 {

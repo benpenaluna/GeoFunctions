@@ -1,7 +1,7 @@
-﻿using GeoFunctions.Core.Coordinates.Measurement;
-using GeoFunctions.Core.Coordinates.Structs;
-using System;
+﻿using System;
 using System.Globalization;
+using GeoFunctions.Core.Coordinates.Measurement;
+using GeoFunctions.Core.Coordinates.Structs;
 
 namespace GeoFunctions.Core.Coordinates
 {
@@ -41,7 +41,7 @@ namespace GeoFunctions.Core.Coordinates
 
         public override bool Equals(object obj)
         {
-            return obj.GetType() == typeof(Latitude) && Equals((Latitude)obj);
+            return obj.GetType() == typeof(Latitude) && Equals((Latitude) obj);
         }
 
         protected bool Equals(Latitude other)

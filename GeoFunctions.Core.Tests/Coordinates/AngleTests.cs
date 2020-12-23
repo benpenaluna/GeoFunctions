@@ -1,6 +1,6 @@
-﻿using GeoFunctions.Core.Coordinates;
+﻿using System;
+using GeoFunctions.Core.Coordinates;
 using GeoFunctions.Core.Coordinates.Measurement;
-using System;
 using Xunit;
 
 namespace GeoFunctions.Core.Tests.Coordinates
@@ -114,7 +114,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData(-20.0 * Math.PI / 7.0, 8.0 * Math.PI / 7.0)]
         [InlineData(-Math.PI / 2.0, 3.0 * Math.PI / 2.0)]
         [InlineData(0.0, 0.0)]
-        [InlineData(2.0 * Math.PI / 3.0, 2.0 * Math.PI / 3.0)]
+        [InlineData(2.0*Math.PI/3.0, 2.0 * Math.PI / 3.0)]
         [InlineData(4.0 * Math.PI, 0.0)]
         [InlineData(3183098858.0 * Math.PI, 0.0)]
         public void Angle_CoTerminalValueCorrectlyCalculatesRadians(double angle, double expectedAngle)
@@ -155,7 +155,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         {
             const double expected = 180.0;
             const double inputValue = Math.PI;
-
+            
             var sut = new Angle(inputValue, AngleMeasurement.Radians);
             var result = sut.ToDegrees();
 
@@ -248,7 +248,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         {
             var sut = new Angle(Math.PI, AngleMeasurement.Radians);
             var testObject = new Angle(Math.PI, AngleMeasurement.Radians);
-
+            
             Assert.True(sut.Equals(testObject));
         }
 

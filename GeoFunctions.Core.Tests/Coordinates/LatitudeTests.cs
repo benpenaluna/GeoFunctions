@@ -1,8 +1,8 @@
-﻿using GeoFunctions.Core.Coordinates;
+﻿using System;
+using System.Globalization;
+using GeoFunctions.Core.Coordinates;
 using GeoFunctions.Core.Coordinates.Measurement;
 using GeoFunctions.Core.Coordinates.Structs;
-using System;
-using System.Globalization;
 using Xunit;
 
 namespace GeoFunctions.Core.Tests.Coordinates
@@ -161,7 +161,7 @@ namespace GeoFunctions.Core.Tests.Coordinates
         public void Latitude_ConfirmEquality(double angle)
         {
             var testObject = new Latitude(angle);
-
+            
             var sut = new Latitude(angle);
 
             Assert.Equal(testObject, sut);

@@ -1,6 +1,6 @@
-﻿using GeoFunctions.Core.Coordinates.Measurement;
-using System;
+﻿using System;
 using System.Globalization;
+using GeoFunctions.Core.Coordinates.Measurement;
 
 namespace GeoFunctions.Core.Coordinates
 {
@@ -22,7 +22,7 @@ namespace GeoFunctions.Core.Coordinates
                     var errorMessage = $"Value must be between -1.0E+10 and 1.0E+10. {value.ToString(CultureInfo.InvariantCulture)} is an invalid number";
                     throw new ArgumentOutOfRangeException(errorMessage);
                 }
-
+                
                 _value = value;
             }
         }
@@ -58,7 +58,7 @@ namespace GeoFunctions.Core.Coordinates
                 return false;
             }
 
-            var testCoordinate = (Angle)obj;
+            var testCoordinate = (Angle) obj;
 
             return testCoordinate != null && (CoTerminalValue.Equals(testCoordinate.CoTerminalValue) && AngleMeasurement == testCoordinate.AngleMeasurement);
         }
@@ -68,7 +68,7 @@ namespace GeoFunctions.Core.Coordinates
             return HashCode.Combine(Value);
         }
 
-        public static bool operator ==(Angle a, Angle b)
+        public static bool operator == (Angle a, Angle b)
         {
             if (ReferenceEquals(a, null) && ReferenceEquals(b, null))
             {

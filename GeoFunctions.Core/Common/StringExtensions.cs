@@ -29,7 +29,7 @@ namespace GeoFunctions.Core.Common
                     charPreviouslyFound = false;
                     helper.PreviousLetter = char.IsLetter(formatCharacters[i]) ? formatCharacters[i] : helper.PreviousLetter;
                 }
-
+                
                 if (HelpersNotReadyToBeUpdated(helper, formatCharacters, charPreviouslyFound, i))
                     continue;
 
@@ -46,7 +46,7 @@ namespace GeoFunctions.Core.Common
             var latFormat = subject.Substring(4, subject.Length - 4);
             var latFormatted = formattableObject.ToString(latFormat, formatProvider);
             return format.Replace(subject, latFormatted);
-        }
+        } 
 
         private static bool ExaminingCharToReplace(char charToReplace, IReadOnlyList<char> formatCharacters, int i)
         {

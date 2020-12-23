@@ -1,6 +1,6 @@
-﻿using GeoFunctions.Core.Common;
-using System;
+﻿using System;
 using System.Globalization;
+using GeoFunctions.Core.Common;
 
 namespace GeoFunctions.Core.Coordinates.Structs
 {
@@ -23,8 +23,8 @@ namespace GeoFunctions.Core.Coordinates.Structs
         public bool Equals(DmsCoordinate other)
         {
             return Math.Abs(Degrees - other.Degrees) < Tolerance &&
-                   Math.Abs(Minutes - other.Minutes) < Tolerance &&
-                   Math.Abs(Seconds - other.Seconds) < Tolerance &&
+                   Math.Abs(Minutes - other.Minutes) < Tolerance && 
+                   Math.Abs(Seconds - other.Seconds) < Tolerance && 
                    Hemisphere == other.Hemisphere;
         }
 
@@ -139,7 +139,7 @@ namespace GeoFunctions.Core.Coordinates.Structs
                 if (NegationOfDegreesRequired(dmsCoordinateFormatHelper))
                     dmsCoordinateFormatHelper.FormattedString = "-" + dmsCoordinateFormatHelper.FormattedString;
             }
-
+                
             if (dmsCoordinateFormatHelper.MinutesRequested)
                 FormatElement(DmsElement.Minutes, Minutes, ref dmsCoordinateFormatHelper);
 
