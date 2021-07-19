@@ -11,7 +11,6 @@ namespace GeoFunctions.Core.Coordinates
         private double Modulus => AngleMeasurement == AngleMeasurement.Degrees ? 360.0 : 2.0 * Math.PI;
 
         private double _value;
-
         public double Value
         {
             get => _value;
@@ -22,8 +21,10 @@ namespace GeoFunctions.Core.Coordinates
                     var errorMessage = $"Value must be between -1.0E+10 and 1.0E+10. {value.ToString(CultureInfo.InvariantCulture)} is an invalid number";
                     throw new ArgumentOutOfRangeException(errorMessage);
                 }
-                
+
+                var e = new ValueChangedEventArgs() { NewValue = value, OldValue = _value };
                 _value = value;
+                Value_OnChanged(e);
             }
         }
 
@@ -50,6 +51,13 @@ namespace GeoFunctions.Core.Coordinates
             Value = value;
             AngleMeasurement = measurement;
         }
+
+        public event EventHandler<ValueChangedEventArgs> Value_Changed;
+        protected virtual void Value_OnChanged(ValueChangedEventArgs e)
+        {
+            Value_Changed?.Invoke(this, e);
+        }
+
 
         public override bool Equals(object obj)
         {

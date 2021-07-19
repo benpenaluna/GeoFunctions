@@ -9,6 +9,9 @@ namespace GeoFunctions.Core.Coordinates
         double CoTerminalValue { get; }
         AngleMeasurement AngleMeasurement { get; }
 
+
+        event EventHandler<ValueChangedEventArgs> Value_Changed;
+
         double ToDegrees();
         double ToRadians();
     }
