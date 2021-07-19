@@ -161,6 +161,8 @@ namespace GeoFunctions.Core.Tests.Coordinates
         [InlineData("[lat:DD° MM' SS\"H] [lon:DDD° MM' SS\"H] [ele:t u]", "37° 41' 19\"S 144° 59' 59\"E 119 m")]
         [InlineData("[lon:DDD.dddddddddddd],[lat:DD.ddddddddddddd],[ele:f.ffffffff]", "144.999637777534,-37.6885966980243,389.31430446")]
         [InlineData("[lon:DDD.dddddddddddd],[lat:DD.ddddddddddddd],[lat:ele:f.ffffffff]", "144.999637777534,-37.6885966980243,ELE:F.FFFFFFFF")]
+        [InlineData("[lon:DDD.dddddddddddd],[lat:DD.ddddddddddddd],[ele:t.ttt]", "144.999637777534,-37.6885966980243,118.663")]
+
         public void GeographicCoordinate_CorrectlyParsesDefaultFormatStringWithFormat(string format, string expected)
         {
             ISphericalCoordinate latitude = new Latitude(-37.6885966980243);
