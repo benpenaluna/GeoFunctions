@@ -26,6 +26,7 @@ namespace GeoFunctions.Core.Tests.Coordinates.Structs
         [InlineData("DD° MM' SS.s\" H", "09° 02' 38.9\" N", 9.0, 2.0, 38.94503637783, Hemisphere.North)]
         [InlineData("DD° MM' SS.s\" H", "144° 02' 38.9\" W", 144.0, 2.0, 38.94503637783, Hemisphere.West)]
         [InlineData("DD° MM' SS.s\" H", "144° 02' 38.9\" E", 144.0, 2.0, 38.94503637783, Hemisphere.East)]
+        [InlineData("DD° MM' SS\" H", "180° 00' 00\" W", 179.0, 59.0, 59.99999999999, Hemisphere.West)]
         [InlineData("D.ddd", "-9.044", 9.0, 2.0, 38.94503637783, Hemisphere.South)]
         [InlineData("D.ddd", "9.044", 9.0, 2.0, 38.94503637783, Hemisphere.North)]
         [InlineData("D.ddd", "-9.044", 9.0, 2.0, 38.94503637783, Hemisphere.West)]
