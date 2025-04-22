@@ -95,8 +95,8 @@ namespace GeoFunctions.Core.Coordinates.Structs
             foreach (var degreesElementHelper in degreesElementHelpers)
             {
                 helper.FormattedString = helper.FormattedString
-                    .Replace(degreesElementHelper.StringReplacement,
-                        value.ToString(degreesElementHelper.FormatSpecifier, helper.FormatProvider));
+                                               .Replace(degreesElementHelper.StringReplacement,
+                                                        value.ToString(degreesElementHelper.FormatSpecifier, helper.FormatProvider));
             }
         }
 
@@ -133,23 +133,80 @@ namespace GeoFunctions.Core.Coordinates.Structs
 
         private DmsCoordinateFormatHelper FormatDefault(DmsCoordinateFormatHelper dmsCoordinateFormatHelper)
         {
+            var degrees = Degrees;
+            var minutes = Minutes;
+            var seconds = Seconds;
+
+            CorrectIfSecondsGreaterThan60(dmsCoordinateFormatHelper, ref minutes, ref seconds);
+            CorrectIfMinutesGreaterThan60(dmsCoordinateFormatHelper, ref degrees, ref minutes);
+
             if (dmsCoordinateFormatHelper.DegreesRequested)
             {
-                FormatElement(DmsElement.Degrees, Degrees, ref dmsCoordinateFormatHelper);
+                FormatElement(DmsElement.Degrees, degrees, ref dmsCoordinateFormatHelper);
                 if (NegationOfDegreesRequired(dmsCoordinateFormatHelper))
                     dmsCoordinateFormatHelper.FormattedString = "-" + dmsCoordinateFormatHelper.FormattedString;
             }
-                
+
             if (dmsCoordinateFormatHelper.MinutesRequested)
-                FormatElement(DmsElement.Minutes, Minutes, ref dmsCoordinateFormatHelper);
+                FormatElement(DmsElement.Minutes, minutes, ref dmsCoordinateFormatHelper);
 
             if (dmsCoordinateFormatHelper.SecondsRequested)
-                FormatElement(DmsElement.Seconds, Seconds, ref dmsCoordinateFormatHelper);
+                FormatElement(DmsElement.Seconds, seconds, ref dmsCoordinateFormatHelper);
 
             if (dmsCoordinateFormatHelper.HemisphereRequested)
                 FormatHemisphere(ref dmsCoordinateFormatHelper);
 
             return dmsCoordinateFormatHelper;
+        }
+
+        private static void CorrectIfSecondsGreaterThan60(DmsCoordinateFormatHelper dmsCoordinateFormatHelper, ref double minutes, ref double seconds)
+        {
+            if (dmsCoordinateFormatHelper.SecondsRequested)
+            {
+                var charToReplace = char.Parse(DmsElement.Seconds.ToString().Substring(0, 1));
+                var degreesElementHelpers = dmsCoordinateFormatHelper.Format.FindConsecutiveChars(charToReplace);
+
+                foreach (var degreesElementHelper in degreesElementHelpers)
+                {
+                    var strSecs = seconds.ToString(degreesElementHelper.FormatSpecifier);
+                    var secondsValue = Double.Parse(strSecs);
+                    if (secondsValue >= 60)
+                    {
+                        seconds -= 60;
+                        if (seconds < 0)
+                        {
+                            seconds = 0;
+                        }
+
+                        minutes += 1;
+                    }
+                }
+            }
+        }
+
+        private static void CorrectIfMinutesGreaterThan60(DmsCoordinateFormatHelper dmsCoordinateFormatHelper, ref double degrees, ref double minutes)
+        {
+            if (dmsCoordinateFormatHelper.MinutesRequested)
+            {
+                var charToReplace = char.Parse(DmsElement.Minutes.ToString().Substring(0, 1));
+                var degreesElementHelpers = dmsCoordinateFormatHelper.Format.FindConsecutiveChars(charToReplace);
+
+                foreach (var degreesElementHelper in degreesElementHelpers)
+                {
+                    var strMins = minutes.ToString(degreesElementHelper.FormatSpecifier);
+                    minutes = Double.Parse(strMins);
+                    if (minutes >= 60)
+                    {
+                        minutes -= 60;
+                        if (minutes < 0)
+                        {
+                            minutes = 0;
+                        }
+
+                        degrees += 1;
+                    }
+                }
+            }
         }
 
         private void FormatHemisphere(ref DmsCoordinateFormatHelper helper)
