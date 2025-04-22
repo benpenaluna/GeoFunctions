@@ -183,6 +183,42 @@ namespace GeoFunctions.Core.Tests.Coordinates.Structs
         }
 
         [Theory]
+        [InlineData(89, 1, 59.999999999999, Hemisphere.North, Hemisphere.South)]
+        [InlineData(89, 1, 59.999999999999, Hemisphere.North, Hemisphere.East)]
+        [InlineData(89, 1, 59.999999999999, Hemisphere.North, Hemisphere.West)]
+        [InlineData(89, 1, 59.999999999999, Hemisphere.South, Hemisphere.North)]
+        [InlineData(89, 1, 59.999999999999, Hemisphere.South, Hemisphere.East)]
+        [InlineData(89, 1, 59.999999999999, Hemisphere.South, Hemisphere.West)]
+        [InlineData(89, 1, 59.999999999999, Hemisphere.East, Hemisphere.North)]
+        [InlineData(89, 1, 59.999999999999, Hemisphere.East, Hemisphere.South)]
+        [InlineData(89, 1, 59.999999999999, Hemisphere.East, Hemisphere.West)]
+        [InlineData(89, 1, 59.999999999999, Hemisphere.West, Hemisphere.North)]
+        [InlineData(89, 1, 59.999999999999, Hemisphere.West, Hemisphere.South)]
+        [InlineData(89, 1, 59.999999999999, Hemisphere.West, Hemisphere.East)]
+        public void DmsCoordinate_CorrectlyChangeHemisphere(int degrees, int minutes, double seconds, Hemisphere originalHemisphere, Hemisphere newHemisphere)
+        {
+            var expected = newHemisphere;
+            
+            var sut = new DmsCoordinate(degrees, minutes, seconds, originalHemisphere);
+
+            sut.Hemisphere = newHemisphere;
+
+            Assert.Equal(expected, sut.Hemisphere);
+        }
+
+        [Theory]
+        [InlineData(179, 1, 59.999999999999, Hemisphere.East, Hemisphere.North)]
+        [InlineData(179, 1, 59.999999999999, Hemisphere.East, Hemisphere.South)]
+        [InlineData(179, 1, 59.999999999999, Hemisphere.West, Hemisphere.North)]
+        [InlineData(179, 1, 59.999999999999, Hemisphere.West, Hemisphere.South)]
+        public void DmsCoordinate_HemisphereChangeThrowsException(int degrees, int minutes, double seconds, Hemisphere originalHemisphere, Hemisphere newHemisphere)
+        {
+            var sut = new DmsCoordinate(degrees, minutes, seconds, originalHemisphere);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Hemisphere = newHemisphere);
+        }
+
+        [Theory]
         [InlineData("D MM SS.ss H", "9 02 38.95 S", 9, 2, 38.94503637783, Hemisphere.South)]
         [InlineData("D MM SS.ss H", "45 02 38.95 N", 45, 2, 38.94503637783, Hemisphere.North)]
         [InlineData("D MM SS.ss H", "145 02 38.95 E", 145, 2, 38.94503637783, Hemisphere.East)]

@@ -16,6 +16,7 @@ namespace GeoFunctions.Core.Coordinates.Structs
         private int _degrees;
         private int _minutes;
         private double _seconds;
+        private Hemisphere _hemisphere;
         
         public int Degrees
         {
@@ -80,7 +81,22 @@ namespace GeoFunctions.Core.Coordinates.Structs
             }
         }
 
-        public Hemisphere Hemisphere;
+        public Hemisphere Hemisphere
+        {
+            get => _hemisphere;
+            set
+            {
+                if ((value == Hemisphere.North || value == Hemisphere.South) &&
+                    (_hemisphere == Hemisphere.East || _hemisphere == Hemisphere.West) &&
+                    (Angle(Degrees, Minutes, Seconds) > MaxNorthSouthAngle))
+                {
+                    var exceptionMessage = "The sum of the degrees, minutes and seconds yields a value greater than ";
+                    throw new ArgumentOutOfRangeException(string.Concat(exceptionMessage, MaxNorthSouthAngle));
+                }
+                
+                _hemisphere = value;
+            }
+        }
 
         public DmsCoordinate()
         {
