@@ -10,10 +10,139 @@ namespace GeoFunctions.Core.Coordinates.Structs
 
         private const double Tolerance = 1.0E-11;
 
-        public double Degrees;
-        public double Minutes;
-        public double Seconds;
+        private const double MaxNorthSouthAngle = 90.0;
+        private const double MaxEastWestAngle = 180.0;
+
+        private int _degrees;
+        private int _minutes;
+        private double _seconds;
+        
+        public int Degrees
+        {
+            get => _degrees;
+            set
+            {
+                CheckDMSInRange(value, Minutes, Seconds);
+
+                switch (Hemisphere)
+                {
+                    case Hemisphere.North:
+                    case Hemisphere.South:
+                        if (value < 0 || value > MaxNorthSouthAngle)
+                            throw new ArgumentOutOfRangeException(nameof(value));
+
+                        break;
+                   case Hemisphere.East:
+                        if (value < 0 || value > MaxEastWestAngle)
+                            throw new ArgumentOutOfRangeException(nameof(value));
+
+                        break;
+                    case Hemisphere.West:
+                        if (value < 0 || value >= MaxEastWestAngle)
+                            throw new ArgumentOutOfRangeException(nameof(value));
+
+                        break;
+                }
+
+                _degrees = value;
+            }
+        }
+
+        public int Minutes
+        {
+            get => _minutes;
+            set
+            {
+                CheckDMSInRange(Degrees, value, Seconds);
+                
+                if (value < 0.0 || value >= 60.0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+
+                _minutes = value;
+            }
+        }
+
+        public double Seconds
+        {
+            get => _seconds;
+            set
+            {
+                CheckDMSInRange(Degrees, Minutes, value);
+
+                if (value < 0.0 || value >= 60.0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+
+                _seconds = value;
+            }
+        }
+
         public Hemisphere Hemisphere;
+
+        public DmsCoordinate()
+        {
+           Hemisphere = Hemisphere.North;
+        }
+
+        public DmsCoordinate(int degrees, Hemisphere hemisphere)
+        {
+            Hemisphere = hemisphere;
+            Degrees = degrees;
+        }
+
+        public DmsCoordinate(int degrees, int minutes, Hemisphere hemisphere)
+        {
+            Hemisphere = hemisphere;
+
+            CheckDMSInRange(degrees, minutes, 0.0);
+
+            Degrees = degrees;
+            Minutes = minutes;
+        }
+
+        public DmsCoordinate(int degrees, int minutes, double seconds, Hemisphere hemisphere)
+        {
+            Hemisphere = hemisphere;
+            
+            CheckDMSInRange(degrees, minutes, seconds);
+
+            Degrees = degrees;
+            Minutes = minutes;
+            Seconds = seconds;
+        }
+
+        private void CheckDMSInRange(double degrees, double minutes, double seconds)
+        {
+            var angle = Angle(degrees, minutes, seconds);
+            var exceptionMessage = "The sum of the degrees, minutes and seconds yields a value greater than ";
+            switch (Hemisphere)
+            {
+                case Hemisphere.North:
+                case Hemisphere.South:
+                    if (angle < 0 || angle > MaxNorthSouthAngle)
+                        throw new ArgumentOutOfRangeException(string.Concat(exceptionMessage, MaxNorthSouthAngle));
+
+                    break;
+                case Hemisphere.East:
+                    if (angle < 0 || angle > MaxEastWestAngle)
+                        throw new ArgumentOutOfRangeException(string.Concat(exceptionMessage, MaxEastWestAngle));
+
+                    break;
+                case Hemisphere.West:
+                    if (angle < 0 || angle >= MaxEastWestAngle)
+                    {
+                        exceptionMessage = "The sum of the degrees, minutes and seconds yields a value greater than or equal to ";
+                        throw new ArgumentOutOfRangeException(string.Concat(exceptionMessage, MaxEastWestAngle));
+                    }
+
+                    break;
+            }
+        }
+
+        private double Angle(double degrees, double minutes, double seconds) => degrees + minutes / 60.0 + seconds / 3600.0;
 
         public override bool Equals(object obj)
         {
@@ -159,7 +288,7 @@ namespace GeoFunctions.Core.Coordinates.Structs
             return dmsCoordinateFormatHelper;
         }
 
-        private static void CorrectIfSecondsGreaterThan60(DmsCoordinateFormatHelper dmsCoordinateFormatHelper, ref double minutes, ref double seconds)
+        private static void CorrectIfSecondsGreaterThan60(DmsCoordinateFormatHelper dmsCoordinateFormatHelper, ref int minutes, ref double seconds)
         {
             if (dmsCoordinateFormatHelper.SecondsRequested)
             {
@@ -184,7 +313,7 @@ namespace GeoFunctions.Core.Coordinates.Structs
             }
         }
 
-        private static void CorrectIfMinutesGreaterThan60(DmsCoordinateFormatHelper dmsCoordinateFormatHelper, ref double degrees, ref double minutes)
+        private static void CorrectIfMinutesGreaterThan60(DmsCoordinateFormatHelper dmsCoordinateFormatHelper, ref int degrees, ref int minutes)
         {
             if (dmsCoordinateFormatHelper.MinutesRequested)
             {
@@ -194,7 +323,7 @@ namespace GeoFunctions.Core.Coordinates.Structs
                 foreach (var degreesElementHelper in degreesElementHelpers)
                 {
                     var strMins = minutes.ToString(degreesElementHelper.FormatSpecifier);
-                    minutes = Double.Parse(strMins);
+                    minutes = Convert.ToInt32(double.Parse(strMins));
                     if (minutes >= 60)
                     {
                         minutes -= 60;

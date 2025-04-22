@@ -13,38 +13,42 @@ namespace GeoFunctions.Core.Coordinates
         protected DmsCoordinate CalculateDmsCoordinate(Hemisphere hemisphere) 
         {
             var value = Math.Abs(Angle.Value);
-            var degrees = Math.Floor(value);
-            var minutes = Math.Floor((value - degrees) * 60.0);
+            var degrees = Convert.ToInt32(Math.Floor(value));
+            var minutes = Convert.ToInt32(Math.Floor((value - degrees) * 60.0));
             var seconds = ((value - degrees) * 60.0 - minutes) * 60.0;
 
             CorrectIfSecondsGreaterThan60(ref minutes, ref seconds);
             CorrectIfMinutesGreaterThan60(ref degrees, ref minutes);
 
-            return new DmsCoordinate()
-            {
-                Degrees = degrees,
-                Minutes = minutes,
-                Seconds = seconds,
-                Hemisphere = hemisphere
-            };
+            return new DmsCoordinate(degrees, minutes, seconds, hemisphere);
         }
 
-        private static void CorrectIfSecondsGreaterThan60(ref double minutes, ref double seconds)
+        private static void CorrectIfSecondsGreaterThan60(ref int minutes, ref double seconds)
         {
             if (seconds < 60.0)
                 return;
 
             seconds -= 60.0;
-            minutes += 1.0;
+            if (seconds < 0)
+            {
+                seconds = 0;
+            }
+
+            minutes += 1;
         }
 
-        private static void CorrectIfMinutesGreaterThan60(ref double degrees, ref double minutes)
+        private static void CorrectIfMinutesGreaterThan60(ref int degrees, ref int minutes)
         {
             if (minutes < 60.0)
                 return;
 
-            minutes -= 60.0;
-            degrees += 1.0;
+            minutes -= 60;
+            if (minutes < 0)
+            {
+                minutes = 0;
+            }
+
+            degrees += 1;
         }
 
         public override string ToString()

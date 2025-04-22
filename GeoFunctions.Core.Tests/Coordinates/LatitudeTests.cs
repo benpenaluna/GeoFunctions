@@ -136,18 +136,12 @@ namespace GeoFunctions.Core.Tests.Coordinates
         }
 
         [Theory]
-        [InlineData(-37.6885966980243, 37.0, 41.0, 18.9481128874741)]
-        [InlineData(37.8059488030474, 37.0, 48.0, 21.4156909706401)]
-        public void Latitude_CanConvertToDms(double angle, double degrees, double minutes, double seconds)
+        [InlineData(-37.6885966980243, 37, 41, 18.9481128874741)]
+        [InlineData(37.8059488030474, 37, 48, 21.4156909706401)]
+        public void Latitude_CanConvertToDms(double angle, int degrees, int minutes, double seconds)
         {
             var expectedHemisphere = angle >= 0 ? Hemisphere.North : Hemisphere.South;
-            var expected = new DmsCoordinate()
-            {
-                Degrees = degrees,
-                Minutes = minutes,
-                Seconds = seconds,
-                Hemisphere = expectedHemisphere
-            };
+            var expected = new DmsCoordinate(degrees, minutes, seconds, expectedHemisphere);
 
             var sut = new Latitude(angle);
             var result = sut.DmsCoordinate;
