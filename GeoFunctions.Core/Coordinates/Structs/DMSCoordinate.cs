@@ -90,8 +90,8 @@ namespace GeoFunctions.Core.Coordinates.Structs
                     (_hemisphere == Hemisphere.East || _hemisphere == Hemisphere.West) &&
                     (Angle(Degrees, Minutes, Seconds) > MaxNorthSouthAngle))
                 {
-                    var exceptionMessage = "The sum of the degrees, minutes and seconds yields a value greater than ";
-                    throw new ArgumentOutOfRangeException(string.Concat(exceptionMessage, MaxNorthSouthAngle));
+                    var exceptionMessage = $"Changing Hemispehere of North or South cause the sum of the degrees, minutes and seconds to be greater than {MaxNorthSouthAngle}";
+                    throw new ArgumentOutOfRangeException(exceptionMessage);
                 }
                 
                 _hemisphere = value;
@@ -130,6 +130,11 @@ namespace GeoFunctions.Core.Coordinates.Structs
             Seconds = seconds;
         }
 
+        public DmsCoordinate(IAngle angle, Hemisphere hemisphere)
+        {
+            ConvertAngleToDms(angle, hemisphere);
+        }
+
         private void CheckDMSInRange(double degrees, double minutes, double seconds)
         {
             var angle = Angle(degrees, minutes, seconds);
@@ -138,20 +143,20 @@ namespace GeoFunctions.Core.Coordinates.Structs
             {
                 case Hemisphere.North:
                 case Hemisphere.South:
-                    if (angle < 0 || angle > MaxNorthSouthAngle)
+                    if (Math.Abs(angle) < 0 || Math.Abs(angle) > MaxNorthSouthAngle)
                         throw new ArgumentOutOfRangeException(string.Concat(exceptionMessage, MaxNorthSouthAngle));
 
                     break;
                 case Hemisphere.East:
-                    if (angle < 0 || angle > MaxEastWestAngle)
+                    if (Math.Abs(angle) < 0 || Math.Abs(angle) > MaxEastWestAngle)
                         throw new ArgumentOutOfRangeException(string.Concat(exceptionMessage, MaxEastWestAngle));
 
                     break;
                 case Hemisphere.West:
-                    if (angle < 0 || angle >= MaxEastWestAngle)
+                    if (Math.Abs(angle) < 0 || Math.Abs(angle) >= MaxEastWestAngle)
                     {
-                        exceptionMessage = "The sum of the degrees, minutes and seconds yields a value greater than or equal to ";
-                        throw new ArgumentOutOfRangeException(string.Concat(exceptionMessage, MaxEastWestAngle));
+                        exceptionMessage = $"The sum of the degrees, minutes and seconds yields a value greater than or equal to {MaxEastWestAngle}";
+                        throw new ArgumentOutOfRangeException(exceptionMessage);
                     }
 
                     break;
@@ -171,6 +176,15 @@ namespace GeoFunctions.Core.Coordinates.Structs
                    Math.Abs(Minutes - other.Minutes) < Tolerance && 
                    Math.Abs(Seconds - other.Seconds) < Tolerance && 
                    Hemisphere == other.Hemisphere;
+        }
+        public static bool operator ==(DmsCoordinate left, DmsCoordinate right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(DmsCoordinate left, DmsCoordinate right)
+        {
+            return !(left == right);
         }
 
         public override int GetHashCode()
@@ -200,6 +214,23 @@ namespace GeoFunctions.Core.Coordinates.Structs
                 formatProvider = CultureInfo.InvariantCulture;
 
             return FormatString(format, formatProvider);
+        }
+
+        public static DmsCoordinate ConvertAngleToDms(IAngle angle, Hemisphere hemisphere)
+        {
+            return ConvertAngleToDms(angle.Value, hemisphere);
+        }
+
+        public static DmsCoordinate ConvertAngleToDms(double angle, Hemisphere hemisphere)
+        {
+            var degrees = Convert.ToInt32(Math.Floor(Math.Abs(angle)));
+            var minutes = Convert.ToInt32(Math.Floor((Math.Abs(angle) - degrees) * 60.0));
+            var seconds = ((Math.Abs(angle) - degrees) * 60.0 - minutes) * 60.0;
+
+            CorrectIfSecondsGreaterThan60(ref minutes, ref seconds);
+            CorrectIfMinutesGreaterThan60(ref degrees, ref minutes);
+
+            return new DmsCoordinate(degrees, minutes, seconds, hemisphere);
         }
 
         private string FormatString(string format, IFormatProvider formatProvider)
@@ -329,6 +360,20 @@ namespace GeoFunctions.Core.Coordinates.Structs
             }
         }
 
+        private static void CorrectIfSecondsGreaterThan60(ref int minutes, ref double seconds)
+        {
+            if (seconds < 60.0)
+                return;
+
+            seconds -= 60.0;
+            if (seconds < 0)
+            {
+                seconds = 0;
+            }
+
+            minutes += 1;
+        }
+
         private static void CorrectIfMinutesGreaterThan60(DmsCoordinateFormatHelper dmsCoordinateFormatHelper, ref int degrees, ref int minutes)
         {
             if (dmsCoordinateFormatHelper.MinutesRequested)
@@ -352,6 +397,20 @@ namespace GeoFunctions.Core.Coordinates.Structs
                     }
                 }
             }
+        }
+
+        private static void CorrectIfMinutesGreaterThan60(ref int degrees, ref int minutes)
+        {
+            if (minutes < 60.0)
+                return;
+
+            minutes -= 60;
+            if (minutes < 0)
+            {
+                minutes = 0;
+            }
+
+            degrees += 1;
         }
 
         private void FormatHemisphere(ref DmsCoordinateFormatHelper helper)

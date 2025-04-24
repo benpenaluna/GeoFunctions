@@ -296,5 +296,43 @@ namespace GeoFunctions.Core.Tests.Coordinates.Structs
 
             Assert.Equal(expected, result);
         }
+
+        [Theory]
+        [InlineData(45, 45, 0.0,Hemisphere.North, 45.75, Hemisphere.North)]
+        [InlineData(37, 41, 18.948112887474053, Hemisphere.North, 37.6885966980243, Hemisphere.North)]
+        [InlineData(89, 59, 59.999999999641886, Hemisphere.North, 89.9999999999999, Hemisphere.North)]
+        [InlineData(89, 59, 59.999999999948841, Hemisphere.North, 89.99999999999999, Hemisphere.North)]
+        [InlineData(90, 0, 0.0, Hemisphere.North, 89.999999999999999, Hemisphere.North)]
+        [InlineData(0, 0, 0.000000000360000, Hemisphere.North, 0.0000000000001, Hemisphere.North)]
+        [InlineData(0, 0, 0.000000000036000, Hemisphere.North, 0.00000000000001, Hemisphere.North)]
+        [InlineData(0, 0, 0.000000000003600, Hemisphere.North, 0.000000000000001, Hemisphere.North)]
+        [InlineData(0, 0, 0.000000000000360, Hemisphere.North, 0.0000000000000001, Hemisphere.North)]
+        [InlineData(0, 0, 0.000000000000036, Hemisphere.North, 0.00000000000000001, Hemisphere.North)]
+        [InlineData(0, 0, 0.0000000000000036, Hemisphere.North, 0.000000000000000001, Hemisphere.North)]
+        [InlineData(0, 0, 0.00000000000000036, Hemisphere.North, 0.0000000000000000001, Hemisphere.North)]
+        [InlineData(45, 45, 0.0, Hemisphere.South, 45.75, Hemisphere.South)]
+        [InlineData(37, 41, 18.948112887474053, Hemisphere.South, 37.6885966980243, Hemisphere.South)]
+        [InlineData(89, 59, 59.999999999641886, Hemisphere.South, 89.9999999999999, Hemisphere.South)]
+        [InlineData(89, 59, 59.999999999948841, Hemisphere.South, 89.99999999999999, Hemisphere.South)]
+        [InlineData(90, 0, 0.0, Hemisphere.South, 89.999999999999999, Hemisphere.South)]
+        [InlineData(0, 0, 0.00000000000000036, Hemisphere.South, 0.0000000000000000001, Hemisphere.South)]
+        [InlineData(90, 0, 0.00000000000000036, Hemisphere.East, 90.0000000000000000001, Hemisphere.East)]
+        [InlineData(37, 41, 18.948112887474053, Hemisphere.East, 37.6885966980243, Hemisphere.East)]
+        [InlineData(179, 59, 59.999999999590727, Hemisphere.East, 179.9999999999999, Hemisphere.East)]
+        [InlineData(180, 0, 0.0, Hemisphere.East, 179.99999999999999, Hemisphere.East)]
+        [InlineData(0, 0, 0.00000000000000036, Hemisphere.East, 0.0000000000000000001, Hemisphere.East)]
+        [InlineData(90, 0, 0.00000000000000036, Hemisphere.West, 90.0000000000000000001, Hemisphere.West)]
+        [InlineData(37, 41, 18.948112887474053, Hemisphere.West, 37.6885966980243, Hemisphere.West)]
+        [InlineData(179, 59, 59.999999999590727, Hemisphere.West, 179.9999999999999, Hemisphere.West)]
+        [InlineData(0, 0, 0.00000000000000036, Hemisphere.West, 0.0000000000000000001, Hemisphere.West)]
+        public void DmsCoordinate_AngleCorrectlyConvertsToDMS(int expectedDegrees, int expectedMinutes, double expectedSeconds, Hemisphere expectedHemisphere, 
+                                                              double angle, Hemisphere hemisphere)
+        {
+            var expected = new DmsCoordinate(expectedDegrees, expectedMinutes, expectedSeconds, expectedHemisphere);
+            
+            var sut = DmsCoordinate.ConvertAngleToDms(angle, hemisphere);
+
+            Assert.Equal(expected, sut);
+        }
     }
 }
